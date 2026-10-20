@@ -18,7 +18,7 @@ Bubble由来frontend、114個のlibretro core、RetroArch、PicoArch、単体emu
 - p3（ext4、2,176 MiB）: app payload実測値+256 MiBの余裕から算出したmanaged Runtime/state seed
 - 初回起動: 中断再開可能な手順でp3を8 GiBへ拡張し、残領域へp4 `PLUMOS`を作成。最小カード容量14 GiB
 - stock p2の既存データ: plumOS候補へコピーしない
-- Wi‑Fi: stock RTL8821CS moduleはkernel ABI不一致。明示許可した強制load経路はdebug実験で、release合格条件ではない
+- Wi‑Fi: live stockOSで確認したSDIO `02D0:A9A6`向けのABI一致`bcmdhd`、BCM43438A1 firmware、AP6212A NVRAMを収録。不一致だったoffline `8821cs.ko`と強制load経路は使用しない
 
 ## ビルド
 
@@ -46,7 +46,7 @@ output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-vali
 output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-validation.7z
 ```
 
-ブート資産はGit管理外の`artifacts/vendor/mini-plus-stock-source/`に置き、各ファイルを固定ハッシュで検証します。stock `SYSTEM`本体は解析専用で、生成イメージへコピーしません。現在のrawは2,902,458,368 bytes、検証済み7zは481,027,169 bytesです。
+ブート資産はGit管理外の`artifacts/vendor/mini-plus-stock-source/`に置き、各ファイルを固定ハッシュで検証します。stock `SYSTEM`本体は解析専用で、生成イメージへコピーしません。rawは2,902,458,368 bytesで、配布用の検証済み7zは500 MB未満です。
 
 ## 重要な状態表示
 

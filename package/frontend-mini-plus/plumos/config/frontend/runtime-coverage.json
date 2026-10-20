@@ -13815,7 +13815,7 @@
   "release_blockers": [
     "MPLUS-FE-01",
     "MPLUS-GPU-01",
-    "MPLUS-NET-01",
+    "MPLUS-NET-02",
     "MPLUS-REL-01"
   ]
 }

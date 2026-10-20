@@ -239,7 +239,7 @@ def main() -> int:
         "ownership_policies": ownership,
         "systems": covered_systems,
         "release_complete": False,
-        "release_blockers": ["MPLUS-FE-01", "MPLUS-GPU-01", "MPLUS-NET-01", "MPLUS-REL-01"],
+        "release_blockers": ["MPLUS-FE-01", "MPLUS-GPU-01", "MPLUS-NET-02", "MPLUS-REL-01"],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

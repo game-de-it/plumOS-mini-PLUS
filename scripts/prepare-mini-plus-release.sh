@@ -6,6 +6,7 @@ version=${1:-0.1.0-rc1}
 image=${2:-$repo_root/output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-rc1-full-stack-validation.img}
 source_notes=$repo_root/docs/releases/$version.md
 source_manifest=${image%/*}/image.manifest
+acceptance_manifest=${3:-$repo_root/docs/validation/$version-mini-plus-device-acceptance.env}
 seven_zip=${SEVEN_ZIP:-$(command -v 7zz || command -v 7z || true)}
 release_name=plumos-mini-plus-release-v$version
 release_dir=$repo_root/dist/$release_name
@@ -16,6 +17,10 @@ archive_name=plumos-mini-plus-v$version-sd-image.7z
 [ -f "$image" ] || { echo "missing image: $image" >&2; exit 2; }
 [ -f "$source_manifest" ] || { echo "missing image manifest: $source_manifest" >&2; exit 2; }
 [ -f "$source_notes" ] || { echo "missing release notes: $source_notes" >&2; exit 2; }
+[ -f "$acceptance_manifest" ] || {
+    echo "missing explicit device acceptance manifest: $acceptance_manifest" >&2
+    exit 2
+}
 [ -n "$seven_zip" ] || { echo "7z or 7zz is required" >&2; exit 2; }
 [ -z "$(git -C "$repo_root" status --short)" ] || {
     echo "refusing release preparation from a dirty worktree" >&2
@@ -36,8 +41,16 @@ actual_image_sha=$(shasum -a 256 "$image" | awk '{print $1}')
     echo "image checksum mismatch" >&2
     exit 1
 }
-grep -q '^source_ref=0a3a3b6$' "$source_manifest"
+image_source_ref=$(awk -F= '$1 == "source_ref" {print $2}' "$source_manifest")
+[ -n "$image_source_ref" ] || { echo 'image manifest has no source_ref' >&2; exit 1; }
 grep -q '^publishable=no$' "$source_manifest"
+grep -q '^format=plumos-mini-plus-device-acceptance-v1$' "$acceptance_manifest"
+grep -q "^image_sha256=$actual_image_sha$" "$acceptance_manifest"
+grep -q '^full_image_boot=yes$' "$acceptance_manifest"
+grep -q '^block_readback=yes$' "$acceptance_manifest"
+grep -q '^physical_cold_boots=3$' "$acceptance_manifest"
+grep -q '^maintainer_accepted=yes$' "$acceptance_manifest"
+grep -q '^release_approved=yes$' "$acceptance_manifest"
 
 mkdir -p "$repo_root/dist" "$stage_dir"
 cleanup() {
@@ -72,7 +85,7 @@ release_source_ref=$(git -C "$repo_root" rev-parse HEAD)
     printf 'version=%s\n' "$version"
     printf 'prerelease=no\n'
     printf 'release_source_ref=%s\n' "$release_source_ref"
-    printf 'image_source_ref=0a3a3b6\n'
+    printf 'image_source_ref=%s\n' "$image_source_ref"
     printf 'image_file=%s\n' "$raw_name"
     printf 'image_sha256=%s\n' "$actual_image_sha"
     printf 'archive_file=%s\n' "$archive_name"
@@ -80,6 +93,8 @@ release_source_ref=$(git -C "$repo_root" rev-parse HEAD)
     printf 'image_internal_publishable=no\n'
     printf 'promotion=maintainer-accepted-exact-byte-image\n'
     printf 'physical_cold_boots=3\n'
+    printf 'acceptance_manifest_sha256=%s\n' \
+        "$(shasum -a 256 "$acceptance_manifest" | awk '{print $1}')"
     printf 'user_media_included=no\n'
     printf 'publication_complete=no\n'
 } >"$stage_dir/manifest.txt"

@@ -68,8 +68,17 @@ e2fsck -fn "$verify/runtime.ext4" >/dev/null
 (cd "$verify/matching" && sha256sum -c checksums.sha256)
 cmp "$boot_source/Image" "$verify/matching/Image"
 cmp "$initramfs" "$verify/matching/initramfs-plumos-mini-plus-external-probe.cpio.gz"
-cmp "$boot_source/dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip/rk3566-gkd-geek-bbg.dtb" \
-    "$verify/matching/dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip/rk3566-gkd-geek-bbg.dtb"
+dtb_root=dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip
+for relative in \
+    rk3566-gkdmini-pro.dtb \
+    not_gsensor/rk3566-gkdmini-pro.dtb \
+    with_gsensorHAT/rk3566-gkdmini-pro.dtb \
+    with_gsensorJS/rk3566-gkdmini-pro.dtb \
+    overlay/rk3568-fiq-debugger-uart2m0.dtbo \
+    overlay/rk3568-disable-npu.dtbo \
+    overlay/rockchip-fixup.scr; do
+    cmp "$boot_source/$dtb_root/$relative" "$verify/matching/$dtb_root/$relative"
+done
 grep -q '^p2_direct_boot=not-yet-proven$' "$verify/matching/matching-bundle.manifest"
 grep -q '^final_p2_format=no$' "$verify/matching/matching-bundle.manifest"
 

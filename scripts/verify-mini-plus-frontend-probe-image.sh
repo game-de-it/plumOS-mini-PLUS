@@ -43,7 +43,7 @@ mkdir -p "$verify/matching" "$verify/initramfs"
 expected_size=$(awk -F= '$1 == "image_size" {print $2}' "$manifest")
 expected_sha=$(awk -F= '$1 == "image_sha256" {print $2}' "$manifest")
 expected_p2_sha=$(awk -F= '$1 == "p2_raw_partition_sha256" {print $2}' "$base_manifest")
-grep -q '^format=plumos-mini-plus-full-stack-validation-image-v2$' "$base_manifest"
+grep -q '^format=plumos-mini-plus-full-stack-validation-image-v3$' "$base_manifest"
 test "$expected_size" -eq 3036676096
 test "$(stat -c '%s' "$image")" = "$expected_size"
 test "$(sha256sum "$image" | cut -d' ' -f1)" = "$expected_sha"
@@ -70,10 +70,21 @@ e2fsck -fn "$verify/runtime.ext4" >/dev/null
 (cd "$verify/matching" && sha256sum -c checksums.sha256)
 cmp "$boot_source/Image" "$verify/matching/Image"
 cmp "$initramfs" "$verify/matching/initramfs-plumos-mini-plus-external-probe.cpio.gz"
-cmp "$boot_source/dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip/rk3566-gkd-geek-bbg.dtb" \
-    "$verify/matching/dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip/rk3566-gkd-geek-bbg.dtb"
-grep -q '^p2_direct_boot=not-yet-proven$' "$verify/matching/matching-bundle.manifest"
-grep -q '^final_p2_format=no$' "$verify/matching/matching-bundle.manifest"
+dtb_root=dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip
+for relative in \
+    rk3566-gkdmini-pro.dtb \
+    not_gsensor/rk3566-gkdmini-pro.dtb \
+    with_gsensorHAT/rk3566-gkdmini-pro.dtb \
+    with_gsensorJS/rk3566-gkdmini-pro.dtb \
+    overlay/rk3568-fiq-debugger-uart2m0.dtbo \
+    overlay/rk3568-disable-npu.dtbo \
+    overlay/rockchip-fixup.scr; do
+    cmp "$boot_source/$dtb_root/$relative" "$verify/matching/$dtb_root/$relative"
+done
+grep -q '^p2_integrity_role=full-matching-set-readback$' \
+    "$verify/matching/matching-bundle.manifest"
+grep -q '^final_p2_format=raw-newc-padded-to-64MiB$' \
+    "$verify/matching/matching-bundle.manifest"
 
 MTOOLS_SKIP_CHECK=1 mcopy -i "$verify/flash.fat" \
     ::/System/system-a.squashfs "$verify/system-a.squashfs"
@@ -123,7 +134,7 @@ readelf -h "$verify/initramfs/bin/busybox" | grep -q 'Machine:.*AArch64'
 
 debugfs -R 'cat /plumos/external-initramfs-probe.manifest' \
     "$verify/runtime.ext4" 2>/dev/null > "$verify/runtime.manifest"
-grep -q '^format=plumos-mini-plus-full-stack-runtime-validation-v2$' "$verify/runtime.manifest"
+grep -q '^format=plumos-mini-plus-full-stack-runtime-validation-v3$' "$verify/runtime.manifest"
 grep -q '^authorized=yes$' "$verify/runtime.manifest"
 grep -q '^app_layer=frontend,nextcommander,music-player,network-services,retroarch,libretro-cores,picoarch,standalone,pyxel,portmaster$' "$verify/runtime.manifest"
 grep -q '^partition_expansion=p3-seed-2304MiB-to-8192MiB$' "$verify/runtime.manifest"
@@ -135,9 +146,13 @@ fi
 
 MTOOLS_SKIP_CHECK=1 mtype -i "$verify/flash.fat" \
     ::/plumos-image.manifest > "$verify/plumos-image.manifest"
-grep -q '^layout=validation-seed-v2,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-2304MiB,no-p4$' \
+grep -q '^layout=validation-seed-v3,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-2304MiB,no-p4$' \
     "$verify/plumos-image.manifest"
-grep -q '^format=plumos-mini-plus-full-stack-validation-image-v2$' "$verify/plumos-image.manifest"
+grep -q '^format=plumos-mini-plus-full-stack-validation-image-v3$' "$verify/plumos-image.manifest"
+grep -q '^p3_size_calculation=ceil-app-plus-headroom-to-128MiB$' \
+    "$verify/plumos-image.manifest"
+grep -q '^physical_boot_status=unverified-full-image$' \
+    "$verify/plumos-image.manifest"
 grep -q '^frontend=cpu-drm-dumb-buffer$' "$verify/plumos-image.manifest"
 grep -q '^retroarch=software-plain-drm-and-hardware-kms-egl-gles-rgui$' \
     "$verify/plumos-image.manifest"
@@ -155,17 +170,18 @@ debugfs -R "rdump /plumos $verify/app-layer" "$verify/runtime.ext4" >/dev/null 2
 app=$verify/app-layer/plumos
 (cd "$app" && sha256sum -c checksums.sha256)
 for component in frontend nextcommander music-player network-services retroarch libretro-cores picoarch standalone pyxel portmaster; do
-    (cd "$app" && sha256sum -c "components/$component/checksums.sha256")
+    test -s "$app/components/$component/manifest.json"
+    test -s "$app/components/$component/checksums.sha256"
 done
 "$repo_root/tests/test-mini-plus-wifi-first-connect.sh" \
     "$app/bin/plumos-network-control"
 jq -e '.device == "mini-plus" and .user_media_included == false and
     .catalog_complete == true and .release_complete == false and
-    .publishable == true and (.non_publishable_reasons | length) == 0 and
+    .publishable == false and (.non_publishable_reasons | length) >= 1 and
     .core_baseline == "all-114-source-records"' \
     "$app/manifest.json" >/dev/null
 "$repo_root/scripts/audit-mini-plus-release-content.py" \
-    --repo-root "$repo_root" --app-root "$app"
+    --repo-root "$repo_root" --app-root "$app" --allow-non-publishable-candidate
 PLUMOS_MINI_PLUS_APP_ROOT="$app" \
     "$repo_root/scripts/verify-mini-plus-emulator-catalog.sh"
 LD_LIBRARY_PATH="$app/emulator/lib" \

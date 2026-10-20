@@ -11,14 +11,12 @@ case "$image" in
     *) echo 'image must be inside the repository workspace' >&2; exit 2 ;;
 esac
 case "$(basename -- "$image")" in
+    *-full-stack-validation.img)
+        exec "$repo_root/scripts/verify-mini-plus-frontend-probe-image.sh" "$image"
+        ;;
     *-full-host-candidate.img)
-        container_work=/work/work/mini-plus-full-image
-        expected_size=4848615424
-        p2_end=9469951
-        p2_sectors=8388608
-        p2_bytes=4294967296
-        expected_physical=unverified-full-image
-        expected_app=full
+        echo 'refusing withdrawn fixed-4GiB bring-up artifact; build the full-stack validation image' >&2
+        exit 2
         ;;
     *-frontend-host-candidate.img)
         container_work=/work/work/mini-plus-frontend-image

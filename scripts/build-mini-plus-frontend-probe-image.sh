@@ -7,7 +7,13 @@ tools_image=${PLUMOS_MINI_PLUS_TOOLS_IMAGE:-plumos-mini-plus-tools:dev}
 if [ "${1:-}" != "--inside" ]; then
     "$repo_root/scripts/build-mini-plus-frontend-system.sh"
     "$repo_root/scripts/build-mini-plus-external-initramfs.sh"
-    "$repo_root/scripts/build-mini-plus-app-layer.sh"
+    if [ "${PLUMOS_MINI_PLUS_APP_ASSEMBLE_ONLY:-0}" = 1 ]; then
+        PLUMOS_MINI_PLUS_INCLUDE_CAPTURED_VENDOR_GPU=1 \
+            "$repo_root/scripts/build-mini-plus-app-layer.sh" --assemble-only
+    else
+        PLUMOS_MINI_PLUS_INCLUDE_CAPTURED_VENDOR_GPU=1 \
+            "$repo_root/scripts/build-mini-plus-app-layer.sh"
+    fi
     exec docker run --rm --platform linux/arm64 \
         -e SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-}" \
         -e PLUMOS_MINI_PLUS_VERSION="${PLUMOS_MINI_PLUS_VERSION:-0.1.0-dev}" \
@@ -33,7 +39,7 @@ case "$source_epoch" in ''|*[!0-9]*) echo 'invalid SOURCE_DATE_EPOCH' >&2; exit 
 kernel_version=4.19.193-51-rockchip-gb2c01b3d79f2
 initramfs_name=initramfs-plumos-mini-plus-external-probe.cpio.gz
 initramfs=$initramfs_dir/$initramfs_name
-expected_prefix=648078e91860adf21bd4ec8f1fd8a64ce52de0ce24511393b156b920327b4ec2
+expected_prefix=aa8bd95d5d75aaab1977c5e58732d67545221649a08e6b7afda36aee208e26e9
 test "$(stat -c '%s' "$prefix")" -eq 16777216
 test "$(sha256sum "$prefix" | cut -d' ' -f1)" = "$expected_prefix"
 (cd "$system_dir" && sha256sum -c checksums.sha256)
@@ -50,10 +56,14 @@ verify_registered() {
 }
 verify_registered Image "$boot/Image"
 verify_registered boot.cmd "$boot/boot.cmd"
-verify_registered rk3566-gkd-geek-bbg.dtb \
-    "$boot/dtbs/$kernel_version/rockchip/rk3566-gkd-geek-bbg.dtb"
-verify_registered rk3566-gkd-geek-bbg-hdmi.dtb \
-    "$boot/dtbs/$kernel_version/rockchip/rk3566-gkd-geek-bbg-hdmi.dtb"
+verify_registered rk3566-gkdmini-pro.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/rk3566-gkdmini-pro.dtb"
+verify_registered rk3566-gkdmini-pro-not-gsensor.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/not_gsensor/rk3566-gkdmini-pro.dtb"
+verify_registered rk3566-gkdmini-pro-gsensor-hat.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/with_gsensorHAT/rk3566-gkdmini-pro.dtb"
+verify_registered rk3566-gkdmini-pro-gsensor-js.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/with_gsensorJS/rk3566-gkdmini-pro.dtb"
 verify_registered rk3568-fiq-debugger-uart2m0.dtbo \
     "$boot/dtbs/$kernel_version/rockchip/overlay/rk3568-fiq-debugger-uart2m0.dtbo"
 verify_registered rk3568-disable-npu.dtbo \
@@ -72,10 +82,16 @@ cp -a "$app_dir/." "$work/runtime/plumos/"
 dtb_source=$boot/dtbs/$kernel_version
 for tree in "$work/flash" "$work/matching"; do
     dtb_root=$tree/dtbs/$kernel_version/rockchip
-    mkdir -p "$dtb_root/overlay"
+    mkdir -p "$dtb_root/overlay" "$dtb_root/not_gsensor" \
+        "$dtb_root/with_gsensorHAT" "$dtb_root/with_gsensorJS"
     install -m 0644 "$boot/Image" "$tree/Image"
-    install -m 0644 "$dtb_source/rockchip/rk3566-gkd-geek-bbg.dtb" "$dtb_root/"
-    install -m 0644 "$dtb_source/rockchip/rk3566-gkd-geek-bbg-hdmi.dtb" "$dtb_root/"
+    install -m 0644 "$dtb_source/rockchip/rk3566-gkdmini-pro.dtb" "$dtb_root/"
+    install -m 0644 "$dtb_source/rockchip/not_gsensor/rk3566-gkdmini-pro.dtb" \
+        "$dtb_root/not_gsensor/"
+    install -m 0644 "$dtb_source/rockchip/with_gsensorHAT/rk3566-gkdmini-pro.dtb" \
+        "$dtb_root/with_gsensorHAT/"
+    install -m 0644 "$dtb_source/rockchip/with_gsensorJS/rk3566-gkdmini-pro.dtb" \
+        "$dtb_root/with_gsensorJS/"
     for file in rk3568-fiq-debugger-uart2m0.dtbo rk3568-disable-npu.dtbo rockchip-fixup.scr; do
         install -m 0644 "$dtb_source/rockchip/overlay/$file" "$dtb_root/overlay/"
     done
@@ -95,15 +111,16 @@ printf '%s\n' PLUMOS_MINI_PLUS_EXTERNAL_INITRAMFS_PROBE_V1 \
     > "$work/flash/plumos-probe/external-initramfs-authorized.txt"
 
 cat > "$work/matching/matching-bundle.manifest" <<EOF
-format=plumos-mini-plus-raw-matching-bundle-probe-v1
+format=plumos-mini-plus-raw-matching-bundle-v2
 device=mini-plus
 version=$version
 source_ref=$source_ref
 source_date_epoch=$source_epoch
 container=newc-padded-to-partition
 boot_source_in_this_gate=p1-file
-p2_direct_boot=not-yet-proven
-final_p2_format=no
+p2_boot_source=p1-file
+p2_integrity_role=full-matching-set-readback
+final_p2_format=raw-newc-padded-to-64MiB
 publishable=no
 EOF
 (cd "$work/matching" && find . -type f ! -name checksums.sha256 -print | \
@@ -112,20 +129,29 @@ find "$work/matching" -exec touch -h -d "@$source_epoch" {} +
 python3 "$repo_root/scripts/pack-mini-plus-initramfs.py" --uncompressed \
     --mtime "$source_epoch" "$work/matching" "$work/matching-bundle.cpio"
 
-total_sectors=5931008
 boot_start=32768
 boot_sectors=1048576
 matching_start=1081344
 matching_sectors=131072
 runtime_start=1212416
-runtime_sectors=4718592
 matching_bytes=$((matching_sectors * 512))
-runtime_bytes=$((runtime_sectors * 512))
 app_bytes=$(du -sb "$app_dir" | awk '{print $1}')
-test "$app_bytes" -lt $((runtime_bytes - 268435456)) || {
-    echo "app-layer leaves less than 256 MiB free in p3 seed: $app_bytes bytes" >&2
+runtime_headroom_bytes=268435456
+runtime_alignment_bytes=134217728
+runtime_required_bytes=$((app_bytes + runtime_headroom_bytes))
+runtime_bytes=$(( \
+    (runtime_required_bytes + runtime_alignment_bytes - 1) / runtime_alignment_bytes * runtime_alignment_bytes \
+))
+runtime_sectors=$((runtime_bytes / 512))
+runtime_seed_mib=$((runtime_bytes / 1048576))
+# Early userspace deliberately admits only the geometry that has interruption
+# and resume fixtures. App growth must update that contract and its tests rather
+# than silently producing a different partition map.
+test "$runtime_seed_mib" -eq 2304 || {
+    echo "calculated p3 seed is ${runtime_seed_mib} MiB; update the validated storage contract" >&2
     exit 1
 }
+total_sectors=$((runtime_start + runtime_sectors))
 test "$(stat -c '%s' "$work/matching-bundle.cpio")" -lt "$matching_bytes"
 truncate -s "$matching_bytes" "$work/matching.raw"
 dd if="$work/matching-bundle.cpio" of="$work/matching.raw" \
@@ -148,7 +174,7 @@ extraboardargs=plumos_external_initramfs_probe=1 plumos_probe_p2_sha256=$matchin
 EOF
 
 cat > "$work/runtime/plumos/external-initramfs-probe.manifest" <<EOF
-format=plumos-mini-plus-full-stack-runtime-validation-v2
+format=plumos-mini-plus-full-stack-runtime-validation-v3
 authorized=yes
 device=mini-plus
 version=$version
@@ -157,13 +183,13 @@ source_date_epoch=$source_epoch
 runtime_policy=managed-runtime-log-device-config-and-separate-userdata
 app_layer=frontend,nextcommander,music-player,network-services,retroarch,libretro-cores,picoarch,standalone,pyxel,portmaster
 frontend_boot=automatic
-partition_expansion=p3-seed-2304MiB-to-8192MiB
+partition_expansion=p3-seed-${runtime_seed_mib}MiB-to-8192MiB
 p4_creation=first-boot-fat32-PLUMOS
 publishable=no
 EOF
 
 cat > "$work/flash/plumos-image.manifest" <<EOF
-format=plumos-mini-plus-full-stack-validation-image-v2
+format=plumos-mini-plus-full-stack-validation-image-v3
 device=mini-plus
 architecture=aarch64
 version=$version
@@ -175,9 +201,13 @@ external_initramfs_sha256=$(sha256sum "$initramfs" | cut -d' ' -f1)
 system_a_sha256=$system_sha
 system_b_sha256=$system_sha
 p2_raw_partition_sha256=$matching_sha
-layout=validation-seed-v2,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-2304MiB,no-p4
+layout=validation-seed-v3,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-${runtime_seed_mib}MiB,no-p4
 boot_source=p1-file
+matching_bundle=full-kernel-dtb-initramfs-set-verified-before-switch-root
 app_layer_sha256=$(sha256sum "$app_dir/checksums.sha256" | cut -d' ' -f1)
+app_layer_bytes=$app_bytes
+p3_minimum_headroom_bytes=$runtime_headroom_bytes
+p3_size_calculation=ceil-app-plus-headroom-to-128MiB
 frontend=cpu-drm-dumb-buffer
 retroarch=software-plain-drm-and-hardware-kms-egl-gles-rgui
 core_baseline=all-114-source-records
@@ -185,11 +215,12 @@ catalog_systems=97
 catalog_launch_profile_occurrences=196
 user_media_included=no
 managed_firmware_assets=blueMSX-C-BIOS,DraStic-packaged-BIOS-project-approved-inclusion
-p2_direct_boot=not-yet-proven
+p2_direct_boot=not-required-p1-file-boot-with-p2-full-set-verification
 partition_expansion=first-boot-p3-to-8192MiB
 p4_creation=first-boot-fat32-PLUMOS-to-card-end
 minimum_card_size_mib=14336
 final_partition_contract=host-candidate
+physical_boot_status=unverified-full-image
 publishable=no
 EOF
 
@@ -232,7 +263,7 @@ e2fsck -fn "$runtime_ext4" >/dev/null
 image_size=$(stat -c '%s' "$image_path")
 image_sha=$(sha256sum "$image_path" | cut -d' ' -f1)
 cat > "$out_dir/image.manifest" <<EOF
-format=plumos-mini-plus-full-stack-validation-image-v2
+format=plumos-mini-plus-full-stack-validation-image-v3
 file=$(basename "$image_path")
 image_size=$image_size
 image_sha256=$image_sha
@@ -242,10 +273,14 @@ boot_prefix_sha256=$expected_prefix
 p1_filesystem_sha256=$(sha256sum "$boot_fat" | cut -d' ' -f1)
 p2_raw_partition_sha256=$matching_sha
 p3_filesystem_sha256=$(sha256sum "$runtime_ext4" | cut -d' ' -f1)
+app_layer_bytes=$app_bytes
+p3_seed_mib=$runtime_seed_mib
+p3_minimum_headroom_bytes=$runtime_headroom_bytes
 first_boot_p3_target_mib=8192
 first_boot_p4_label=PLUMOS
 minimum_card_size_mib=14336
 final_partition_contract=host-candidate
+physical_boot_status=unverified-full-image
 publishable=no
 EOF
 (cd "$out_dir" && sha256sum "$(basename "$image_path")" image.manifest > checksums.sha256)

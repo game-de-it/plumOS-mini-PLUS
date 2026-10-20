@@ -31,7 +31,7 @@ case "$source_epoch" in ''|*[!0-9]*) echo 'invalid SOURCE_DATE_EPOCH' >&2; exit 
 kernel_version=4.19.193-51-rockchip-gb2c01b3d79f2
 initramfs_name=initramfs-plumos-mini-plus-external-probe.cpio.gz
 initramfs=$initramfs_dir/$initramfs_name
-expected_prefix=648078e91860adf21bd4ec8f1fd8a64ce52de0ce24511393b156b920327b4ec2
+expected_prefix=aa8bd95d5d75aaab1977c5e58732d67545221649a08e6b7afda36aee208e26e9
 test "$(stat -c '%s' "$prefix")" -eq 16777216
 test "$(sha256sum "$prefix" | cut -d' ' -f1)" = "$expected_prefix"
 (cd "$system_dir" && sha256sum -c checksums.sha256)
@@ -48,10 +48,14 @@ verify_registered() {
 }
 verify_registered Image "$boot/Image"
 verify_registered boot.cmd "$boot/boot.cmd"
-verify_registered rk3566-gkd-geek-bbg.dtb \
-    "$boot/dtbs/$kernel_version/rockchip/rk3566-gkd-geek-bbg.dtb"
-verify_registered rk3566-gkd-geek-bbg-hdmi.dtb \
-    "$boot/dtbs/$kernel_version/rockchip/rk3566-gkd-geek-bbg-hdmi.dtb"
+verify_registered rk3566-gkdmini-pro.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/rk3566-gkdmini-pro.dtb"
+verify_registered rk3566-gkdmini-pro-not-gsensor.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/not_gsensor/rk3566-gkdmini-pro.dtb"
+verify_registered rk3566-gkdmini-pro-gsensor-hat.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/with_gsensorHAT/rk3566-gkdmini-pro.dtb"
+verify_registered rk3566-gkdmini-pro-gsensor-js.dtb \
+    "$boot/dtbs/$kernel_version/rockchip/with_gsensorJS/rk3566-gkdmini-pro.dtb"
 verify_registered rk3568-fiq-debugger-uart2m0.dtbo \
     "$boot/dtbs/$kernel_version/rockchip/overlay/rk3568-fiq-debugger-uart2m0.dtbo"
 verify_registered rk3568-disable-npu.dtbo \
@@ -69,10 +73,16 @@ mkdir -p "$work/flash/System" "$work/flash/plumos-probe/original" \
 dtb_source=$boot/dtbs/$kernel_version
 for tree in "$work/flash" "$work/matching"; do
     dtb_root=$tree/dtbs/$kernel_version/rockchip
-    mkdir -p "$dtb_root/overlay"
+    mkdir -p "$dtb_root/overlay" "$dtb_root/not_gsensor" \
+        "$dtb_root/with_gsensorHAT" "$dtb_root/with_gsensorJS"
     install -m 0644 "$boot/Image" "$tree/Image"
-    install -m 0644 "$dtb_source/rockchip/rk3566-gkd-geek-bbg.dtb" "$dtb_root/"
-    install -m 0644 "$dtb_source/rockchip/rk3566-gkd-geek-bbg-hdmi.dtb" "$dtb_root/"
+    install -m 0644 "$dtb_source/rockchip/rk3566-gkdmini-pro.dtb" "$dtb_root/"
+    install -m 0644 "$dtb_source/rockchip/not_gsensor/rk3566-gkdmini-pro.dtb" \
+        "$dtb_root/not_gsensor/"
+    install -m 0644 "$dtb_source/rockchip/with_gsensorHAT/rk3566-gkdmini-pro.dtb" \
+        "$dtb_root/with_gsensorHAT/"
+    install -m 0644 "$dtb_source/rockchip/with_gsensorJS/rk3566-gkdmini-pro.dtb" \
+        "$dtb_root/with_gsensorJS/"
     for file in rk3568-fiq-debugger-uart2m0.dtbo rk3568-disable-npu.dtbo rockchip-fixup.scr; do
         install -m 0644 "$dtb_source/rockchip/overlay/$file" "$dtb_root/overlay/"
     done
@@ -226,4 +236,3 @@ publishable=no
 EOF
 (cd "$out_dir" && sha256sum "$(basename "$image_path")" image.manifest > checksums.sha256)
 echo "miniplus_external_probe_image=result-ok image=$image_path sha256=$image_sha"
-

@@ -25,7 +25,7 @@ target_id=${target_disk#/dev/}
 source_raw=/dev/r$source_id
 target_raw=/dev/r$target_id
 expected_size=124383133696
-expected_prefix_sha=648078e91860adf21bd4ec8f1fd8a64ce52de0ce24511393b156b920327b4ec2
+expected_prefix_sha=aa8bd95d5d75aaab1977c5e58732d67545221649a08e6b7afda36aee208e26e9
 
 disk_field() {
     diskutil info -plist "$1" | plutil -extract "$2" raw -o - -

@@ -1,10 +1,9 @@
 # plumOS mini PLUS Documentation
 
-> This port is at the bring-up stage. Only frontend reachability and basic
-> controller operation have been reported on the device. Features described in
-> the user documentation are Bubble-derived migration targets, not mini-PLUS
-> acceptance evidence. See the [top-level README](../README.md) for the verified
-> scope.
+> The Bubble-compatible full-stack image now passes host integration and archive
+> verification. Only frontend reachability and basic controller operation have
+> been reported on the device; full-stack hardware and Wi-Fi acceptance remain
+> pending. See the [top-level README](../README.md) for the verified scope.
 
 Documentation is separated by audience. Files ending in `.ja.md` are Japanese;
 the corresponding `.md` files are English.
@@ -27,6 +26,7 @@ validation evidence.
 
 - [plumOS implementation checklist (Japanese)](plumos-implementation-checklist.ja.md)
 - [mini PLUS conformance audit, 2026-10-20 (Japanese)](validation/2026-10-20-mini-plus-plumos-conformance-audit.md)
+- [Corrected Bubble-contract host candidate, 2026-10-20 (Japanese)](validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
 
 ## Legal documents
 

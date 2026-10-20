@@ -4,6 +4,10 @@ Date: 2026-10-20
 
 Baseline: `docs/plumos-implementation-checklist.ja.md`
 
+> この文書は4 GiB固定版を検査した**修正前baseline**として保持する。ここで指摘した
+> architecture問題を直した新しいfull-stack候補と再判定は
+> `2026-10-20-mini-plus-bubble-contract-host-candidate.md`に記録した。
+
 Audited full artifact:
 `output/image/mini-plus-full/plumOS-mini-PLUS-0.1.0-dev-full-host-candidate.img`
 

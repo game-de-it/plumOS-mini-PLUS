@@ -5,6 +5,7 @@ repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 builder=$repo_root/scripts/build-mini-plus-frontend-probe-image.sh
 verifier=$repo_root/scripts/verify-mini-plus-frontend-probe-image.sh
 release=$repo_root/scripts/prepare-mini-plus-release.sh
+evidence=$repo_root/docs/validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md
 
 sh -n "$builder" "$verifier" "$release" \
     "$repo_root/scripts/prepare-mini-plus-validation-archive.sh"
@@ -20,6 +21,10 @@ grep -Fq 'format=plumos-mini-plus-full-stack-validation-image-v3' "$builder"
 grep -Fq 'format=plumos-mini-plus-full-stack-validation-image-v3' "$verifier"
 grep -Fq 'physical_cold_boots=3' "$release"
 grep -Fq 'release_approved=yes' "$release"
+grep -Fq '2,902,458,368' "$evidence"
+grep -Fq '481,027,169' "$evidence"
+grep -Fq 'PASS 10' "$evidence"
+grep -Fq 'FAIL 1' "$evidence"
 
 for stale in \
     648078e91860adf21bd4ec8f1fd8a64ce52de0ce24511393b156b920327b4ec2 \

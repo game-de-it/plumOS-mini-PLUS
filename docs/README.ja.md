@@ -1,6 +1,6 @@
 # plumOS mini PLUS ドキュメント
 
-> 現在はfrontend到達と基本controller操作だけを実機確認したbring-up段階です。利用者向け文書の機能一覧はBubble由来の移植目標であり、mini-PLUSでの合格記録ではありません。現在の確認済み範囲は[ルートREADME](../README.ja.md)を参照してください。
+> Bubble互換full-stack imageはhost統合検証とarchive検証まで合格しました。実機ではfrontend到達と基本controller操作だけが確認済みで、full-stackのhardware／Wi-Fi acceptanceは未完了です。現在の確認済み範囲は[ルートREADME](../README.ja.md)を参照してください。
 
 文書は利用対象ごとに分けています。日本語版は`.ja.md`、英語版は`.md`です。
 
@@ -21,6 +21,7 @@ System/app-layer、frontend・emulator起動経路、hardware service、update�
 
 - [plumOS実装チェックリスト](plumos-implementation-checklist.ja.md)
 - [mini PLUS conformance監査（2026-10-20）](validation/2026-10-20-mini-plus-plumos-conformance-audit.md)
+- [Bubble contract修正後host候補（2026-10-20）](validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
 
 ## 法的文書
 

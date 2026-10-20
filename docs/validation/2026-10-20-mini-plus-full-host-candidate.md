@@ -8,7 +8,9 @@ Date: 2026-10-20
 > p2 was fixed rather than calculated from payload use. See
 > `2026-10-20-mini-plus-plumos-conformance-audit.md`. The full image itself has
 > not been physically booted; frontend acceptance belongs only to the separate
-> frontend-only image.
+> frontend-only image. Its generated raw image was removed after withdrawal to
+> avoid accidental flashing and reclaim build space. The replacement is recorded
+> in `2026-10-20-mini-plus-bubble-contract-host-candidate.md`.
 
 ## Result
 

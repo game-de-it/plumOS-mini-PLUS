@@ -2,9 +2,6 @@
   "schema": 1,
   "source": "TODO.md",
   "open_gates": {
-    "MPLUS-ARCH-01": "plumos-conformance",
-    "MPLUS-ARCH-02": "plumos-conformance",
-    "MPLUS-ARCH-03": "plumos-conformance",
     "MPLUS-HW-01": "physical-bringup",
     "MPLUS-HW-02": "physical-bringup",
     "MPLUS-HW-03": "physical-bringup",

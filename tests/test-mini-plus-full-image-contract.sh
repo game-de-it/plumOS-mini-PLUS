@@ -20,5 +20,6 @@ grep -Fq 'test "$expected_size" -eq 2902458368' "$verifier"
 grep -Fq 'refusing withdrawn fixed-4GiB bring-up artifact' "$dispatcher"
 ! grep -Fq 'storage_sectors=8388608' "$builder"
 ! grep -Fq 'p2-ext4-4096MiB' "$builder"
+! grep -Fq '4 GiB ext4 in the full image' "$repo_root/README.md"
 
 echo 'miniplus_full_image_contract=result-ok p1_mib=512 p2_mib=64 p3_mib=2176 p4=first-boot system_ab=yes publishable=no'

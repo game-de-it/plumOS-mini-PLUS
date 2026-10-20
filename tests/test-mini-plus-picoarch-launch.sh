@@ -2,6 +2,14 @@
 set -eu
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+grep -Fq 'calloc(1, length + 1)' \
+    "$repo_root/package/picoarch-mini-plus/patches/picoarch-mini-plus-config-buffer-termination.patch"
+grep -Fq "(*config_ptr)[length] = '\\0';" \
+    "$repo_root/package/picoarch-mini-plus/patches/picoarch-mini-plus-config-buffer-termination.patch"
+grep -Fq 'size_t length = strcspn(src, "\r\n");' \
+    "$repo_root/package/picoarch-mini-plus/patches/picoarch-mini-plus-config-buffer-termination.patch"
+grep -Fq 'if (defbinds) {' \
+    "$repo_root/package/picoarch-mini-plus/patches/picoarch-mini-plus-config-buffer-termination.patch"
 image=${PLUMOS_MINI_PLUS_TOOLS_IMAGE:-plumos-mini-plus-tools:dev}
 if [ "${1:-}" != --inside ]; then
     exec docker run --rm --platform linux/arm64 \
@@ -16,22 +24,29 @@ rom_root=$tmp/roms
 runtime=$tmp/run
 mkdir -p "$root/bin" "$root/picoarch/bin" "$root/picoarch/lib" \
     "$root/emulator/lib" "$root/cores" "$root/share/alsa" "$root/share/picoarch" \
+    "$root/factory-defaults/picoarch/core-options/gb" \
     "$rom_root/nes" "$rom_root/gamegear" "$rom_root/megadrive" \
-    "$rom_root/sega32x" "$runtime"
+    "$rom_root/sega32x" "$rom_root/gb" "$runtime"
 cp package/picoarch-mini-plus/plumos/bin/plumos-picoarch-launch \
     "$root/bin/plumos-picoarch-launch"
 cp package/picoarch-mini-plus/plumos/share/picoarch/rgb565-byte-order.tsv \
     "$root/share/picoarch/rgb565-byte-order.tsv"
 cp package/picoarch-mini-plus/plumos/share/picoarch/rgb565-route-overrides.tsv \
     "$root/share/picoarch/rgb565-route-overrides.tsv"
+cp package/picoarch-mini-plus/plumos/factory-defaults/picoarch/core-options/gb/*.cfg \
+    "$root/factory-defaults/picoarch/core-options/gb/"
 : >"$root/cores/quicknes_libretro.so"
 : >"$root/cores/gearsystem_libretro.so"
 : >"$root/cores/picodrive_libretro.so"
+: >"$root/cores/gambatte_libretro.so"
+: >"$root/cores/gearboy_libretro.so"
+: >"$root/cores/vbam_libretro.so"
 : >"$root/share/alsa/alsa.conf"
 : >"$rom_root/nes/test.nes"
 : >"$rom_root/gamegear/test.gg"
 : >"$rom_root/megadrive/test.md"
 : >"$rom_root/sega32x/test.32x"
+: >"$rom_root/gb/test.gb"
 cat >"$root/bin/plumos-cpu-control" <<'EOF'
 #!/bin/sh
 case $1 in
@@ -64,6 +79,24 @@ PLUMOS_BUSYBOX=/bin/busybox PLUMOS_PICOARCH_SYSTEM=nes \
 grep -Fqx 'picoarch=stage-P19 system=nes core=quicknes rc=0' \
     "$root/logs/session.log"
 test "$(cat "$tmp/normal.rgb565")" = 0
+
+for core in gambatte gearboy vbam; do
+    TEST_TRACE=$tmp/gb-$core PLUMOS_ROOT=$root PLUMOS_ROM_ROOT=$rom_root \
+    PLUMOS_BIOS_ROOT=$tmp/bios PLUMOS_RUNTIME_ROOT=$runtime \
+    PLUMOS_BUSYBOX=/bin/busybox PLUMOS_PICOARCH_SYSTEM=gb \
+        "$root/bin/plumos-picoarch-launch" "$core" "$rom_root/gb/test.gb"
+    cmp "$root/factory-defaults/picoarch/core-options/gb/$core.cfg" \
+        "$root/state/picoarch/gb/.picoarch-$core-gb/picoarch.cfg"
+done
+# A user profile must survive subsequent launches.
+printf '%s\n' 'gearboy_palette = Original' \
+    >"$root/state/picoarch/gb/.picoarch-gearboy-gb/picoarch.cfg"
+TEST_TRACE=$tmp/gb-gearboy-preserve PLUMOS_ROOT=$root PLUMOS_ROM_ROOT=$rom_root \
+PLUMOS_BIOS_ROOT=$tmp/bios PLUMOS_RUNTIME_ROOT=$runtime \
+PLUMOS_BUSYBOX=/bin/busybox PLUMOS_PICOARCH_SYSTEM=gb \
+    "$root/bin/plumos-picoarch-launch" gearboy "$rom_root/gb/test.gb"
+grep -Fqx 'gearboy_palette = Original' \
+    "$root/state/picoarch/gb/.picoarch-gearboy-gb/picoarch.cfg"
 
 TEST_TRACE=$tmp/forced-swap PLUMOS_ROOT=$root PLUMOS_ROM_ROOT=$rom_root \
 PLUMOS_BIOS_ROOT=$tmp/bios PLUMOS_RUNTIME_ROOT=$runtime \

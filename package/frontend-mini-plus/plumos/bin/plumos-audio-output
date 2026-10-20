@@ -6,14 +6,71 @@ RUNTIME_ROOT=${PLUMOS_RUNTIME_ROOT:-/run/plumos}
 AUDIO_DIR=${PLUMOS_AUDIO_RUN_DIR:-$RUNTIME_ROOT/audio}
 CONFIG=${PLUMOS_ALSA_CONFIG_PATH:-$AUDIO_DIR/asound.conf}
 STATUS=${PLUMOS_AUDIO_STATUS_FILE:-$AUDIO_DIR/output.status}
+PLAYBACK_PCM=${PLUMOS_PLAYBACK_PCM:-/dev/snd/pcmC0D0p}
+AMIXER=${PLUMOS_AMIXER:-$PLUMOS_ROOT/bin/plumos-amixer}
+HARDWARE_ROUTE=not-checked
 
 fail() {
     printf 'plumos-audio-output: %s\n' "$*" >&2
     exit 1
 }
 
+configure_hardware_route() {
+    control='iface=MIXER,name=Playback Path'
+    export ALSA_CONFIG_PATH=$CONFIG
+    export LD_LIBRARY_PATH="$PLUMOS_ROOT/frontend/lib:$PLUMOS_ROOT/emulator/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+    [ -x "$AMIXER" ] || fail "managed amixer is unavailable: $AMIXER"
+
+    if ! route=$($AMIXER -D hw:0 cget "$control" 2>/dev/null); then
+        HARDWARE_ROUTE=control-absent
+        return 0
+    fi
+
+    current=$(printf '%s\n' "$route" |
+        sed -n 's/^[[:space:]]*:[[:space:]]*values=\([0-9][0-9]*\)[[:space:]]*$/\1/p' |
+        sed -n '1p')
+    off=$(printf '%s\n' "$route" |
+        sed -n "s/^[[:space:]]*;[[:space:]]*Item #\([0-9][0-9]*\) 'OFF'[[:space:]]*$/\1/p" |
+        sed -n '1p')
+    speaker=$(printf '%s\n' "$route" |
+        sed -n "s/^[[:space:]]*;[[:space:]]*Item #\([0-9][0-9]*\) 'SPK'[[:space:]]*$/\1/p" |
+        sed -n '1p')
+    speaker_headphone=$(printf '%s\n' "$route" |
+        sed -n "s/^[[:space:]]*;[[:space:]]*Item #\([0-9][0-9]*\) 'SPK_HP'[[:space:]]*$/\1/p" |
+        sed -n '1p')
+
+    [ -n "$current" ] || fail 'could not read RK817 Playback Path value'
+    [ -n "$speaker_headphone" ] ||
+        fail 'RK817 Playback Path does not expose the required SPK_HP route'
+
+    case $current in
+        "$off") source=off ;;
+        "$speaker") source=spk ;;
+        "$speaker_headphone")
+            HARDWARE_ROUTE=preserved-spk-hp
+            return 0
+            ;;
+        *)
+            HARDWARE_ROUTE=preserved-non-speaker
+            return 0
+            ;;
+    esac
+
+    $AMIXER -D hw:0 cset "$control" SPK_HP >/dev/null ||
+        fail "could not switch RK817 Playback Path from $source to SPK_HP"
+    route=$($AMIXER -D hw:0 cget "$control" 2>/dev/null) ||
+        fail 'could not verify RK817 Playback Path after switching to SPK_HP'
+    current=$(printf '%s\n' "$route" |
+        sed -n 's/^[[:space:]]*:[[:space:]]*values=\([0-9][0-9]*\)[[:space:]]*$/\1/p' |
+        sed -n '1p')
+    [ "$current" = "$speaker_headphone" ] ||
+        fail 'RK817 Playback Path did not remain on SPK_HP'
+    HARDWARE_ROUTE=spk-hp-from-$source
+}
+
 prepare() {
-    [ -c /dev/snd/pcmC0D0p ] || fail 'RK817 playback PCM is unavailable'
+    [ -c "$PLAYBACK_PCM" ] || fail "RK817 playback PCM is unavailable: $PLAYBACK_PCM"
     mkdir -p "$AUDIO_DIR"
     tmp=$CONFIG.tmp.$$
     trap 'rm -f "$tmp" "$STATUS.tmp.$$"' EXIT HUP INT TERM
@@ -71,6 +128,7 @@ pcm.!default {
 EOF
     chmod 0644 "$tmp"
     mv -f "$tmp" "$CONFIG"
+    configure_hardware_route
     {
         printf 'mode=internal_stereo\n'
         printf 'router=alsa_softvol\n'
@@ -79,6 +137,7 @@ EOF
         printf 'physical_pcm=hw:0,0\n'
         printf 'pcm=plumos_output\n'
         printf 'alsa_config_path=%s\n' "$CONFIG"
+        printf 'hardware_route=%s\n' "$HARDWARE_ROUTE"
     } >"$STATUS.tmp.$$"
     chmod 0644 "$STATUS.tmp.$$"
     mv -f "$STATUS.tmp.$$" "$STATUS"

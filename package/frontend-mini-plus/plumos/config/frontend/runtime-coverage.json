@@ -11239,15 +11239,15 @@
         "zip",
         "7z"
       ],
-      "default_launch_profile": "retroarch:bluemsx",
+      "default_launch_profile": "retroarch:fbneo",
       "support": {
         "state": "supported"
       },
       "routes": [
         {
-          "profile": "retroarch:bluemsx",
+          "profile": "retroarch:fbneo",
           "runtime": "retroarch",
-          "runtime_id": "bluemsx",
+          "runtime_id": "fbneo",
           "ownership_policy": "retroarch",
           "content_extensions": [
             "rom",
@@ -11263,42 +11263,140 @@
             "zip",
             "7z"
           ],
-          "source_core_id": "bluemsx",
-          "binary": "cores/bluemsx_libretro.so",
+          "source_core_id": "fbneo",
+          "binary": "cores/fbneo_libretro.so",
           "renderer": "software",
           "bios": {
             "root": "user:BIOS",
-            "policy": "required",
+            "policy": "optional",
             "files": [
               {
-                "path": "Databases/msxromdb.xml",
-                "description": "'Databases' folder",
-                "optional": false
+                "path": "fbneo/neogeo.zip",
+                "description": "fbneo/neogeo.zip (Neo Geo BIOS)",
+                "optional": true
               },
               {
-                "path": "Machines/Shared Roms/MSX.rom",
-                "description": "'Machines' folder",
-                "optional": false
+                "path": "fbneo/neocdz.zip",
+                "description": "fbneo/neocdz.zip (Neo Geo CDZ System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/decocass.zip",
+                "description": "fbneo/decocass.zip (DECO Cassette System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/isgsm.zip",
+                "description": "fbneo/isgsm.zip (ISG Selection Master Type 2006 System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/midssio.zip",
+                "description": "fbneo/midssio.zip (Midway SSIO Sound Board Internal ROM)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/nmk004.zip",
+                "description": "fbneo/nmk004.zip (NMK004 Internal ROM)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/pgm.zip",
+                "description": "fbneo/pgm.zip (PGM System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/skns.zip",
+                "description": "fbneo/skns.zip (Super Kaneko Nova System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/ym2608.zip",
+                "description": "fbneo/ym2608.zip (YM2608 Internal ROM)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/cchip.zip",
+                "description": "fbneo/cchip.zip (C-Chip Internal ROM)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/bubsys.zip",
+                "description": "fbneo/bubsys.zip (Bubble System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/namcoc69.zip",
+                "description": "fbneo/namcoc69.zip (Namco C69 BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/namcoc70.zip",
+                "description": "fbneo/namcoc70.zip (Namco C70 BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/namcoc75.zip",
+                "description": "fbneo/namcoc75.zip (Namco C75 BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/coleco.zip",
+                "description": "fbneo/coleco.zip (ColecoVision System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/fdsbios.zip",
+                "description": "fbneo/fdsbios.zip (FDS System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/msx.zip",
+                "description": "fbneo/msx.zip (MSX1 System BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/ngp.zip",
+                "description": "fbneo/ngp.zip (NeoGeo Pocket BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/spectrum.zip",
+                "description": "fbneo/spectrum.zip (ZX Spectrum BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/spec128.zip",
+                "description": "fbneo/spec128.zip (ZX Spectrum 128 BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/spec1282a.zip",
+                "description": "fbneo/spec1282a.zip (ZX Spectrum 128 +2a BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/channelf.zip",
+                "description": "fbneo/channelf.zip (Fairchild Channel F BIOS)",
+                "optional": true
+              },
+              {
+                "path": "fbneo/hiscore.dat",
+                "description": "fbneo/hiscore.dat (High Score support database)",
+                "optional": true
               }
             ]
           },
           "core_supported_extensions": [
-            "rom",
-            "ri",
-            "mx1",
-            "mx2",
-            "dsk",
-            "col",
-            "sg",
-            "sc",
-            "sf",
-            "cas",
-            "m3u"
+            "zip",
+            "7z",
+            "cue",
+            "ccd"
           ],
           "license": {
-            "declared": "GPLv2",
+            "declared": "Non-commercial",
             "status": "packaged",
-            "path": "licenses/bluemsx-LICENSE"
+            "path": "licenses/fbneo-LICENSE"
           },
           "save_supported": false,
           "state_supported": true

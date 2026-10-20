@@ -16,6 +16,9 @@ grep -q '^pcm\.plumos_output {' "$audio"
 grep -q '^pcm\.plumos_pyxel {' "$audio"
 grep -q 'name "Soft Volume Master"' "$audio"
 grep -q 'min_dB -90.0' "$audio"
+grep -q "name=Playback Path" "$audio"
+grep -q 'cset.*SPK_HP' "$audio"
+grep -q 'HARDWARE_ROUTE=spk-hp-from-' "$audio"
 grep -q 'plumos-aplay' "$volume"
 grep -q 'curve=pixel2-linear-amplitude-v1' "$volume"
 grep -q 'apply "$next" || return 1' "$volume"
@@ -33,6 +36,60 @@ for launcher in \
     grep -q 'plumos-audio-output' "$launcher"
     grep -q 'plumos-volume-control' "$launcher"
 done
+
+test_root=$(mktemp -d)
+trap 'rm -rf "$test_root"' EXIT HUP INT TERM
+mkdir -p "$test_root/root/bin" "$test_root/run"
+fake_amixer=$test_root/root/bin/plumos-amixer
+state=$test_root/amixer-state
+log=$test_root/amixer.log
+cat >"$fake_amixer" <<'EOF'
+#!/bin/sh
+set -eu
+printf '%s\n' "$*" >>"$PLUMOS_FAKE_AMIXER_LOG"
+case " $* " in
+    *' cget '*)
+        value=$(cat "$PLUMOS_FAKE_AMIXER_STATE")
+        cat <<OUT
+numid=1,iface=MIXER,name='Playback Path'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'OFF'
+  ; Item #1 'SPK'
+  ; Item #2 'HP'
+  ; Item #3 'SPK_HP'
+  : values=$value
+OUT
+        ;;
+    *' cset '*' SPK_HP '*)
+        printf '3\n' >"$PLUMOS_FAKE_AMIXER_STATE"
+        ;;
+    *) exit 1 ;;
+esac
+EOF
+chmod +x "$fake_amixer"
+
+run_route_case() {
+    initial=$1
+    expected=$2
+    expect_cset=$3
+    printf '%s\n' "$initial" >"$state"
+    : >"$log"
+    PLUMOS_ROOT=$test_root/root \
+    PLUMOS_RUNTIME_ROOT=$test_root/run \
+    PLUMOS_PLAYBACK_PCM=/dev/null \
+    PLUMOS_AMIXER=$fake_amixer \
+    PLUMOS_FAKE_AMIXER_STATE=$state \
+    PLUMOS_FAKE_AMIXER_LOG=$log \
+        "$audio" prepare >/dev/null
+    grep -qx "hardware_route=$expected" "$test_root/run/audio/output.status"
+    csets=$(grep -c ' cset ' "$log" || true)
+    [ "$csets" -eq "$expect_cset" ]
+}
+
+run_route_case 0 spk-hp-from-off 1
+run_route_case 1 spk-hp-from-spk 1
+run_route_case 2 preserved-non-speaker 0
+run_route_case 3 preserved-spk-hp 0
 
 grep -q 'managed_audio_device=plumos_output' \
     "$repo_root/package/frontend-mini-plus/plumos/bin/plumos-retroarch-launch"

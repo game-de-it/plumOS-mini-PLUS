@@ -193,6 +193,47 @@ case "$shader_preset:$core_id:$menu_driver" in
         } >"$append_config"
         ;;
 esac
+# Upstream GB cores use visibly different defaults for monochrome games. Keep
+# the normal and alternate launch profiles on one neutral DMG presentation,
+# while leaving an existing user option file untouched.
+if [ "$system" = gb ]; then
+    gb_options_dir="$PLUMOS_ROOT/config/retroarch/core-options/gb"
+    gb_options="$gb_options_dir/${core_id}.opt"
+    gb_options_known=yes
+    $BB mkdir -p "$gb_options_dir"
+    if [ ! -s "$gb_options" ]; then
+        case "$core_id" in
+            gambatte)
+                {
+                    printf '%s\n' 'gambatte_gb_colorization = "disabled"'
+                    printf '%s\n' 'gambatte_gb_internal_palette = "GB - DMG"'
+                    printf '%s\n' 'gambatte_gbc_color_correction = "GBC only"'
+                } >"$gb_options.next"
+                ;;
+            gearboy)
+                printf '%s\n' 'gearboy_palette = "B/W"' >"$gb_options.next"
+                ;;
+            mgba)
+                printf '%s\n' 'mgba_gb_colors = "Grayscale"' >"$gb_options.next"
+                ;;
+            vbam)
+                printf '%s\n' \
+                    'vbam_palettes = "black and white"' \
+                    'vbam_gbHardware = "gb"' >"$gb_options.next"
+                ;;
+            *) gb_options_known=no ;;
+        esac
+        if [ "$gb_options_known" = yes ]; then
+            $BB sync
+            $BB mv "$gb_options.next" "$gb_options"
+            $BB sync
+        fi
+    fi
+    if [ -s "$gb_options" ]; then
+        printf '%s\n' 'global_core_options = "true"' >>"$append_config"
+        printf 'core_options_path = "%s"\n' "$gb_options" >>"$append_config"
+    fi
+fi
 # Atari800's upstream default is the original 48K Atari 400/800. Modern
 # XL/XE software such as Yoomp detects that machine as incompatible and stops
 # at its own "computer crashed" screen. Match the established plumOS A30
@@ -237,22 +278,22 @@ if [ -n "$shader_preset" ]; then
     # core preset would also affect Master System and Mega Drive content.
     printf '%s\n' 'video_shader_enable = "true"' >>"$append_config"
 
-    # The original panel displays 160x144 with non-square dots over a 4:3
-    # aperture. The shader integrates non-integer element and row coverage
-    # over each output pixel. Keep exact integer 3x as a diagnostic route.
-    printf '%s\n' 'aspect_ratio_index = "23"' >>"$append_config"
+    # The core already reports the Game Gear's 4:3 display aspect.  Do not
+    # append a custom 640x480 viewport for the normal route: RetroArch saves
+    # append-config values into its base config on exit, which would leave all
+    # later vertical systems stretched to 4:3. Keep exact integer 3x as an
+    # explicitly non-persistent diagnostic route only.
     case "$gamegear_geometry" in
-        sega43)
-            printf '%s\n' 'custom_viewport_width = "640"' >>"$append_config"
-            printf '%s\n' 'custom_viewport_height = "480"' >>"$append_config"
-            ;;
+        sega43) ;;
         integer3x)
+            printf '%s\n' 'aspect_ratio_index = "23"' >>"$append_config"
             printf '%s\n' 'custom_viewport_width = "480"' >>"$append_config"
             printf '%s\n' 'custom_viewport_height = "432"' >>"$append_config"
+            printf '%s\n' 'custom_viewport_x = "80"' >>"$append_config"
+            printf '%s\n' 'custom_viewport_y = "24"' >>"$append_config"
+            printf '%s\n' 'config_save_on_exit = "false"' >>"$append_config"
             ;;
     esac
-    printf '%s\n' 'custom_viewport_x = "0"' >>"$append_config"
-    printf '%s\n' 'custom_viewport_y = "0"' >>"$append_config"
     printf '%s\n' 'video_scale_integer = "false"' >>"$append_config"
 fi
 # The shared cfg keeps the V90S-compatible factory baseline, while mini PLUS may
@@ -262,9 +303,11 @@ system_directory=$PLUMOS_BIOS_ROOT
 case "$core_id" in
     bluemsx)
         managed_system="$PLUMOS_ROOT/share/libretro-system/bluemsx"
-        if { [ ! -d "$PLUMOS_BIOS_ROOT/Databases" ] ||
-             [ ! -d "$PLUMOS_BIOS_ROOT/Machines" ]; } &&
-           [ -d "$managed_system/Databases" ] &&
+        # The shipped C-BIOS tree is version-matched to this core. Generic
+        # ROM collections often contain blueMSX directories that exist but
+        # are incomplete or belong to another release; preferring them makes
+        # both MSX and ColecoVision fail without a useful diagnostic.
+        if [ -d "$managed_system/Databases" ] &&
            [ -d "$managed_system/Machines" ]; then
             system_directory=$managed_system
         fi

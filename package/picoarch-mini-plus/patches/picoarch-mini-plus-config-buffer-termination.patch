@@ -1,0 +1,61 @@
+diff --git a/main.c b/main.c
+index 4dc824c..a28a2c7 100644
+--- a/main.c
++++ b/main.c
+@@ -339,9 +339,17 @@ static void alloc_config_buffer(char **config_ptr) {
+ 	fseek(config_file, 0, SEEK_END);
+ 	length = ftell(config_file);
+ 	fseek(config_file, 0, SEEK_SET);
+ 
+-	*config_ptr = calloc(1, length);
++	/* config_read() uses strstr(), so the buffer must be terminated.  The
++	 * original exact-length allocation reads beyond the allocation and can
++	 * crash on a short per-game options file. */
++	*config_ptr = calloc(1, length + 1);
++	if (!*config_ptr) {
++		fclose(config_file);
++		return;
++	}
+ 
+-	fread(*config_ptr, 1, length, config_file);
++	length = fread(*config_ptr, 1, length, config_file);
++	(*config_ptr)[length] = '\0';
+ 	fclose(config_file);
+ }
+@@ -381,10 +389,12 @@ void load_config_keys(void)
+ 		/* Force input device 0 menu to be bound to the default key */
+ 		in_get_config(0, IN_CFG_BIND_COUNT, &kcount);
+ 		defbinds = in_get_dev_def_binds(0);
+ 
+-		for(int i = 0; i < kcount; i++) {
+-			if (defbinds[IN_BIND_OFFS(i, IN_BINDTYPE_EMU)] == 1 << EACTION_MENU) {
+-				in_bind_key(0, i, 1 << EACTION_MENU, IN_BINDTYPE_EMU, 0);
++		if (defbinds) {
++			for(int i = 0; i < kcount; i++) {
++				if (defbinds[IN_BIND_OFFS(i, IN_BINDTYPE_EMU)] == 1 << EACTION_MENU) {
++					in_bind_key(0, i, 1 << EACTION_MENU, IN_BINDTYPE_EMU, 0);
++				}
+ 			}
+ 		}
+ 	}
+diff --git a/config.c b/config.c
+index 2d99990..27320f3 100644
+--- a/config.c
++++ b/config.c
+@@ -60,11 +60,8 @@ void config_write(FILE *f)
+ static void parse_str_val(char *cval, const char *src)
+ {
+-	char *tmp;
+-	strncpy(cval, src, 256);
+-	cval[256 - 1] = 0;
+-	tmp = strchr(cval, '\n');
+-	if (tmp == NULL)
+-		tmp = strchr(cval, '\r');
+-	if (tmp != NULL)
+-		*tmp = 0;
++	size_t length = strcspn(src, "\r\n");
++	if (length > 255)
++		length = 255;
++	memcpy(cval, src, length);
++	cval[length] = '\0';
+ }

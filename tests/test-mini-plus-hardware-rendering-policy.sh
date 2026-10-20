@@ -31,5 +31,8 @@ grep -Fq 'export SDL_VIDEO_EGL_DRIVER="$PLUMOS_ROOT/emulator/lib/libmali.so.1"' 
 grep -Fq 'export SDL_VIDEO_GL_DRIVER="$PLUMOS_ROOT/emulator/lib/libmali.so.1"' "$standalone"
 grep -Fq 'failed_software_gl_loaded' "$matrix"
 grep -Fq 'failed_mali_not_loaded' "$matrix"
+grep -Fq 'for mutable_dir in unzip_cache system savestates profiles input_record config backup' "$matrix"
+grep -Fq 'while grep -Fq " $dst " /proc/mounts' "$matrix"
+grep -Fq 'rm -f /dev/shm/NDS_SHM /tmp/NDS_SHM' "$matrix"
 
 printf 'miniplus_hardware_rendering_policy=result-ok pyxel=mali-required portmaster_gui=mali-required ppsspp=canonical-mali ports=canonical-mali\n'

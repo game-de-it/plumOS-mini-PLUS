@@ -36,7 +36,10 @@ def validate_drm(line: str) -> tuple[bool, str, bool]:
     vw, vh = int(values["vw"]), int(values["vh"])
     x, y = int(values["x"]), int(values["y"])
     rotation = int(values["rotation"])
-    expected = values["aspect"] if rotation % 2 == 0 else 1.0 / values["aspect"]
+    # The DRM contract logs surface->aspect after RetroArch has applied the
+    # core-requested rotation.  Inverting it again here accepts a stretched
+    # 4:3 viewport for vertical content and rejects the correct 3:4 viewport.
+    expected = values["aspect"]
     checks = {
         "positive": vw > 0 and vh > 0,
         "bounded": x + vw <= PANEL_WIDTH and y + vh <= PANEL_HEIGHT,
@@ -46,7 +49,7 @@ def validate_drm(line: str) -> tuple[bool, str, bool]:
         "scanout": vw == int(values["sw"]) and vh == int(values["sh"]),
     }
     failed = [name for name, passed in checks.items() if not passed]
-    return not failed, "ok" if not failed else ",".join(failed), rotation % 2 == 1
+    return not failed, "ok" if not failed else ",".join(failed), expected < 1.0
 
 
 def validate_pyxel(lines: list[str]) -> tuple[bool, str]:

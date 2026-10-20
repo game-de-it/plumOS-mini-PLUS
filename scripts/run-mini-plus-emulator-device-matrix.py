@@ -19,6 +19,7 @@ REPO = Path(__file__).resolve().parents[1]
 CATALOG = REPO / "package/frontend-mini-plus/plumos/config/frontend/systems.json"
 ROOT = "/storage/plumos"
 SD2 = "/run/media/sd2"
+USER_ROMS = "/storage/user/Roms"
 VALIDATION_CONTENT = f"{ROOT}/state/device-matrix/content"
 VALIDATION_BIOS = f"{ROOT}/state/device-matrix/bios"
 INVALID_LIVE_CONTENT = {
@@ -30,16 +31,20 @@ NO_CONTENT_ROUTES = {
     ("mrboom", "retroarch:mrboom"),
 }
 
+REQUIRED_BIOS_BY_SYSTEM = {
+    "channelf": ("sl31253.bin", "sl31254.bin", "sl90025.bin"),
+}
+
 CONTENT_OVERRIDES = {
     "sfc": f"{VALIDATION_CONTENT}/snes/Adventures of the Rocketeer.sfc",
     "gb": f"{VALIDATION_CONTENT}/gb/Baseball.gb",
     "gbc": f"{VALIDATION_CONTENT}/gbc/Cross Hunter - X Hunter Version.gbc",
     "gba": f"{VALIDATION_CONTENT}/gba/Densetsu no Stafy (Japan).gba",
-    "pcenginecd": f"{SD2}/pcenginecd/AkumajouDraculaX.pcdGAME/AkumajouDraculaX.cue",
-    "psx": f"{SD2}/PSX/2/SCPS-10026.cue",
-    "saturn": f"{SD2}/SATURN/VH.iso",
+    "pcenginecd": f"{USER_ROMS}/pcenginecd/AkumajouDraculaX.pcdGAME/AkumajouDraculaX.cue",
+    "psx": f"{USER_ROMS}/PSX/2/SCPS-10026.cue",
+    "saturn": f"{USER_ROMS}/SATURN/VH.iso",
     "msx": f"{VALIDATION_CONTENT}/msx/usas.rom",
-    "pico8": f"{SD2}/pico-8/51752.p8",
+    "pico8": f"{USER_ROMS}/pico-8/51752.p8",
     "pyxel": f"{VALIDATION_CONTENT}/pyxel/finardry.pyxapp",
     "psp": f"{VALIDATION_CONTENT}/psp/probe.cso",
     "nds": f"{VALIDATION_CONTENT}/nds/probe.nds",
@@ -205,10 +210,14 @@ def choose_content(
     route_key = f"{sid}|{profile}"
     mapped = content_map.get(route_key) or content_map.get(sid)
     if mapped:
-        allowed_roots = (f"{VALIDATION_CONTENT}/", f"{SD2}/")
+        allowed_roots = (f"{VALIDATION_CONTENT}/", f"{USER_ROMS}/")
         if not mapped.startswith(allowed_roots):
             raise ValueError(f"content map path is outside validation roots: {route_key}: {mapped}")
         if remote_exists(device, mapped):
+            if sid == "vmu" and mapped.lower().endswith(".vmi"):
+                paired = mapped[:-4] + ".VMS"
+                if not remote_exists(device, paired) and not remote_exists(device, paired[:-4] + ".vms"):
+                    return None, "vmu_metadata_missing_paired_vms_payload"
             source = "explicit_route_content_map" if route_key in content_map else "explicit_content_map"
             return mapped, source
         return None, "mapped_content_missing_on_device"
@@ -231,8 +240,6 @@ def route_command(system: dict, profile: str, content: str, bios_root: str) -> t
     no_content = (sid, profile) in NO_CONTENT_ROUTES
     if content.startswith(VALIDATION_CONTENT + "/"):
         root = VALIDATION_CONTENT
-    elif content.startswith(SD2 + "/"):
-        root = SD2
     elif content.startswith("/storage/user/"):
         root = "/storage/user"
     else:
@@ -252,7 +259,17 @@ def route_command(system: dict, profile: str, content: str, bios_root: str) -> t
             f"{content_arg} --cpu {'performance' if sid == 'n64' else 'ondemand'} --safe-exit false"
         )
         log = f"{ROOT}/logs/retroarch-{sid}-{core}.log"
-        seconds = 8 if core in {"flycast", "flycast_xtreme", "km_duckswanstation_xtreme_amped", "mupen64plus_next", "parallel_n64", "yabasanshiro"} else 5
+        seconds = 8 if sid in {"colecovision", "cps3"} or core in {
+            "atari800",
+            "flycast",
+            "flycast_xtreme",
+            "km_duckswanstation_xtreme_amped",
+            "mupen64plus_next",
+            "numero",
+            "parallel_n64",
+            "squirreljme",
+            "yabasanshiro",
+        } else 5
         return command, log, seconds
     if profile.startswith("picoarch:"):
         core = profile.split(":", 1)[1]
@@ -287,6 +304,11 @@ BASE=$R/state/device-matrix/$RUN
 MOUNTS=/run/plumos/validation/matrix-mounts
 mkdir -p /run/plumos/validation "$BASE/sandbox"
 : > /run/plumos/validation/frontend-hold
+if test -r /run/plumos/volume/current; then
+    cat /run/plumos/volume/current > /run/plumos/validation/matrix-volume-before
+else
+    printf '%s\n' 0 > /run/plumos/validation/matrix-volume-before
+fi
 /bin/busybox sh "$R/bin/plumos-volume-control" apply 0
 test "$(cat /run/plumos/volume/current)" = 0
 for rel in config/retroarch config/standalone state/retroarch state/picoarch state/standalone state/pyxel-home saves states; do
@@ -327,11 +349,25 @@ for p in /proc/[0-9]*; do
         break
     done
 done
-for dst in "$R/states" "$R/saves" "$R/state/pyxel-home" "$R/state/standalone" "$R/state/picoarch" "$R/state/retroarch" "$R/config/standalone" "$R/config/retroarch"; do
-    umount "$dst" 2>/dev/null || true
+# A forced timeout can prevent the DraStic launcher's EXIT trap from removing
+# its nested bind mounts.  Drain every stacked instance before unmounting the
+# matrix sandbox itself; a single umount is insufficient after repeated runs.
+for mutable_dir in unzip_cache system savestates profiles input_record config backup; do
+    dst="$R/emulator/standalone/drastic/$mutable_dir"
+    while grep -Fq " $dst " /proc/mounts; do
+        umount "$dst" 2>/dev/null || break
+    done
 done
-rm -f /run/plumos/validation/frontend-hold /run/plumos/validation/matrix-mounts
-/bin/busybox sh "$R/bin/plumos-volume-control" apply 0 >/dev/null 2>&1 || true
+rm -f /dev/shm/NDS_SHM /tmp/NDS_SHM
+for dst in "$R/states" "$R/saves" "$R/state/pyxel-home" "$R/state/standalone" "$R/state/picoarch" "$R/state/retroarch" "$R/config/standalone" "$R/config/retroarch"; do
+    while grep -Fq " $dst " /proc/mounts; do
+        umount "$dst" 2>/dev/null || break
+    done
+done
+volume_before=$(cat /run/plumos/validation/matrix-volume-before 2>/dev/null || printf '%s\n' 0)
+rm -f /run/plumos/validation/frontend-hold /run/plumos/validation/matrix-mounts \
+    /run/plumos/validation/matrix-volume-before
+/bin/busybox sh "$R/bin/plumos-volume-control" apply "$volume_before" >/dev/null 2>&1 || true
 # PID 1 observes the hold removal and normally restores the frontend itself.
 # Give that supervisor one polling interval before using the standalone recovery
 # fallback, otherwise both paths can acquire the display a few seconds apart.
@@ -376,6 +412,7 @@ drm=""
 audio=""
 mali=""
 software_gl=""
+sample_runtime_owners() {
 for p in /proc/[0-9]*; do
     test -d "$p/fd" || continue
     test "$(/bin/busybox awk '{print $5}' "$p/stat" 2>/dev/null)" = "$pid" || continue
@@ -389,6 +426,8 @@ for p in /proc/[0-9]*; do
         grep -Eq 'kms_swrast|swrast_dri|libLLVM' "$p/maps" 2>/dev/null && software_gl="$software_gl${p##*/},"
     fi
 done
+}
+sample_runtime_owners
 pcm=$(sed -n 's/^state: //p' /proc/asound/card0/pcm0p/sub0/status 2>/dev/null || true)
 pcm_states=${pcm:-closed}
 pcm_progress=no
@@ -396,6 +435,7 @@ previous_hw=$(sed -n 's/^hw_ptr[[:space:]]*:[[:space:]]*//p' /proc/asound/card0/
 sample=0
 while test "$sample" -lt 8; do
     /bin/busybox usleep 250000
+    sample_runtime_owners
     sample_state=$(sed -n 's/^state: //p' /proc/asound/card0/pcm0p/sub0/status 2>/dev/null || true)
     sample_hw=$(sed -n 's/^hw_ptr[[:space:]]*:[[:space:]]*//p' /proc/asound/card0/pcm0p/sub0/status 2>/dev/null || true)
     pcm_states="$pcm_states,${sample_state:-closed}"
@@ -507,12 +547,18 @@ def main() -> int:
                 content, content_source = "", "no_content_core"
             else:
                 content, content_source = choose_content(system, profile, live, device, content_map)
+            missing_bios = [
+                name for name in REQUIRED_BIOS_BY_SYSTEM.get(system["id"], ())
+                if not remote_exists(device, f"{bios_root}/{name}")
+            ]
             command, log, seconds = (
                 route_command(system, profile, content or "", bios_root)
-                if content or no_content else (None, None, 0)
+                if (content or no_content) and not missing_bios else (None, None, 0)
             )
             reason = None
-            if not content and not no_content:
+            if missing_bios:
+                reason = "provided_bios_set_missing_" + "_".join(missing_bios)
+            elif not content and not no_content:
                 reason = content_source
             elif profile.startswith("external:"):
                 reason = "external_script_not_run_by_bounded_emulator_harness"
@@ -575,6 +621,16 @@ def main() -> int:
                 "elapsed_seconds": round(time.monotonic() - started, 2),
                 "geometry_contract": geometry_contract(runtime_delta),
             })
+            if result.returncode == 255:
+                record["status"] = "failed"
+                record["reason"] = "ssh_transport_failed_before_route_observation"
+                print(
+                    f"[{index:03d}/{len(planned):03d}] {record['system']} "
+                    f"{record['profile']} status=failed transport=ssh-255",
+                    flush=True,
+                )
+                out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+                continue
             alive = meta.get("alive") == "yes"
             drm = meta.get("drm") not in {None, "", "none"}
             clean = meta.get("preexisting") in {None, "", "none"}

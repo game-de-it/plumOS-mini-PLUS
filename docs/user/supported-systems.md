@@ -79,7 +79,7 @@ on a game to choose another launch method listed in its row.
 | Cave Story | `Roms/CAVESTORY/`<br>`Roms/cavestory/`<br>`Roms/_etc/cavestory/` | `.exe` | **Default:** RA `nxengine` |
 | ChaiLove | `Roms/CHAILOVE/`<br>`Roms/chailove/`<br>`Roms/_etc/chailove/` | `.chai`, `.chailove` | **Default:** RA `chailove` |
 | Fairchild Channel F | `Roms/FAIRCHILD/`<br>`Roms/channelf/`<br>`Roms/_etc/channelf/` | `.bin`, `.chf`, `.rom`, `.zip`, `.7z` | **Default:** RA `freechaf` |
-| ColecoVision | `Roms/COLECO/`<br>`Roms/coleco/`<br>`Roms/_etc/coleco/`<br>`Roms/_etc/colecovision/` | `.rom`, `.ri`, `.mx1`, `.mx2`, `.col`, `.dsk`, `.cas`, `.sg`, `.sc`, `.m3u`, `.zip`, `.7z` | **Default:** RA `bluemsx` |
+| ColecoVision | `Roms/COLECO/`<br>`Roms/coleco/`<br>`Roms/_etc/coleco/`<br>`Roms/_etc/colecovision/` | `.rom`, `.ri`, `.mx1`, `.mx2`, `.col`, `.dsk`, `.cas`, `.sg`, `.sc`, `.m3u`, `.zip`, `.7z` | **Default:** RA `fbneo` |
 | Amstrad CPC | `Roms/CPC/`<br>`Roms/amstradcpc/`<br>`Roms/_etc/amstradcpc/` | `.dsk`, `.sna`, `.zip`, `.tap`, `.cdt`, `.voc`, `.cpr`, `.m3u`, `.kcr`, `.7z` | **Default:** RA `crocods`<br>RA: `cap32` |
 | Dinothawr | `Roms/DINOTHAWR/`<br>`Roms/dinothawr/`<br>`Roms/_etc/dinothawr/` | `.game` | **Default:** RA `dinothawr` |
 | Intellivision | `Roms/INTELLIVISION/`<br>`Roms/intellivision/`<br>`Roms/_etc/intellivision/` | `.int`, `.bin`, `.rom`, `.zip`, `.7z` | **Default:** RA `freeintv` |

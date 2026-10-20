@@ -28,6 +28,7 @@ MINI_PLUS_PHYSICAL_INPUT_PATCH="$ROOT_DIR/package/picoarch-mini-plus/patches/pic
 MINI_PLUS_EVDEV_HOTPLUG_PATCH="$ROOT_DIR/package/picoarch-mini-plus/patches/picoarch-mini-plus-evdev-hotplug.patch"
 MINI_PLUS_FBDEV_STAGED_COPY_PATCH="$ROOT_DIR/package/picoarch-mini-plus/patches/picoarch-mini-plus-fbdev-staged-copy.patch"
 MINI_PLUS_FRAME_PROBE_PATCH="$ROOT_DIR/package/picoarch-mini-plus/patches/picoarch-mini-plus-frame-probe.patch"
+MINI_PLUS_CONFIG_BUFFER_PATCH="$ROOT_DIR/package/picoarch-mini-plus/patches/picoarch-mini-plus-config-buffer-termination.patch"
 MINI_PLUS_FBDEV_RENDERER_HEADER="$ROOT_DIR/src/frontend/plumos_fbdev_renderer.h"
 MINI_PLUS_PICOARCH_LAUNCHER="$ROOT_DIR/package/picoarch-mini-plus/plumos/bin/plumos-picoarch-launch"
 MINI_PLUS_RGB565_BYTE_ORDER_TABLE="$ROOT_DIR/package/picoarch-mini-plus/plumos/share/picoarch/rgb565-byte-order.tsv"
@@ -66,6 +67,10 @@ export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-0}"
     printf 'error: missing mini PLUS PicoArch frame probe patch: %s\n' "$MINI_PLUS_FRAME_PROBE_PATCH" >&2
     exit 1
 }
+[ -f "$MINI_PLUS_CONFIG_BUFFER_PATCH" ] || {
+    printf 'error: missing mini PLUS PicoArch config buffer patch: %s\n' "$MINI_PLUS_CONFIG_BUFFER_PATCH" >&2
+    exit 1
+}
 [ -f "$MINI_PLUS_FBDEV_RENDERER_HEADER" ] || {
     printf 'error: missing mini PLUS DRM page-flip renderer: %s\n' "$MINI_PLUS_FBDEV_RENDERER_HEADER" >&2
     exit 1
@@ -85,6 +90,7 @@ export PLUMOS_MINI_PLUS_PICOARCH_PHYSICAL_INPUT_PATCH="$MINI_PLUS_PHYSICAL_INPUT
 export PLUMOS_MINI_PLUS_PICOARCH_EVDEV_HOTPLUG_PATCH="$MINI_PLUS_EVDEV_HOTPLUG_PATCH"
 export PLUMOS_MINI_PLUS_PICOARCH_FBDEV_STAGED_COPY_PATCH="$MINI_PLUS_FBDEV_STAGED_COPY_PATCH"
 export PLUMOS_MINI_PLUS_PICOARCH_FRAME_PROBE_PATCH="$MINI_PLUS_FRAME_PROBE_PATCH"
+export PLUMOS_MINI_PLUS_PICOARCH_CONFIG_BUFFER_PATCH="$MINI_PLUS_CONFIG_BUFFER_PATCH"
 export PLUMOS_MINI_PLUS_FBDEV_RENDERER_HEADER="$MINI_PLUS_FBDEV_RENDERER_HEADER"
 MINI_PLUS_AUDIO_STATUS_PATCH_SHA256="$(sha256sum "$MINI_PLUS_AUDIO_STATUS_PATCH" | awk '{print $1}')"
 MINI_PLUS_RGB565_BYTESWAP_PATCH_SHA256="$(sha256sum "$MINI_PLUS_RGB565_BYTESWAP_PATCH" | awk '{print $1}')"
@@ -93,6 +99,7 @@ MINI_PLUS_PHYSICAL_INPUT_PATCH_SHA256="$(sha256sum "$MINI_PLUS_PHYSICAL_INPUT_PA
 MINI_PLUS_EVDEV_HOTPLUG_PATCH_SHA256="$(sha256sum "$MINI_PLUS_EVDEV_HOTPLUG_PATCH" | awk '{print $1}')"
 MINI_PLUS_FBDEV_STAGED_COPY_PATCH_SHA256="$(sha256sum "$MINI_PLUS_FBDEV_STAGED_COPY_PATCH" | awk '{print $1}')"
 MINI_PLUS_FRAME_PROBE_PATCH_SHA256="$(sha256sum "$MINI_PLUS_FRAME_PROBE_PATCH" | awk '{print $1}')"
+MINI_PLUS_CONFIG_BUFFER_PATCH_SHA256="$(sha256sum "$MINI_PLUS_CONFIG_BUFFER_PATCH" | awk '{print $1}')"
 MINI_PLUS_PICOARCH_LAUNCHER_SHA256="$(sha256sum "$MINI_PLUS_PICOARCH_LAUNCHER" | awk '{print $1}')"
 MINI_PLUS_RGB565_BYTE_ORDER_TABLE_SHA256="$(sha256sum "$MINI_PLUS_RGB565_BYTE_ORDER_TABLE" | awk '{print $1}')"
 MINI_PLUS_RGB565_ROUTE_OVERRIDE_TABLE_SHA256="$(sha256sum "$MINI_PLUS_RGB565_ROUTE_OVERRIDE_TABLE" | awk '{print $1}')"
@@ -164,6 +171,9 @@ git -C "$SRC" apply "$PLUMOS_MINI_PLUS_PICOARCH_RGB565_BYTESWAP_PATCH"
 # Rockchip DRM fbdev helper because it repeatedly times out in the kernel.
 git -C "$SRC" apply --recount "$PLUMOS_MINI_PLUS_PICOARCH_FBDEV_STAGED_COPY_PATCH"
 git -C "$SRC" apply "$PLUMOS_MINI_PLUS_PICOARCH_FRAME_PROBE_PATCH"
+# PicoArch's config parser uses strstr(); reserve and write the trailing NUL so
+# short per-game option profiles cannot read past the allocation and crash.
+git -C "$SRC" apply "$PLUMOS_MINI_PLUS_PICOARCH_CONFIG_BUFFER_PATCH"
 cp "$PLUMOS_MINI_PLUS_FBDEV_RENDERER_HEADER" "$SRC/plumos_fbdev_renderer.h"
 perl -0pi -e '
   s{(CFLAGS\s+\+= -I\./ -I\./libretro-common/include/)}{$1 -I/usr/include/libdrm};
@@ -231,6 +241,7 @@ rm -rf "$OUT_ROOT"
 mkdir -p "$PLUMOS_DIR/picoarch/bin" "$PLUMOS_DIR/picoarch/lib" \
     "$PLUMOS_DIR/bin" "$PLUMOS_DIR/components/picoarch" "$PLUMOS_DIR/licenses" \
     "$PLUMOS_DIR/factory-defaults/picoarch/config/standalone" \
+    "$PLUMOS_DIR/factory-defaults/picoarch/core-options/gb" \
     "$PLUMOS_DIR/share/picoarch"
 install -m 0755 "$V90S_OUT/picoarch/bin/picoarch" \
     "$PLUMOS_DIR/picoarch/bin/picoarch"
@@ -244,6 +255,9 @@ install -m 0755 \
 install -m 0644 \
     "$ROOT_DIR/package/picoarch-mini-plus/plumos/factory-defaults/picoarch/config/standalone/picoarch.env" \
     "$PLUMOS_DIR/factory-defaults/picoarch/config/standalone/picoarch.env"
+install -m 0644 \
+    "$ROOT_DIR/package/picoarch-mini-plus/plumos/factory-defaults/picoarch/core-options/gb/"*.cfg \
+    "$PLUMOS_DIR/factory-defaults/picoarch/core-options/gb/"
 install -m 0644 "$MINI_PLUS_RGB565_BYTE_ORDER_TABLE" \
     "$PLUMOS_DIR/share/picoarch/rgb565-byte-order.tsv"
 install -m 0644 "$MINI_PLUS_RGB565_ROUTE_OVERRIDE_TABLE" \
@@ -259,7 +273,7 @@ cat >"$PLUMOS_DIR/components/picoarch/manifest.json" <<EOF
 {
   "name": "plumOS mini PLUS PicoArch",
   "device": "mini-plus",
-  "source_ref": "picoarch:802047c276a5a931b0bf837c4ea4b8e238bdeabe v90s-build:$V90S_REF sdl2:$SDL_VERSION:$SDL_SHA256 mini-plus-audio-status:$MINI_PLUS_AUDIO_STATUS_PATCH_SHA256 mini-plus-rgb565-byteswap:$MINI_PLUS_RGB565_BYTESWAP_PATCH_SHA256 mini-plus-vfs-seek:$MINI_PLUS_VFS_SEEK_PATCH_SHA256 mini-plus-physical-input:$MINI_PLUS_PHYSICAL_INPUT_PATCH_SHA256 mini-plus-evdev-hotplug:$MINI_PLUS_EVDEV_HOTPLUG_PATCH_SHA256 mini-plus-fbdev-staged-copy:$MINI_PLUS_FBDEV_STAGED_COPY_PATCH_SHA256 mini-plus-frame-probe:$MINI_PLUS_FRAME_PROBE_PATCH_SHA256 mini-plus-rgb565-table:$MINI_PLUS_RGB565_BYTE_ORDER_TABLE_SHA256 mini-plus-rgb565-routes:$MINI_PLUS_RGB565_ROUTE_OVERRIDE_TABLE_SHA256 mini-plus-launcher:$MINI_PLUS_PICOARCH_LAUNCHER_SHA256",
+  "source_ref": "picoarch:802047c276a5a931b0bf837c4ea4b8e238bdeabe v90s-build:$V90S_REF sdl2:$SDL_VERSION:$SDL_SHA256 mini-plus-audio-status:$MINI_PLUS_AUDIO_STATUS_PATCH_SHA256 mini-plus-rgb565-byteswap:$MINI_PLUS_RGB565_BYTESWAP_PATCH_SHA256 mini-plus-vfs-seek:$MINI_PLUS_VFS_SEEK_PATCH_SHA256 mini-plus-physical-input:$MINI_PLUS_PHYSICAL_INPUT_PATCH_SHA256 mini-plus-evdev-hotplug:$MINI_PLUS_EVDEV_HOTPLUG_PATCH_SHA256 mini-plus-fbdev-staged-copy:$MINI_PLUS_FBDEV_STAGED_COPY_PATCH_SHA256 mini-plus-frame-probe:$MINI_PLUS_FRAME_PROBE_PATCH_SHA256 mini-plus-config-buffer:$MINI_PLUS_CONFIG_BUFFER_PATCH_SHA256 mini-plus-rgb565-table:$MINI_PLUS_RGB565_BYTE_ORDER_TABLE_SHA256 mini-plus-rgb565-routes:$MINI_PLUS_RGB565_ROUTE_OVERRIDE_TABLE_SHA256 mini-plus-launcher:$MINI_PLUS_PICOARCH_LAUNCHER_SHA256",
   "render_contract": "cpu-drm-pageflip-rgb565-to-bgra8888 with per-core defaults and per-system RGB565 byte-order overrides plus staged-fbdev fallback",
   "input_contract": "plumOS mini PLUS Controller physical labels, digital L2/R2, dual analog, L3/R3 and F1/F2 menu",
   "core_route": "cores/*_libretro.so"

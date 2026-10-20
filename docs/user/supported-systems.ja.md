@@ -80,7 +80,7 @@ CD系は`.cue`、`.gdi`、`.m3u`など、トラック関係を保持できる形
 | Cave Story | `Roms/CAVESTORY/`<br>`Roms/cavestory/`<br>`Roms/_etc/cavestory/` | `.exe` | **既定:** RA `nxengine` |
 | ChaiLove | `Roms/CHAILOVE/`<br>`Roms/chailove/`<br>`Roms/_etc/chailove/` | `.chai`, `.chailove` | **既定:** RA `chailove` |
 | Fairchild Channel F | `Roms/FAIRCHILD/`<br>`Roms/channelf/`<br>`Roms/_etc/channelf/` | `.bin`, `.chf`, `.rom`, `.zip`, `.7z` | **既定:** RA `freechaf` |
-| ColecoVision | `Roms/COLECO/`<br>`Roms/coleco/`<br>`Roms/_etc/coleco/`<br>`Roms/_etc/colecovision/` | `.rom`, `.ri`, `.mx1`, `.mx2`, `.col`, `.dsk`, `.cas`, `.sg`, `.sc`, `.m3u`, `.zip`, `.7z` | **既定:** RA `bluemsx` |
+| ColecoVision | `Roms/COLECO/`<br>`Roms/coleco/`<br>`Roms/_etc/coleco/`<br>`Roms/_etc/colecovision/` | `.rom`, `.ri`, `.mx1`, `.mx2`, `.col`, `.dsk`, `.cas`, `.sg`, `.sc`, `.m3u`, `.zip`, `.7z` | **既定:** RA `fbneo` |
 | Amstrad CPC | `Roms/CPC/`<br>`Roms/amstradcpc/`<br>`Roms/_etc/amstradcpc/` | `.dsk`, `.sna`, `.zip`, `.tap`, `.cdt`, `.voc`, `.cpr`, `.m3u`, `.kcr`, `.7z` | **既定:** RA `crocods`<br>RA: `cap32` |
 | Dinothawr | `Roms/DINOTHAWR/`<br>`Roms/dinothawr/`<br>`Roms/_etc/dinothawr/` | `.game` | **既定:** RA `dinothawr` |
 | Intellivision | `Roms/INTELLIVISION/`<br>`Roms/intellivision/`<br>`Roms/_etc/intellivision/` | `.int`, `.bin`, `.rom`, `.zip`, `.7z` | **既定:** RA `freeintv` |

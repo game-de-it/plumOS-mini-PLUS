@@ -3808,9 +3808,9 @@
         ]
       },
       "launch_profiles": [
-        "retroarch:bluemsx"
+        "retroarch:fbneo"
       ],
-      "default_launch_profile": "retroarch:bluemsx",
+      "default_launch_profile": "retroarch:fbneo",
       "default_cpu_policy": "ondemand",
       "scraper": {
         "enabled": true,

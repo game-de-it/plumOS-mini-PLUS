@@ -16,9 +16,11 @@ rom_root=$tmp/roms
 runtime=$tmp/run
 mkdir -p "$root/bin" "$root/cores" \
     "$root/factory-defaults/retroarch" "$root/factory-defaults/shaders" \
-    "$rom_root/nes" "$rom_root/n64" "$rom_root/gamegear" \
+    "$rom_root/nes" "$rom_root/n64" "$rom_root/gamegear" "$rom_root/gb" \
     "$rom_root/atari800" "$rom_root/atari5200" \
-    "$rom_root/megadrive" \
+    "$rom_root/megadrive" "$rom_root/msx" \
+    "$root/share/libretro-system/bluemsx/Databases" \
+    "$root/share/libretro-system/bluemsx/Machines" \
     "$rom_root/easyrpg/ValidGame" "$rom_root/easyrpg/InvalidGame" "$runtime"
 cp package/frontend-mini-plus/plumos/bin/plumos-retroarch-launch \
     "$root/bin/plumos-retroarch-launch"
@@ -101,12 +103,20 @@ grep -Fq 'vTex - vec2(0.0, texel.y)).rgb;' "$panel_shader"
 : >"$root/cores/easyrpg_libretro.so"
 : >"$root/cores/genesis_plus_gx_libretro.so"
 : >"$root/cores/atari800_libretro.so"
+: >"$root/cores/gambatte_libretro.so"
+: >"$root/cores/gearboy_libretro.so"
+: >"$root/cores/mgba_libretro.so"
+: >"$root/cores/vbam_libretro.so"
+: >"$root/cores/tgbdual_libretro.so"
+: >"$root/cores/bluemsx_libretro.so"
 : >"$rom_root/nes/test.nes"
 : >"$rom_root/n64/test.z64"
 : >"$rom_root/gamegear/test.gg"
 : >"$rom_root/megadrive/test.md"
 : >"$rom_root/atari800/test.xfd"
 : >"$rom_root/atari5200/test.a52"
+: >"$rom_root/gb/test.gb"
+: >"$rom_root/msx/test.rom"
 : >"$rom_root/easyrpg/ValidGame/RPG_RT.ldb"
 
 cat >"$root/bin/retroarch" <<'EOF'
@@ -176,6 +186,64 @@ test -d "$root/state/retroarch/nes"
 ! grep -qx -- --set-shader "$tmp/software.args"
 ! find "$runtime/retroarch" -type f -name 'launch.*.cfg' -print -quit | grep -q .
 
+# Always prefer the version-matched managed blueMSX machine database. Merely
+# finding generic Machines/Databases directories in a user BIOS set is not
+# evidence that they are complete or compatible with this core build.
+run_launcher "$tmp/bluemsx" --system msx \
+    --core "$root/cores/bluemsx_libretro.so" \
+    --rom "$rom_root/msx/test.rom"
+grep -qx "system_directory = \"$root/share/libretro-system/bluemsx\"" \
+    "$tmp/bluemsx.append"
+
+# All supported monochrome GB cores start from the same neutral palette.  The
+# per-core option files are mutable state, so the launcher may seed a missing
+# profile but must preserve an existing user choice.
+run_launcher "$tmp/gb-gambatte" --system gb \
+    --core "$root/cores/gambatte_libretro.so" \
+    --rom "$rom_root/gb/test.gb"
+gb_gambatte_options="$root/config/retroarch/core-options/gb/gambatte.opt"
+grep -qx 'global_core_options = "true"' "$tmp/gb-gambatte.append"
+grep -qx "core_options_path = \"$gb_gambatte_options\"" "$tmp/gb-gambatte.append"
+grep -qx 'gambatte_gb_colorization = "disabled"' "$gb_gambatte_options"
+grep -qx 'gambatte_gb_internal_palette = "GB - DMG"' "$gb_gambatte_options"
+grep -qx 'gambatte_gbc_color_correction = "GBC only"' "$gb_gambatte_options"
+
+run_launcher "$tmp/gb-gearboy" --system gb \
+    --core "$root/cores/gearboy_libretro.so" \
+    --rom "$rom_root/gb/test.gb"
+gb_gearboy_options="$root/config/retroarch/core-options/gb/gearboy.opt"
+grep -qx "core_options_path = \"$gb_gearboy_options\"" "$tmp/gb-gearboy.append"
+grep -qx 'gearboy_palette = "B/W"' "$gb_gearboy_options"
+
+run_launcher "$tmp/gb-mgba" --system gb \
+    --core "$root/cores/mgba_libretro.so" \
+    --rom "$rom_root/gb/test.gb"
+gb_mgba_options="$root/config/retroarch/core-options/gb/mgba.opt"
+grep -qx "core_options_path = \"$gb_mgba_options\"" "$tmp/gb-mgba.append"
+grep -qx 'mgba_gb_colors = "Grayscale"' "$gb_mgba_options"
+
+run_launcher "$tmp/gb-vbam" --system gb \
+    --core "$root/cores/vbam_libretro.so" \
+    --rom "$rom_root/gb/test.gb"
+gb_vbam_options="$root/config/retroarch/core-options/gb/vbam.opt"
+grep -qx "core_options_path = \"$gb_vbam_options\"" "$tmp/gb-vbam.append"
+grep -qx 'vbam_palettes = "black and white"' "$gb_vbam_options"
+grep -qx 'vbam_gbHardware = "gb"' "$gb_vbam_options"
+
+# TGB Dual has no stable upstream palette option; do not invent one or attach
+# an empty options file that could mask future core defaults.
+run_launcher "$tmp/gb-tgbdual" --system gb \
+    --core "$root/cores/tgbdual_libretro.so" \
+    --rom "$rom_root/gb/test.gb"
+! grep -q '^core_options_path = ' "$tmp/gb-tgbdual.append"
+test ! -e "$root/config/retroarch/core-options/gb/tgbdual.opt"
+
+printf '%s\n' 'gearboy_palette = "Grayscale inverted"' >"$gb_gearboy_options"
+run_launcher "$tmp/gb-gearboy-preserve" --system gb \
+    --core "$root/cores/gearboy_libretro.so" \
+    --rom "$rom_root/gb/test.gb"
+grep -qx 'gearboy_palette = "Grayscale inverted"' "$gb_gearboy_options"
+
 run_launcher "$tmp/atari800" --system atari800 \
     --core "$root/cores/atari800_libretro.so" \
     --rom "$rom_root/atari800/test.xfd"
@@ -211,13 +279,11 @@ run_launcher "$tmp/gamegear-full" --system gamegear \
 grep -qx 'video_driver = "gl"' "$tmp/gamegear-full.append"
 grep -qx 'video_context_driver = "kms"' "$tmp/gamegear-full.append"
 grep -qx 'video_shader_enable = "true"' "$tmp/gamegear-full.append"
-# The SEGA panel route is 4:3; coverage integration keeps its non-square dots
-# stable at 4.00x/3.33x.
-grep -qx 'aspect_ratio_index = "23"' "$tmp/gamegear-full.append"
-grep -qx 'custom_viewport_width = "640"' "$tmp/gamegear-full.append"
-grep -qx 'custom_viewport_height = "480"' "$tmp/gamegear-full.append"
-grep -qx 'custom_viewport_x = "0"' "$tmp/gamegear-full.append"
-grep -qx 'custom_viewport_y = "0"' "$tmp/gamegear-full.append"
+# The core already reports the SEGA panel's 4:3 display aspect. The normal
+# route must not persist custom viewport values into all later systems.
+! grep -q '^aspect_ratio_index = ' "$tmp/gamegear-full.append"
+! grep -q '^custom_viewport_' "$tmp/gamegear-full.append"
+! grep -q '^config_save_on_exit = ' "$tmp/gamegear-full.append"
 grep -qx -- --set-shader "$tmp/gamegear-full.args"
 grep -qx "$root/config/shaders/gamegear-lcd.glslp" \
     "$tmp/gamegear-full.args"
@@ -235,8 +301,7 @@ PLUMOS_RUNTIME_ROOT=$runtime PLUMOS_BUSYBOX=/bin/busybox \
     --rom "$rom_root/gamegear/test.gg"
 grep -qx "$root/config/shaders/gamegear-lcd-panel-only.glslp" \
     "$tmp/gamegear-panel.args"
-grep -qx 'custom_viewport_width = "640"' "$tmp/gamegear-panel.append"
-grep -qx 'custom_viewport_height = "480"' "$tmp/gamegear-panel.append"
+! grep -q '^custom_viewport_' "$tmp/gamegear-panel.append"
 
 TEST_TRACE=$tmp/gamegear-integer3x \
 PLUMOS_GAMEGEAR_LCD_GEOMETRY=integer3x \
@@ -247,6 +312,9 @@ PLUMOS_RUNTIME_ROOT=$runtime PLUMOS_BUSYBOX=/bin/busybox \
     --rom "$rom_root/gamegear/test.gg"
 grep -qx 'custom_viewport_width = "480"' "$tmp/gamegear-integer3x.append"
 grep -qx 'custom_viewport_height = "432"' "$tmp/gamegear-integer3x.append"
+grep -qx 'custom_viewport_x = "80"' "$tmp/gamegear-integer3x.append"
+grep -qx 'custom_viewport_y = "24"' "$tmp/gamegear-integer3x.append"
+grep -qx 'config_save_on_exit = "false"' "$tmp/gamegear-integer3x.append"
 
 TEST_TRACE=$tmp/gamegear-off \
 PLUMOS_GAMEGEAR_LCD_PRESET=off \

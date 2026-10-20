@@ -60,6 +60,27 @@ esac
 
 $BB mkdir -p "$PLUMOS_ROOT/logs" "$PLUMOS_ROOT/state/picoarch/$SYSTEM_ID" \
     "$PLUMOS_ROOT/saves/$SYSTEM_ID" "$RUNTIME_ROOT/picoarch"
+# Keep every Game Boy route on the same neutral DMG palette. Bubble's RGB565
+# matrix correctly fixed byte order, but its three PicoArch cores retained
+# three different upstream palette defaults (pale green, saturated green and
+# white). Seed only a missing profile so a user-selected palette still wins.
+GB_CORE_OPTIONS_FACTORY=$PLUMOS_ROOT/factory-defaults/picoarch/core-options/gb/${CORE_ID}.cfg
+if [ "$SYSTEM_ID" = gb ] && [ -r "$GB_CORE_OPTIONS_FACTORY" ]; then
+    GB_CORE_OPTIONS_DIR=$PLUMOS_ROOT/state/picoarch/gb/.picoarch-${CORE_ID}-gb
+    GB_CORE_OPTIONS=$GB_CORE_OPTIONS_DIR/picoarch.cfg
+    $BB mkdir -p "$GB_CORE_OPTIONS_DIR"
+    if [ ! -s "$GB_CORE_OPTIONS" ]; then
+        $BB cp "$GB_CORE_OPTIONS_FACTORY" "$GB_CORE_OPTIONS.next"
+        $BB sync
+        $BB mv "$GB_CORE_OPTIONS.next" "$GB_CORE_OPTIONS"
+        $BB sync
+        printf 'picoarch=gb-palette core=%s result=seeded profile=neutral-dmg\n' \
+            "$CORE_ID" >>"$LOG"
+    else
+        printf 'picoarch=gb-palette core=%s result=preserved profile=user\n' \
+            "$CORE_ID" >>"$LOG"
+    fi
+fi
 if [ -x "$PLUMOS_ROOT/bin/plumos-audio-output" ]; then
     "$BB" sh "$PLUMOS_ROOT/bin/plumos-audio-output" prepare >>"$LOG" 2>&1
     ALSA_CONFIG="$RUNTIME_ROOT/audio/asound.conf"

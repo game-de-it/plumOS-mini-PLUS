@@ -32,15 +32,15 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 ## 実機bring-up待ち
 
 - [ ] `MPLUS-HW-01` 空のテスト用SDへ候補を書き、cold bootとU-Boot stage `S10`〜`S19`を確認する。
-- [ ] `MPLUS-HW-02` frontend/LCD到達はユーザー報告で確認済み。initramfs `S21`〜`S26`、SYSTEM `S30`以降のstage記録を回収する。
+- [x] `MPLUS-HW-02` full-stack候補でinitramfs `S21`〜`S29`の成功、SYSTEM `S40_FRONTEND_SUPERVISOR_READY`、frontend/LCD到達を実機確認した。
 - [ ] `MPLUS-HW-03` frontendの基本操作はユーザー報告で確認済み。`retrogame_joypad`の全ボタン、両stick、Fnキーを確認する。
-- [ ] `MPLUS-HW-04` RK817 speaker/headphone、音量、mute、jack切替を確認する。
+- [ ] `MPLUS-HW-04` RK817 ALSA/softvol、直接PCM write、32 emulator routeのPCM進行は確認済み。speaker可聴、headphone、音量、mute、jack切替を確認する。
 - [ ] `MPLUS-HW-05` clean shutdown、reboot、suspend/resume、SD readbackを確認する。
 
 ## 未解決
 
 - [x] `MPLUS-NET-01` live stockOSでSDIO `02D0:A9A6`、`bcmsdh_sdmmc`/`bcmdhd`、matching kernel ABI、実使用firmware/NVRAMを確認し、RTL8821CS force-load経路を廃止した。
-- [ ] `MPLUS-NET-02` Wi-Fi association、DHCP、reconnect、power-off競合を実機確認する。
-- [ ] `MPLUS-FE-01` frontend到達と基本操作は確認済み。全emulator/app layerを組み込んだ候補で各runtimeと終了復帰を実機検証する。
-- [ ] `MPLUS-GPU-01` hash一致するMali AArch64/ARMhf pairを組み込み、DRM/KMS/EGLを実機確認する。
-- [ ] `MPLUS-REL-01` 実機ログと書き戻し後のpartition/hashを記録してrelease可否を判定する。
+- [ ] `MPLUS-NET-02` Wi-Fi association、DHCP、SSH/FTP/SMB待受は実機確認済み。保存済みnetworkのreconnectとpower-off競合を確認する。
+- [ ] `MPLUS-FE-01` full-stack候補でfrontend、終了復帰、SFC/GB/GBA/N64/NDSの32 routeとSaturn Yabasanshiro 2 routeを確認済み。実SD2のflat-root ROM配置が`/storage/Roms`へbindされずFEが0 ROMとなる漏れを修正し、PSP/PSX/OpenBORを実機確認する。
+- [x] `MPLUS-GPU-01` hash一致するMali AArch64/ARMhf pairを組み込み、N64、DraStic、YabasanshiroでDRM/KMS/EGLとMali-G52描画を実機確認した。
+- [ ] `MPLUS-REL-01` assemble-only buildの古いfrontend cacheによりlive `runtime-coverage.json`が`MPLUS-NET-01`のままの不整合を解消し、flat-root SD2、残る実機項目、書き戻し後のpartition/hashを記録してrelease可否を判定する。

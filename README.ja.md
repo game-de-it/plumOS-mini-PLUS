@@ -6,9 +6,9 @@
 
 GKD mini PLUS（RK3566 / ARM64）向けに、plumOS-Bubbleのユーザーランド資産を移植する作業ツリーです。
 
-現在の成果物は**ホスト検証済み・公開不可のfull-stack実機検証候補**です。stockOS SDから読み取ったmini-PLUS固有のRockchipブート先頭領域、kernel、DTB、overlayへ、Bubbleで成立したstorage／update contractを移植しています。元のstockOS SDには書き込んでいません。
+現在の成果物は**実機bring-up中・公開不可のfull-stack候補**です。stockOS SDから読み取ったmini-PLUS固有のRockchipブート先頭領域、kernel、DTB、overlayへ、Bubbleで成立したstorage／update contractを移植しています。元のstockOS SDには書き込んでいません。
 
-Bubble由来frontend、114個のlibretro core、RetroArch、PicoArch、単体emulator、Pyxel、PortMaster、NextCommander、Music Player、network serviceを統合しています。以前のUI確認用imageでは実機frontend到達と基本controller操作を確認済みですが、修正版full-stack image自体は実機未検証です。
+Bubble由来frontend、114個のlibretro core、RetroArch、PicoArch、単体emulator、Pyxel、PortMaster、NextCommander、Music Player、network serviceを統合しています。修正版full-stack imageは実機でfrontend、Wi-Fi/SSH、ALSA、代表32 emulator route、Yabasanshiroを確認済みです。一方、実SD2のflat-root ROM配置をfrontendへ公開できない不具合と、assemble-only buildが古いruntime coverageを再利用する不整合が残っています。
 
 ## 現在の構成
 
@@ -50,7 +50,7 @@ output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-vali
 
 ## 重要な状態表示
 
-ホスト側では、image/partition checksum、MBR、FAT/ext4、raw boot prefix、kernel/DTB/overlay、System A/B、matching p2、first-boot transaction、app-layer全ファイル、114 coreを検証済みです。full-stack imageでのLCD、全入力、音声、shutdown、suspend、Wi‑Fi/SSH、SD readbackは未確認です。空のテスト用SDへ書き込み、実機で確認するまではrelease扱いにしません。
+ホスト側では、image/partition checksum、MBR、FAT/ext4、raw boot prefix、kernel/DTB/overlay、System A/B、matching p2、first-boot transaction、app-layer全ファイル、114 coreを検証済みです。実機ではfrontend、現在のWi-Fi association/DHCP/SSH、ALSA PCM、SFC/GB/GBA/N64/NDSの代表32 route、SaturnのYabasanshiro 2 routeが動作しました。flat-root SD2表示、全入力、speaker/headphone、shutdown、suspend、reconnect、SD readback、PSP/PSX/OpenBORの実ROM起動は未合格で、release扱いにしません。
 
 - [作業状況](TODO.md)
 - [stockOS読み取り記録](docs/validation/2026-10-20-mini-plus-read-only-inventory.md)
@@ -58,6 +58,7 @@ output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-vali
 - [frontend実機確認記録](docs/validation/2026-10-20-mini-plus-frontend-user-acceptance.md)
 - [Bubble contract修正後host候補とチェック表](docs/validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
 - [live stock Wi-Fi反映後の再ビルド記録](docs/validation/2026-10-20-mini-plus-live-wifi-rebuild.md)
+- [mini PLUS / Bubble実機移植漏れ監査](docs/validation/2026-10-20-mini-plus-bubble-live-parity-audit.md)
 - [Bubble由来の参考検証](docs/reference/bubble/validation/)
 
 ## ライセンス

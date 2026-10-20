@@ -3,13 +3,11 @@
   "source": "TODO.md",
   "open_gates": {
     "MPLUS-HW-01": "physical-bringup",
-    "MPLUS-HW-02": "physical-bringup",
     "MPLUS-HW-03": "physical-bringup",
     "MPLUS-HW-04": "physical-bringup",
     "MPLUS-HW-05": "physical-bringup",
     "MPLUS-NET-02": "network-driver",
     "MPLUS-FE-01": "frontend-migration",
-    "MPLUS-GPU-01": "gpu-migration",
     "MPLUS-REL-01": "release-acceptance"
   }
 }

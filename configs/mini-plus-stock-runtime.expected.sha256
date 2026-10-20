@@ -6,5 +6,13 @@
 cb8da0bfc163e076d566c6281937efc296b3eb3dab7d226a0ddc47777a1ad1e7  modules/dwc3-of-simple.ko
 6ddeb15f23588053e00cb08d25588bd7cf98d60fa93d9478efcef4ae8064a7ac  firmware/rtl_bt/rtl8821cs_config.bin
 3baa2eeaa43c959054687a67771e7435e73b2ff3e79dfb765121d8b7dc719391  firmware/rtl_bt/rtl8821cs_fw.bin
+# The live Wi-Fi files were selected from the running stockOS, not inferred
+# from similarly named files found in the offline SYSTEM image.
+b6cb52f3f8fd1e47d53e030a9d18acb6659937c6f25f5f77d333298682315c7f  modules/bcmdhd.ko
+c587abd06865aab98290e1bdd1e9185cfb5c30f89af329c77e0202afe4b932c1  firmware/wifi/fw_bcm43438a1.bin
+d3bb6e76a248f392dbc200b86cdc71e0056003c6fbddd34138832db8dd653dd9  firmware/wifi/nvram_ap6212a.txt
+0a4abd7ae20d07bb70642937ccb2293a72a6504730eea45a698882599f586368  firmware/wifi/regulatory.db
+bcd81aed039ea6b9b6f3726fbf26911a0caf4a5d894210e0fa2effb384d6b326  firmware/wifi/regulatory.db.p7s
+a2a70c44882356a459aae0f8fee4896de801050030316cb6dbc6e9df4fc045ed  firmware/bluetooth/bcm43438a1.hcd
 56e37253ef3c217932aa947734399203614dfa6046a077444d4c76fd29ea5be2  gpu/libmali-aarch64.so.1.9.0
 bbe45b17ec872897a0039a685ba25e87ea8fa2244f3a36648c37acf9fdb55d34  gpu/libmali-armhf.so.1.9.0

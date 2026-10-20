@@ -16,10 +16,10 @@ fixup script. These files remain outside the plumOS MIT License and are
 distributed under the GKD vendor permission recorded in
 GKD-stockOS-PERMISSION-NOTICE.txt, subject to applicable third-party terms.
 
-The System image includes the hash-pinned RTL8821CS module captured from the
-GKD mini PLUS stockOS. Its vermagic is 4.19.172 and does not match the selected
-4.19.193 mini PLUS stock kernel. plumOS first attempts a normal module load and
-permits kmod's explicit force-load path only when the separately packaged
-allow-rtl8821cs-force-load marker is present. This is an experimental recovery
-network path, not evidence of ABI compatibility, and the module remains under
-the GKD vendor permission and applicable upstream terms rather than plumOS MIT.
+The System image includes the hash-pinned bcmdhd module, BCM43438A1 firmware,
+AP6212A NVRAM, regulatory database and BCM43438A1 Bluetooth HCD captured from
+the running GKD mini PLUS stockOS. The internal radio was observed as SDIO
+02D0:A9A6 bound to bcmsdh_sdmmc, and the module vermagic and symbol-version
+table match the selected 4.19.193 mini PLUS stock kernel. These vendor-derived
+files remain under the GKD vendor permission and applicable upstream terms
+rather than the plumOS MIT License.

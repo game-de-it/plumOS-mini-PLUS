@@ -10,7 +10,8 @@
   "capture": {
     "boot_prefix": "scripts/capture-mini-plus-stock-prefix-macos.sh",
     "boot_files": "scripts/capture-mini-plus-stock-boot-files.sh",
-    "runtime": "scripts/capture-mini-plus-stock-runtime-from-system.sh",
+    "runtime_offline": "scripts/capture-mini-plus-stock-runtime-from-system.sh",
+    "runtime_live": "scripts/capture-mini-plus-vendor-runtime-over-ssh.sh",
     "output_root": "artifacts/vendor/mini-plus-stock-source",
     "tracked": false
   },
@@ -25,8 +26,19 @@
     {
       "id": "mini-plus-stock-runtime-abi",
       "hash_manifest": "configs/mini-plus-stock-runtime.expected.sha256",
-      "source_identity": "captured offline from the hash-pinned stock SYSTEM; live kernel configuration remains unverified",
+      "source_identity": "captured from the hash-pinned stock SYSTEM and verified against the running stockOS; live Wi-Fi binding is SDIO 02D0:A9A6 via bcmdhd",
       "license_status": "vendor-permission-attested-mixed-upstream",
+      "distribution_policy": "public-with-vendor-notice"
+    },
+    {
+      "id": "mini-plus-stock-wifi-live",
+      "path": "runtime-live/modules/bcmdhd.ko",
+      "source_identity": "live-bound stockOS module for SDIO 02D0:A9A6 with matching 4.19.193-g5a07852a55cf-dirty modversions ABI",
+      "sha256": "b6cb52f3f8fd1e47d53e030a9d18acb6659937c6f25f5f77d333298682315c7f",
+      "size": 24719608,
+      "firmware": "runtime-live/firmware/wifi/fw_bcm43438a1.bin",
+      "nvram": "runtime-live/firmware/wifi/nvram_ap6212a.txt",
+      "license_status": "vendor-permission-attested-stockos-derived",
       "distribution_policy": "public-with-vendor-notice"
     },
     {

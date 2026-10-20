@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the captured mini PLUS kernel/module contract used by Wi-Fi trials."""
+"""Verify the live-bound mini PLUS stock kernel/Wi-Fi module contract."""
 
 from __future__ import annotations
 
@@ -11,13 +11,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 KERNEL = ROOT / "artifacts/vendor/mini-plus-stock-source/boot/Image"
-MODULE = ROOT / "artifacts/vendor/mini-plus-stock-source/runtime/modules/8821cs.ko"
+MODULE = (
+    ROOT
+    / "artifacts/vendor/mini-plus-stock-source/runtime-live/modules/bcmdhd.ko"
+)
 KERNEL_SHA256 = "670c32a86cf006a574d5ec498df6c14e3ac61af6ed6b109f458b5711c228da56"
-MODULE_SHA256 = "873392f49ce6f1ca8acc501fb7d80367ef7cc54dbfebe9b0c8c531ac06f81037"
+MODULE_SHA256 = "b6cb52f3f8fd1e47d53e030a9d18acb6659937c6f25f5f77d333298682315c7f"
 KERNEL_VERMAGIC = (
     b"4.19.193-g5a07852a55cf-dirty SMP mod_unload modversions aarch64"
 )
-MODULE_VERMAGIC = b"vermagic=4.19.172 SMP mod_unload aarch64"
+MODULE_VERMAGIC = (
+    b"vermagic=4.19.193-g5a07852a55cf-dirty "
+    b"SMP mod_unload modversions aarch64"
+)
 
 
 def sha256(path: Path) -> str:
@@ -49,19 +55,20 @@ def main() -> None:
     for setting in (
         "CONFIG_IKCONFIG=y",
         "CONFIG_MODULES=y",
-        "CONFIG_MODULE_FORCE_LOAD=y",
         "CONFIG_MODVERSIONS=y",
         "CONFIG_CFG80211=y",
         "CONFIG_MMC=y",
     ):
         assert setting in config.splitlines(), f"kernel setting missing: {setting}"
 
-    assert b"__versions\0" not in module, "module unexpectedly contains symbol CRCs"
+    assert b"__versions\0" in module, "stock module symbol CRC table is missing"
+    assert b"fw_bcmdhd.bin\0" in module, "stock firmware default path is missing"
+    assert b"nvram.txt\0" in module, "stock NVRAM default path is missing"
 
     print(
         "miniplus_wifi_abi=result-ok "
-        "kernel_modversions=yes module_symbol_crcs=no "
-        "kernel_force_load=yes policy=normal-then-explicit-force"
+        "kernel_modversions=yes module_symbol_crcs=yes "
+        "sdio_id=02D0:A9A6 driver=bcmdhd policy=normal-load-only"
     )
 
 

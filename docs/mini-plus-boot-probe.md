@@ -46,10 +46,9 @@ U-Boot stageはUART consoleへだけ出力します。U-BootからFATへ書き�
 | `S31` / `E31` | `/storage`確認 / 不在 |
 | `S32` / `E32` | `/flash`確認 / 不在 |
 | `S33` / `E33` | 640x480 framebuffer marker描画 / framebuffer不在 |
-| `S34_WIFI_MODULE_LOADED_NORMAL` | RTL8821CS moduleの通常loadに成功した |
-| `S34_WIFI_MODULE_LOADED_FORCED_ABI_COMPAT` | 明示マーカー付きで`insmod -f`を試しloadに成功した |
-| `E34_WIFI_FORCE_LOAD_NOT_AUTHORIZED` | ABI不一致moduleのforce-loadマーカーがないため試行しなかった |
-| `E34_WIFI_MODULE_LOAD_FAILED` | 通常loadと、許可されていればforce-loadも失敗した |
+| `S34_WIFI_MODULE_LOADED` | live stockOSで確認した`bcmdhd` moduleの通常loadに成功した |
+| `S34_WIFI_MODULE_ALREADY_ACTIVE` | `wlan0`が既に存在した |
+| `E34_WIFI_MODULE_LOAD_FAILED` | matching ABIの`bcmdhd`通常loadに失敗した |
 | `S38_RECOVERY_SSH_READY` | Wi-Fi/DHCP後にDropbear SSHがport 22で待受けた |
 | `S39` / `E39` | recovery idleへ到達しstorageをread-only化 / read-only化失敗 |
 

@@ -44,28 +44,18 @@ network_stage() {
 }
 
 start_recovery_network() {
-    module=/lib/modules/4.19.193-g5a07852a55cf-dirty/kernel/drivers/net/wireless/rockchip_wlan/rtl8821cs/8821cs.ko
-    driver_status=/etc/plumos-wifi-driver-status
-    force_marker=/storage/plumos/config/system/allow-rtl8821cs-force-load
+    module=/lib/modules/4.19.193-g5a07852a55cf-dirty/kernel/drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/bcmdhd.ko
     config=/storage/plumos/config/wpa_supplicant.conf
     host_key=/storage/plumos/ssh/dropbear_ed25519_host_key
     : >/run/plumos-wifi.log
 
-    if [ -r "$driver_status" ] &&
-        $bb grep -q '^blocked-' "$driver_status" 2>/dev/null; then
-        network_stage E34_WIFI_DRIVER_ABI_UNVERIFIED
-        return 0
-    elif [ -d /sys/class/net/wlan0 ]; then
+    if [ -d /sys/class/net/wlan0 ]; then
         network_stage S34_WIFI_MODULE_ALREADY_ACTIVE
-    elif [ -f "$module" ] && $bb insmod "$module" >>/run/plumos-wifi.log 2>&1; then
-        network_stage S34_WIFI_MODULE_LOADED_NORMAL
-    elif [ -f "$module" ] && [ -e "$force_marker" ] && \
-        [ -x /usr/sbin/insmod ] && \
-        /usr/sbin/insmod -f "$module" >>/run/plumos-wifi.log 2>&1; then
-        network_stage S34_WIFI_MODULE_LOADED_FORCED_ABI_COMPAT
-    elif [ -f "$module" ] && [ ! -e "$force_marker" ]; then
-        network_stage E34_WIFI_FORCE_LOAD_NOT_AUTHORIZED
-        return 0
+    elif [ -f "$module" ] && $bb insmod "$module" \
+        firmware_path=/etc/firmware/fw_bcmdhd.bin \
+        nvram_path=/etc/firmware/nvram.txt \
+        >>/run/plumos-wifi.log 2>&1; then
+        network_stage S34_WIFI_MODULE_LOADED
     else
         network_stage E34_WIFI_MODULE_LOAD_FAILED
         return 0

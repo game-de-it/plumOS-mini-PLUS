@@ -81,12 +81,6 @@ install -m 0644 "$repo_root/docs/licenses/mini-plus-runtime-license-inventory.ts
     "$root/licenses/RUNTIME_LICENSE_INDEX.tsv"
 printf 'mini-plus-stockos-r1\n' >"$root/COMPAT_VENDOR"
 printf '1\n' >"$root/RUNTIME_ABI"
-cat >"$root/config/system/allow-rtl8821cs-force-load" <<'EOF'
-format=plumos-mini-plus-wifi-force-load-authorization-v1
-authorized=yes
-scope=full-host-candidate-only
-risk=stock-module-vermagic-4.19.172-vs-running-kernel-4.19.193-modversions
-EOF
 
 for json in "$root"/config/frontend/*.json "$root"/factory-defaults/*/*.json \
     "$root"/components/*/manifest.json; do jq -e . "$json" >/dev/null; done
@@ -138,8 +132,7 @@ cat >"$root/manifest.json" <<EOF
   "catalog_complete": true,
   "release_complete": false,
   "physical_frontend_acceptance": "user-reported-boot-and-basic-controller-operation",
-  "wifi": "experimental-stock-rtl8821cs-normal-then-explicit-force-load",
-  "wifi_force_gate": "config/system/allow-rtl8821cs-force-load",
+  "wifi": "stock-bcmdhd-sdio-02d0-a9a6",
   "catalog_systems": 97,
   "catalog_launch_profile_occurrences": 196,
   "coverage_manifest": "config/frontend/runtime-coverage.json",
@@ -148,7 +141,7 @@ cat >"$root/manifest.json" <<EOF
   "managed_firmware_assets": ["blueMSX C-BIOS", "DraStic packaged BIOS (project-approved inclusion)"],
   "license_policy": "MIT for plumOS-authored material; GKD/vendor/upstream terms for stockOS-derived material; DraStic project-approved inclusion matching plumOS-MF",
   "publishable": false,
-  "non_publishable_reasons": ["mini-PLUS emulator/GPU/audio/power physical acceptance incomplete", "experimental forced Wi-Fi module ABI validation pending"]
+  "non_publishable_reasons": ["mini-PLUS emulator/GPU/audio/power physical acceptance incomplete", "mini-PLUS plumOS-image Wi-Fi/SSH physical acceptance pending"]
 }
 EOF
 (

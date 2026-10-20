@@ -33,7 +33,21 @@ The complete active-file hashes are recorded in `configs/mini-plus-stock-active-
 - OS identity: `MINIPLUS`, build date `2024-06-07`, RK3566/aarch64
 - policy: analysis-only; the complete stock SYSTEM is not copied into plumOS output
 
-Individually captured ABI inputs are listed in `configs/mini-plus-stock-runtime.expected.sha256`. The AArch64 and ARMhf Mali pair matches the Bubble capture hashes. The Wi-Fi device configuration names `8821cs`, but the only matching module in stock `SYSTEM` reports `vermagic=4.19.172 SMP mod_unload aarch64`, which does not match the stock kernel vermagic `4.19.193-g5a07852a55cf-dirty SMP mod_unload modversions aarch64`. It is therefore excluded from the current boot candidate.
+Individually captured ABI inputs are listed in `configs/mini-plus-stock-runtime.expected.sha256`. The AArch64 and ARMhf Mali pair matches the Bubble capture hashes. The offline stock `SYSTEM` inventory contained an `8821cs.ko` reporting `vermagic=4.19.172 SMP mod_unload aarch64`; that file does not match the stock kernel and is not the mini PLUS internal Wi-Fi driver.
+
+Live stockOS inspection over SSH corrected the offline inference. The internal radio enumerates as SDIO `02D0:A9A6` and is bound to `bcmsdh_sdmmc` from `bcmdhd.ko`. The live module reports the exact stock kernel ABI, `4.19.193-g5a07852a55cf-dirty SMP mod_unload modversions aarch64`, and creates `wlan0`. At interface bring-up it selects `/etc/firmware/fw_bcm43438a1.bin` and `/etc/firmware/nvram_ap6212a.txt`; both open successfully, the firmware starts, and stockOS associates normally. The DT-side `wifi_chip_type = ap6330` name is therefore only a platform selector and does not supersede the observed SDIO ID and driver-selected AP6212A/BCM43438A1 payload.
+
+The correct live Wi-Fi set is:
+
+| File | Bytes | SHA-256 |
+|---|---:|---|
+| `bcmdhd.ko` | 24,719,608 | `b6cb52f3f8fd1e47d53e030a9d18acb6659937c6f25f5f77d333298682315c7f` |
+| `fw_bcm43438a1.bin` | 414,579 | `c587abd06865aab98290e1bdd1e9185cfb5c30f89af329c77e0202afe4b932c1` |
+| `nvram_ap6212a.txt` | 1,002 | `d3bb6e76a248f392dbc200b86cdc71e0056003c6fbddd34138832db8dd653dd9` |
+| `regulatory.db` | 4,896 | `0a4abd7ae20d07bb70642937ccb2293a72a6504730eea45a698882599f586368` |
+| `regulatory.db.p7s` | 1,182 | `bcd81aed039ea6b9b6f3726fbf26911a0caf4a5d894210e0fa2effb384d6b326` |
+
+The driver also probes `/etc/firmware/clm_bcm43438a1.blob` and `/etc/firmware/config.txt`, but neither file exists in stockOS and both are explicitly ignored by the live driver. They are not required members of the captured set.
 
 ## Acceptance limit
 

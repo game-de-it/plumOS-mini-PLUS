@@ -7,7 +7,6 @@
     "MPLUS-HW-03": "physical-bringup",
     "MPLUS-HW-04": "physical-bringup",
     "MPLUS-HW-05": "physical-bringup",
-    "MPLUS-NET-01": "network-driver",
     "MPLUS-NET-02": "network-driver",
     "MPLUS-FE-01": "frontend-migration",
     "MPLUS-GPU-01": "gpu-migration",

@@ -8,7 +8,8 @@ The full plumOS application stack was assembled into a separate, host-verified S
 
 - File: `output/image/mini-plus-full/plumOS-mini-PLUS-0.1.0-dev-full-host-candidate.img`
 - Logical size: `4848615424` bytes
-- SHA-256: `77d81a53454c3293a98d7e46783a8a732133b8faff86cee3ce7da470058c670d`
+- SHA-256: `eef955050b36e6a56bd0fbb6acca8b0aebde4dadac33a5affb0c5303782ddca9`
+- Implementation source: `c0c0888` (`Build full mini PLUS plumOS candidate`)
 - p1: 512 MiB FAT32 boot filesystem
 - p2: 4096 MiB ext4 plumOS data filesystem
 - Publication state: `publishable=no`, `release_complete=false`

@@ -57,9 +57,16 @@ copy_elf() {
     done
 }
 
-for binary in wpa_supplicant wpa_cli dropbear dropbearkey; do
+for binary in wpa_supplicant wpa_cli dropbear dropbearkey insmod; do
     copy_elf "$binary"
 done
+wifi_module=$repo_root/artifacts/vendor/mini-plus-stock-source/runtime/modules/8821cs.ko
+wifi_module_sha=873392f49ce6f1ca8acc501fb7d80367ef7cc54dbfebe9b0c8c531ac06f81037
+python3 "$repo_root/scripts/inspect-mini-plus-wifi-abi.py"
+test "$(sha256sum "$wifi_module" | cut -d' ' -f1)" = "$wifi_module_sha"
+wifi_module_target=$rootfs/lib/modules/4.19.193-g5a07852a55cf-dirty/kernel/drivers/net/wireless/rockchip_wlan/rtl8821cs/8821cs.ko
+mkdir -p "${wifi_module_target%/*}"
+install -m 0644 "$wifi_module" "$wifi_module_target"
 chmod 0600 "$rootfs/etc/shadow"
 chmod 0755 "$rootfs/usr/share/udhcpc/default.script"
 chmod 0755 "$rootfs/usr/lib/sftp-server"
@@ -110,7 +117,7 @@ install -m 0644 "$repo_root/THIRD_PARTY_NOTICES.md" \
 install -m 0644 /usr/share/doc/busybox-static/copyright \
     "$rootfs/usr/share/licenses/debian/busybox-static-copyright"
 dpkg-query -W -f='${Version}\n' busybox-static > "$rootfs/usr/share/licenses/debian/busybox-static-version"
-for package in dropbear-bin libc6 libcap2 libcrypt1 libdbus-1-3 libgcrypt20 \
+for package in dropbear-bin kmod libc6 libcap2 libcrypt1 libdbus-1-3 libgcrypt20 \
     libgmp10 libgpg-error0 liblz4-1 liblzma5 libnl-3-200 libnl-genl-3-200 \
     libnl-route-3-200 libpcsclite1 libssl3 libsystemd0 libtomcrypt1 \
     libtommath1 libzstd1 wpasupplicant zlib1g; do
@@ -135,7 +142,7 @@ source_date_epoch=$source_epoch
 kernel_release=4.19.193-g5a07852a55cf-dirty
 boot_substrate=stock-mini-plus
 entrypoints=/sbin/init,/usr/lib/systemd/systemd
-recovery_network=disabled-pending-matching-rtl8821cs-kernel-module
+recovery_network=experimental-stock-rtl8821cs-normal-then-explicit-force-load
 recovery_network_start=background-before-frontend
 boot_visual=shared-plumos-640x480
 boot_visual_source_sha256=6b4be39f18289bffe0a9ea65c11f0d479fd12946bd67154ae7332350df795fa8
@@ -144,7 +151,8 @@ power_finalization=frontend-request,exclusive-claim,pid1-preferred,app-layer-8s-
 app_layer_verification=full-at-build-update-deploy,boot-critical-metadata-only
 frontend_stages=S34_RECOVERY_NETWORK_BACKGROUND_DISPATCHED,S38_RECOVERY_NETWORK_BACKGROUND_FINISHED,S39_APP_LAYER_METADATA_READY,S40-S43,S88-S93,E39,E40,E80-E81,E90-E93
 wifi_stock_system_module_sha256=873392f49ce6f1ca8acc501fb7d80367ef7cc54dbfebe9b0c8c531ac06f81037
-wifi_blocker=stock-system-module-vermagic-4.19.172-vs-running-kernel-4.19.193
+wifi_risk=stock-module-vermagic-4.19.172-no-modversions-vs-running-kernel-4.19.193-modversions
+wifi_force_gate=/storage/plumos/config/system/allow-rtl8821cs-force-load
 image_size=$system_size
 image_sha256=$system_sha
 EOF
@@ -154,6 +162,8 @@ listing=$out_dir/squashfs-list.txt
 unsquashfs -ll "$payload/SYSTEM" > "$listing"
 for required in sbin/init usr/lib/systemd/systemd bin/busybox \
     usr/sbin/wpa_supplicant usr/sbin/wpa_cli usr/sbin/dropbear usr/bin/dropbearkey \
+    usr/sbin/insmod \
+    lib/modules/4.19.193-g5a07852a55cf-dirty/kernel/drivers/net/wireless/rockchip_wlan/rtl8821cs/8821cs.ko \
     usr/lib/sftp-server \
     etc/shadow etc/plumos-wifi-driver-status \
     usr/share/plumos/mini-plus-s33-xrgb8888.raw \

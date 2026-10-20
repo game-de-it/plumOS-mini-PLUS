@@ -299,7 +299,11 @@ if [ "$action" = quiesce ]; then
 fi
 if [ "$action" = start-enabled ]; then
     result=0
-    for candidate in ftp sftp samba; do
+    # SSH is enabled by default when no persisted services.conf exists.  Bind
+    # it before first-time Wi-Fi association so the listener becomes reachable
+    # immediately after the UI obtains an address; start_ssh is idempotent when
+    # PID 1 already launched the recovery listener during boot.
+    for candidate in ssh ftp sftp samba; do
         enabled "$candidate" || continue
         run_one start "$candidate" || result=$?
     done

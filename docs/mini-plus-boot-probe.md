@@ -46,7 +46,11 @@ U-Boot stageはUART consoleへだけ出力します。U-BootからFATへ書き�
 | `S31` / `E31` | `/storage`確認 / 不在 |
 | `S32` / `E32` | `/flash`確認 / 不在 |
 | `S33` / `E33` | 640x480 framebuffer marker描画 / framebuffer不在 |
-| `E34_WIFI_DRIVER_ABI_UNVERIFIED` | RTL8821CS driverを意図的にloadしていない |
+| `S34_WIFI_MODULE_LOADED_NORMAL` | RTL8821CS moduleの通常loadに成功した |
+| `S34_WIFI_MODULE_LOADED_FORCED_ABI_COMPAT` | 明示マーカー付きで`insmod -f`を試しloadに成功した |
+| `E34_WIFI_FORCE_LOAD_NOT_AUTHORIZED` | ABI不一致moduleのforce-loadマーカーがないため試行しなかった |
+| `E34_WIFI_MODULE_LOAD_FAILED` | 通常loadと、許可されていればforce-loadも失敗した |
+| `S38_RECOVERY_SSH_READY` | Wi-Fi/DHCP後にDropbear SSHがport 22で待受けた |
 | `S39` / `E39` | recovery idleへ到達しstorageをread-only化 / read-only化失敗 |
 
 ## Acceptance order
@@ -55,7 +59,8 @@ U-Boot stageはUART consoleへだけ出力します。U-BootからFATへ書き�
 2. host candidateを別の空SDへraw writeし、書き込み後に全体readback hashを確認する。
 3. mini PLUSでcold bootし、UARTまたはp1 `plumos-probe/system-stage.txt`を回収する。
 4. `S33`まで合格後にcontroller、RK817 audio、shutdown/rebootを確認する。
-5. kernel一致のRTL8821CS moduleが得られるまでWi-Fiを有効化しない。
-6. 最小SYSTEM合格後にBubble frontend/app layerを追加する。
+5. frontend-only候補でfrontend到達と基本コントローラー操作を確認する（2026-10-20にユーザー報告で確認済み）。
+6. full候補でRTL8821CS実験load、Wi-Fi association、DHCP、SSH、shutdown競合を確認する。force-loadはkernel crashの可能性があるためstockOS SDでは試さない。
+7. RetroArch、PicoArch、standalone、Pyxel、PortMasterを順に起動し、終了後のfrontend復帰まで確認する。
 
-host buildだけでは物理acceptanceになりません。LCD、入力、音声、電源、SD readbackの記録がそろうまで`publishable=no`を維持します。
+host buildだけでは物理acceptanceになりません。frontend到達と基本操作以外の入力、音声、GPU/runtime、電源、Wi-Fi/SSH、SD readbackの記録がそろうまで`publishable=no`を維持します。

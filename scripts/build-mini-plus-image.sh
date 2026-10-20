@@ -122,7 +122,7 @@ kernel_release=$kernel_release
 layout=raw-prefix-16MiB,p1-fat32-512MiB,p2-ext4-2048MiB
 boot_source=p1-external-initramfs
 stock_root_partition_required=no
-wifi=disabled-pending-matching-rtl8821cs-module
+wifi=module-packaged-force-load-not-authorized-in-minimal-candidate
 physical_boot_status=unverified
 publishable=no
 EOF

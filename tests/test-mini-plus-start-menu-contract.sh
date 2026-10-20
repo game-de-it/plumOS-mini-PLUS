@@ -240,6 +240,7 @@ grep -q 'E94_POWER_ACTION_REFUSED' \
 grep -q 'ui->exit_requested = 1' "$repo_root/src/frontend/plumos_controller_ui.c"
 
 network_script="$repo_root/package/network-services-mini-plus/plumos/bin/plumos-network-services"
+grep -q 'for candidate in ssh ftp sftp samba' "$network_script"
 grep -q 'if \[ "$action" = quiesce \]' "$network_script"
 grep -Fq 'DROPBEAR_RUNTIME_LOG=$RUNTIME_ROOT/dropbear/dropbear.log' \
     "$network_script"

@@ -63,7 +63,7 @@ system_sha256=$system_sha
 layout=raw-prefix-16MiB,p1-fat32-512MiB,p2-ext4-2048MiB
 app_layer=frontend-only
 emulator_runtime=incomplete
-wifi=disabled-pending-matching-rtl8821cs-module
+wifi=module-packaged-force-load-not-authorized-in-frontend-candidate
 physical_boot_status=unverified
 publishable=no
 EOF
@@ -84,7 +84,7 @@ cat > "$work/storage/plumos/manifest.json" <<EOF
   "release_complete": false,
   "user_media_included": false,
   "publishable": false,
-  "non_publishable_reasons": ["physical frontend acceptance incomplete", "emulator runtime not packaged", "Wi-Fi driver ABI unresolved"]
+  "non_publishable_reasons": ["only frontend reachability and basic controller operation are user-confirmed", "emulator runtime not packaged", "Wi-Fi driver ABI mismatch remains physically untested"]
 }
 EOF
 (

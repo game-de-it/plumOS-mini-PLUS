@@ -37,7 +37,7 @@ grep -Fq 'same project-approved inclusion policy used by plumOS-MF' \
 grep -q '^drastic-standalone.*project-approved inclusion$' \
     "$repo_root/docs/licenses/mini-plus-runtime-license-inventory.tsv"
 grep -Fq '"publishable": false' "$repo_root/scripts/build-mini-plus-app-layer.sh"
-grep -Fq 'mini-PLUS physical frontend/GPU acceptance incomplete' \
+grep -Fq 'mini-PLUS emulator/GPU/audio/power physical acceptance incomplete' \
     "$repo_root/scripts/build-mini-plus-app-layer.sh"
 
 printf '%s\n' "$result"

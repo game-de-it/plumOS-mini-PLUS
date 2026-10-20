@@ -81,14 +81,37 @@ install -m 0644 "$repo_root/docs/licenses/mini-plus-runtime-license-inventory.ts
     "$root/licenses/RUNTIME_LICENSE_INDEX.tsv"
 printf 'mini-plus-stockos-r1\n' >"$root/COMPAT_VENDOR"
 printf '1\n' >"$root/RUNTIME_ABI"
+cat >"$root/config/system/allow-rtl8821cs-force-load" <<'EOF'
+format=plumos-mini-plus-wifi-force-load-authorization-v1
+authorized=yes
+scope=full-host-candidate-only
+risk=stock-module-vermagic-4.19.172-vs-running-kernel-4.19.193-modversions
+EOF
 
 for json in "$root"/config/frontend/*.json "$root"/factory-defaults/*/*.json \
     "$root"/components/*/manifest.json; do jq -e . "$json" >/dev/null; done
 PLUMOS_MINI_PLUS_APP_ROOT="$root" \
     "$repo_root/scripts/verify-mini-plus-emulator-catalog.sh"
-for component in \
-    frontend nextcommander music-player network-services retroarch libretro-cores picoarch standalone pyxel portmaster; do
-    (cd "$root" && sha256sum -c "components/$component/checksums.sha256")
+# Validate each component in its own immutable staging tree.  Several runtime
+# components intentionally contribute the same shared-library pathname (for
+# example RetroArch and EasyRPG both package libpng 1.6.39 with different build
+# IDs), so applying every component checksum to the final last-writer-wins
+# overlay would report a false corruption.  The merged tree receives its own
+# checksum below and is smoke-loaded after assembly.
+for component_source in \
+    "frontend:$repo_root/output/frontend/mini-plus/plumos" \
+    "nextcommander:$repo_root/output/nextcommander/mini-plus/plumos" \
+    "music-player:$repo_root/output/music-player/mini-plus/plumos" \
+    "network-services:$repo_root/output/network-services/mini-plus/plumos" \
+    "retroarch:$repo_root/output/retroarch/mini-plus/plumos" \
+    "libretro-cores:$repo_root/output/libretro-cores/mini-plus-all/plumos" \
+    "picoarch:$repo_root/output/picoarch/mini-plus/plumos" \
+    "standalone:$repo_root/output/standalone/mini-plus/plumos" \
+    "pyxel:$repo_root/output/pyxel/mini-plus/plumos" \
+    "portmaster:$repo_root/output/portmaster/mini-plus/plumos"; do
+    component=${component_source%%:*}
+    component_root=${component_source#*:}
+    (cd "$component_root" && sha256sum --quiet -c "components/$component/checksums.sha256")
 done
 # Older cached standalone builds own the prior vendor notice in their component
 # checksum. Verify the component first, then replace that policy document with
@@ -114,6 +137,9 @@ cat >"$root/manifest.json" <<EOF
   "core_baseline": "all-114-source-records",
   "catalog_complete": true,
   "release_complete": false,
+  "physical_frontend_acceptance": "user-reported-boot-and-basic-controller-operation",
+  "wifi": "experimental-stock-rtl8821cs-normal-then-explicit-force-load",
+  "wifi_force_gate": "config/system/allow-rtl8821cs-force-load",
   "catalog_systems": 97,
   "catalog_launch_profile_occurrences": 196,
   "coverage_manifest": "config/frontend/runtime-coverage.json",
@@ -122,7 +148,7 @@ cat >"$root/manifest.json" <<EOF
   "managed_firmware_assets": ["blueMSX C-BIOS", "DraStic packaged BIOS (project-approved inclusion)"],
   "license_policy": "MIT for plumOS-authored material; GKD/vendor/upstream terms for stockOS-derived material; DraStic project-approved inclusion matching plumOS-MF",
   "publishable": false,
-  "non_publishable_reasons": ["mini-PLUS physical frontend/GPU acceptance incomplete", "Wi-Fi kernel module ABI unresolved"]
+  "non_publishable_reasons": ["mini-PLUS emulator/GPU/audio/power physical acceptance incomplete", "experimental forced Wi-Fi module ABI validation pending"]
 }
 EOF
 (
@@ -136,7 +162,7 @@ EOF
         -print | sed 's#^./##' | LC_ALL=C sort |
         while IFS= read -r path; do sha256sum "$path"; done
 ) >"$root/checksums.sha256"
-(cd "$root" && sha256sum -c checksums.sha256)
+(cd "$root" && sha256sum --quiet -c checksums.sha256)
 
 PLUMOS_ROOT="$root" PLUMOS_SDCARD_ROOT="$out" \
     "$root/bin/plumos-library-scan" --defer-thumbnails >"$out/library-scan.log" 2>&1

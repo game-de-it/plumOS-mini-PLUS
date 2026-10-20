@@ -23,10 +23,9 @@ grep -q 'xmb|ozone)' "$menu_launcher"
 grep -q 'video_driver = "gl"' "$menu_launcher"
 
 if [ -f "$repo_root/output/retroarch/mini-plus/plumos/bin/retroarch" ]; then
-    for symbol in menu_ctx_rgui menu_ctx_ozone menu_ctx_xmb; do
-        nm "$repo_root/output/build/retroarch-mini-plus-v1.22.2/retroarch" |
-            grep -Eq "[[:space:]]${symbol}$"
-    done
+    jq -e '.menu_drivers == ["rgui", "xmb", "ozone"]' \
+        "$repo_root/output/retroarch/mini-plus/plumos/components/retroarch/manifest.json" \
+        >/dev/null
     for tree in fonts glui ozone pkg rgui sounds xmb; do
         test -d "$repo_root/output/retroarch/mini-plus/plumos/retroarch/assets/$tree"
     done

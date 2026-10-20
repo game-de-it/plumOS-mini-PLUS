@@ -97,16 +97,17 @@ def audit_source(root: Path, require_clean: bool) -> int:
     return count
 
 
-def audit_app(root: Path, app: Path) -> tuple[int, int]:
+def audit_app(root: Path, app: Path, allow_non_publishable: bool) -> tuple[int, int]:
     manifest_path = app / "manifest.json"
     if not manifest_path.is_file():
         fail("missing-app-manifest")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    if manifest.get("publishable") is not True:
+    if not allow_non_publishable and manifest.get("publishable") is not True:
         fail("app-not-publishable")
     if manifest.get("user_media_included") is not False:
         fail("user-media-flag")
-    if manifest.get("non_publishable_reasons") != []:
+    if (not allow_non_publishable and
+            manifest.get("non_publishable_reasons") != []):
         fail("non-publishable-reasons")
 
     required = (
@@ -178,14 +179,18 @@ def main() -> None:
     parser.add_argument("--repo-root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument("--app-root", type=Path)
     parser.add_argument("--require-clean-checkout", action="store_true")
+    parser.add_argument("--allow-non-publishable-candidate", action="store_true",
+                        help="audit candidate contents without opening the publication gate")
     args = parser.parse_args()
     root = args.repo_root.resolve()
     app = (args.app_root or root / "output/app-layer/mini-plus/plumos").resolve()
     source_files = audit_source(root, args.require_clean_checkout)
-    app_files, firmware = audit_app(root, app)
+    app_files, firmware = audit_app(
+        root, app, args.allow_non_publishable_candidate)
     print("miniplus_release_content=result-ok "
           f"source_files={source_files} app_files={app_files} "
-          f"approved_firmware={firmware} user_media=0 private_keys=0")
+          f"approved_firmware={firmware} user_media=0 private_keys=0 "
+          f"candidate_mode={int(args.allow_non_publishable_candidate)}")
 
 
 if __name__ == "__main__":

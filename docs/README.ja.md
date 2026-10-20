@@ -1,6 +1,6 @@
 # plumOS mini PLUS ドキュメント
 
-> 現在は実機未検証のbring-up段階です。利用者向け文書の機能一覧はBubble由来の移植目標であり、mini-PLUSでの合格記録ではありません。現在の確認済み範囲は[ルートREADME](../README.ja.md)を参照してください。
+> 現在はfrontend到達と基本controller操作だけを実機確認したbring-up段階です。利用者向け文書の機能一覧はBubble由来の移植目標であり、mini-PLUSでの合格記録ではありません。現在の確認済み範囲は[ルートREADME](../README.ja.md)を参照してください。
 
 文書は利用対象ごとに分けています。日本語版は`.ja.md`、英語版は`.md`です。
 
@@ -18,6 +18,9 @@ ROM・BIOS、エミュレータ、ホットキー、セーブ、スクレイピ�
 [開発者向けガイド](developer/README.ja.md)には、boot/storage ownership、再現build、
 System/app-layer、frontend・emulator起動経路、hardware service、update、release検査、
 実機validation記録への入口をまとめています。
+
+- [plumOS実装チェックリスト](plumos-implementation-checklist.ja.md)
+- [mini PLUS conformance監査（2026-10-20）](validation/2026-10-20-mini-plus-plumos-conformance-audit.md)
 
 ## 法的文書
 

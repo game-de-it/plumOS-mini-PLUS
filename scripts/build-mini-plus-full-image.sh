@@ -84,7 +84,7 @@ emulator_runtime=host-verified-device-acceptance-pending
 wifi=experimental-stock-rtl8821cs-normal-then-explicit-force-load
 wifi_force_gate=/storage/plumos/config/system/allow-rtl8821cs-force-load
 ssh=dropbear-port-22-root-user
-physical_boot_status=frontend-and-basic-controller-user-reported
+physical_boot_status=unverified-full-image
 release_complete=false
 publishable=no
 EOF
@@ -145,7 +145,7 @@ p2_filesystem_sha256=$(sha256sum "$storage_ext4" | cut -d' ' -f1)
 app_layer=full
 catalog_complete=true
 wifi=experimental-stock-rtl8821cs-normal-then-explicit-force-load
-physical_boot_status=frontend-and-basic-controller-user-reported
+physical_boot_status=unverified-full-image
 release_complete=false
 publishable=no
 EOF

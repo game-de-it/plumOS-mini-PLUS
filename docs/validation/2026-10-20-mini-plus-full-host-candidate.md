@@ -2,6 +2,14 @@
 
 Date: 2026-10-20
 
+> **2026-10-20 conformance correction:** This file records a useful two-partition
+> bring-up artifact, but the artifact is withdrawn as a plumOS-complete candidate.
+> It has no matching p2, System A/B, managed p3 or first-boot p4, and its 4 GiB
+> p2 was fixed rather than calculated from payload use. See
+> `2026-10-20-mini-plus-plumos-conformance-audit.md`. The full image itself has
+> not been physically booted; frontend acceptance belongs only to the separate
+> frontend-only image.
+
 ## Result
 
 The full plumOS application stack was assembled into a separate, host-verified SD image. This image is a device-test candidate, not a public release.
@@ -13,6 +21,7 @@ The full plumOS application stack was assembled into a separate, host-verified S
 - p1: 512 MiB FAT32 boot filesystem
 - p2: 4096 MiB ext4 plumOS data filesystem
 - Publication state: `publishable=no`, `release_complete=false`
+- Conformance state: `bring-up-only`, withdrawn from release-candidate use
 
 ## Included stack
 

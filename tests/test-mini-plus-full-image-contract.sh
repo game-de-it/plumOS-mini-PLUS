@@ -11,8 +11,10 @@ grep -Fq 'layout=raw-prefix-16MiB,p1-fat32-512MiB,p2-ext4-4096MiB' "$builder"
 grep -Fq 'app_layer=full' "$builder"
 grep -Fq 'catalog_complete=true' "$builder"
 grep -Fq 'allow-rtl8821cs-force-load' "$builder"
+grep -Fq 'physical_boot_status=unverified-full-image' "$builder"
 grep -Fq 'publishable=no' "$builder"
 grep -Fq 'expected_size=4848615424' "$verifier"
 grep -Fq 'p2_bytes=4294967296' "$verifier"
+grep -Fq 'expected_physical=unverified-full-image' "$verifier"
 
-echo 'miniplus_full_image_contract=result-ok p1_mib=512 p2_mib=4096 publishable=no'
+echo 'miniplus_full_image_contract=result-ok role=bringup-only p1_mib=512 p2_mib=4096 physical=unverified publishable=no'

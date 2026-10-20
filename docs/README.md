@@ -1,6 +1,10 @@
 # plumOS mini PLUS Documentation
 
-> This port is currently at the device-unverified bring-up stage. Features described in the user documentation are Bubble-derived migration targets, not mini-PLUS acceptance evidence. See the [top-level README](../README.md) for the verified scope.
+> This port is at the bring-up stage. Only frontend reachability and basic
+> controller operation have been reported on the device. Features described in
+> the user documentation are Bubble-derived migration targets, not mini-PLUS
+> acceptance evidence. See the [top-level README](../README.md) for the verified
+> scope.
 
 Documentation is separated by audience. Files ending in `.ja.md` are Japanese;
 the corresponding `.md` files are English.
@@ -20,6 +24,9 @@ The [developer guide](developer/README.md) links the boot and storage ownership
 design, reproducible builds, System and app-layer assembly, frontend and
 emulator launch routes, hardware services, updates, release gates, and device
 validation evidence.
+
+- [plumOS implementation checklist (Japanese)](plumos-implementation-checklist.ja.md)
+- [mini PLUS conformance audit, 2026-10-20 (Japanese)](validation/2026-10-20-mini-plus-plumos-conformance-audit.md)
 
 ## Legal documents
 

@@ -1,9 +1,12 @@
 # 0001: V90S由来の4 partition ownershipを採用する
 
 Date: 2026-09-01  
-Status: Superseded for bring-up; retained as a possible future update-layout study
+Status: Accepted plumOS release direction; temporarily bypassed only by bring-up artifacts
 
-2026-10-20のmini-PLUS bring-upはstock-compatibleなraw 16 MiB + p1 FAT32 + p2 ext4へ戻した。4 partition、System A/B、first-boot resizeはmini-PLUS実機で未検証のため、現候補には含めない。
+2026-10-20のmini-PLUS bring-upはstock-compatibleなraw 16 MiB + p1 FAT32 + p2 ext4へ戻した。
+この2-partition構成はfrontend到達を確認する診断例外であり、plumOS完成imageのstorage/update
+contractを置き換えない。4 partition、System A/B、first-boot resizeを統合するまで、full payloadを
+収録していてもrelease candidateとは呼ばない。
 
 ## 2026-09-02 boundary clarification
 

@@ -17,7 +17,7 @@ case "$(basename -- "$image")" in
         p2_end=9469951
         p2_sectors=8388608
         p2_bytes=4294967296
-        expected_physical=frontend-and-basic-controller-user-reported
+        expected_physical=unverified-full-image
         expected_app=full
         ;;
     *-frontend-host-candidate.img)

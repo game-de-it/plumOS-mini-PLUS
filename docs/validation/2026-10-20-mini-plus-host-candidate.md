@@ -9,9 +9,10 @@ output/image/mini-plus/plumOS-mini-PLUS-0.1.0-dev-host-candidate.img
 ```
 
 - image size: `2701131776` bytes
-- image SHA-256: `1deb953ed67f59c4414c7778c621ece5d19670f4493ac10ec21958b73287ceca`
-- minimal SYSTEM SHA-256: `4ca7104a5ae0ddeff2526ba4a3f928d5458ac9a89c0b554c07b1d45554d88a0d`
-- external initramfs SHA-256: `d48582d916e694c51f7d763b760171b806bd80483ac947ff0862f48b8ce5092f`
+- image SHA-256: `57d636f93e9899858a6e640bd2c6271be2d6c183762ec96c826c3dafe3b4d923`
+- minimal SYSTEM SHA-256: `05a1378a31d3697dc94523d0a7a81bd97c59d12648f0ea2f7b9cab6a0def3453`
+- external initramfs SHA-256: `48df50207f8be3fbb3c07080e44fbd5150422325404e6a4c79d915e9b4589ace`
+- source commit: `b4e9f0e`
 
 `scripts/build-mini-plus-frontend-image.sh` also completed successfully and produced the separate frontend-only bring-up candidate:
 
@@ -20,10 +21,10 @@ output/image/mini-plus-frontend/plumOS-mini-PLUS-0.1.0-dev-frontend-host-candida
 ```
 
 - image size: `2701131776` bytes
-- image SHA-256: `c45cf9ed2c48c1b3e1aa626e93d7c0b38f13f62a1d6ec680480ef0400c420905`
-- frontend SYSTEM SHA-256: `ff32fe13d0d6b2464eb1f7539aaf74baa5e6764c9a036e02ff7102058b5235cb`
-- p1 filesystem SHA-256: `82a395d761e33e0bc7d4e7995b159d17d6e66b897bbd66c008104c5dce54e265`
-- p2 filesystem SHA-256: `badaa6986580a7e109194a1c80d6d8c9aae94af220be20cb5ab4f4332fff585b`
+- image SHA-256: `8bd66efa21e60a020419020c5b78929c069e88833d21452b25c0e7f3070c7e5f`
+- frontend SYSTEM SHA-256: `419b45cb65d7d54f3497b62ef7fd6eb84a54fe084d70f708c5bb4d3251b5cfff`
+- p1 filesystem SHA-256: `d92ab5e15c4ab0500f35b8e2691e7cea757cb2563088c2a799a7d14a238279be`
+- p2 filesystem SHA-256: `9aa823128a9123dd920b7c0f4925d2c1c6441c2a27f9718c4183b6461e95e018`
 - app layer: Bubble-derived frontend only; emulator runtime intentionally incomplete
 
 ## Layout

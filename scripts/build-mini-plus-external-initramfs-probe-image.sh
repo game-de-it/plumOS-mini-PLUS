@@ -119,13 +119,13 @@ find "$work/matching" -exec touch -h -d "@$source_epoch" {} +
 python3 "$repo_root/scripts/pack-mini-plus-initramfs.py" --uncompressed \
     --mtime "$source_epoch" "$work/matching" "$work/matching-bundle.cpio"
 
-total_sectors=4358144
+total_sectors=5668864
 boot_start=32768
 boot_sectors=1048576
 matching_start=1081344
 matching_sectors=131072
 runtime_start=1212416
-runtime_sectors=3145728
+runtime_sectors=4456448
 matching_bytes=$((matching_sectors * 512))
 test "$(stat -c '%s' "$work/matching-bundle.cpio")" -lt "$matching_bytes"
 truncate -s "$matching_bytes" "$work/matching.raw"
@@ -155,9 +155,9 @@ device=mini-plus
 version=$version
 source_ref=$source_ref
 source_date_epoch=$source_epoch
-runtime_policy=managed-probe-log-and-device-config
-partition_expansion=not-included
-p4_creation=not-included
+runtime_policy=managed-probe-log-device-config-and-separate-userdata
+partition_expansion=p3-seed-2176MiB-to-8192MiB
+p4_creation=first-boot-fat32-PLUMOS
 publishable=no
 EOF
 
@@ -174,11 +174,13 @@ external_initramfs_sha256=$(sha256sum "$initramfs" | cut -d' ' -f1)
 system_a_sha256=$system_sha
 system_b_sha256=$system_sha
 p2_raw_partition_sha256=$matching_sha
-layout=probe-v1,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-1536MiB,no-p4
+layout=storage-contract-probe-v2,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-2176MiB,no-p4
 boot_source=p1-file
 p2_direct_boot=not-yet-proven
-partition_expansion=not-included
-final_partition_contract=no
+partition_expansion=first-boot-p3-to-8192MiB
+p4_creation=first-boot-fat32-PLUMOS-to-card-end
+minimum_card_size_mib=14336
+final_partition_contract=host-candidate
 publishable=no
 EOF
 
@@ -231,7 +233,10 @@ boot_prefix_sha256=$expected_prefix
 p1_filesystem_sha256=$(sha256sum "$boot_fat" | cut -d' ' -f1)
 p2_raw_partition_sha256=$matching_sha
 p3_filesystem_sha256=$(sha256sum "$runtime_ext4" | cut -d' ' -f1)
-final_partition_contract=no
+first_boot_p3_target_mib=8192
+first_boot_p4_label=PLUMOS
+minimum_card_size_mib=14336
+final_partition_contract=host-candidate
 publishable=no
 EOF
 (cd "$out_dir" && sha256sum "$(basename "$image_path")" image.manifest > checksums.sha256)

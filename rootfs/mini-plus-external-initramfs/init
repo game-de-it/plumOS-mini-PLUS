@@ -10,7 +10,7 @@ boot_sectors=1048576
 matching_start=1081344
 matching_sectors=131072
 runtime_start=1212416
-runtime_seed_sectors=4718592
+runtime_seed_sectors=4456448
 runtime_target_sectors=16777216
 
 console_log=/run/plumos-external-initramfs.log

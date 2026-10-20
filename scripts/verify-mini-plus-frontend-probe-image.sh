@@ -26,7 +26,7 @@ personalized_manifest=$image.manifest
 manifest=$base_manifest
 personalized=no
 if [ -f "$personalized_manifest" ] && \
-    grep -q '^format=plumos-mini-plus-personalized-full-stack-validation-v2$' \
+    grep -q '^format=plumos-mini-plus-personalized-full-stack-validation-v3$' \
         "$personalized_manifest"; then
     manifest=$personalized_manifest
     personalized=yes
@@ -44,20 +44,20 @@ expected_size=$(awk -F= '$1 == "image_size" {print $2}' "$manifest")
 expected_sha=$(awk -F= '$1 == "image_sha256" {print $2}' "$manifest")
 expected_p2_sha=$(awk -F= '$1 == "p2_raw_partition_sha256" {print $2}' "$base_manifest")
 grep -q '^format=plumos-mini-plus-full-stack-validation-image-v3$' "$base_manifest"
-test "$expected_size" -eq 3036676096
+test "$expected_size" -eq 2902458368
 test "$(stat -c '%s' "$image")" = "$expected_size"
 test "$(sha256sum "$image" | cut -d' ' -f1)" = "$expected_sha"
 
 parted -ms "$image" unit s print > "$verify/partitions.txt"
 grep -q '^1:32768s:1081343s:1048576s:fat32::boot, lba;$' "$verify/partitions.txt"
 grep -q '^2:1081344s:1212415s:131072s:::;$' "$verify/partitions.txt"
-grep -q '^3:1212416s:5931007s:4718592s:ext4::;$' "$verify/partitions.txt"
+grep -q '^3:1212416s:5668863s:4456448s:ext4::;$' "$verify/partitions.txt"
 ! grep -q '^4:' "$verify/partitions.txt"
 cmp -i 512:512 -n 16776704 "$prefix" "$image"
 
 dd if="$image" of="$verify/flash.fat" bs=512 skip=32768 count=1048576 status=none
 dd if="$image" of="$verify/matching.raw" bs=512 skip=1081344 count=131072 status=none
-dd if="$image" of="$verify/runtime.ext4" bs=512 skip=1212416 count=4718592 status=none
+dd if="$image" of="$verify/runtime.ext4" bs=512 skip=1212416 count=4456448 status=none
 test "$(sha256sum "$verify/matching.raw" | cut -d' ' -f1)" = "$expected_p2_sha"
 test "$(dd if="$verify/matching.raw" bs=1 count=6 status=none)" = 070701
 test -z "$(blkid -p -s TYPE -o value "$verify/matching.raw" 2>/dev/null || true)"
@@ -137,7 +137,7 @@ debugfs -R 'cat /plumos/external-initramfs-probe.manifest' \
 grep -q '^format=plumos-mini-plus-full-stack-runtime-validation-v3$' "$verify/runtime.manifest"
 grep -q '^authorized=yes$' "$verify/runtime.manifest"
 grep -q '^app_layer=frontend,nextcommander,music-player,network-services,retroarch,libretro-cores,picoarch,standalone,pyxel,portmaster$' "$verify/runtime.manifest"
-grep -q '^partition_expansion=p3-seed-2304MiB-to-8192MiB$' "$verify/runtime.manifest"
+grep -q '^partition_expansion=p3-seed-2176MiB-to-8192MiB$' "$verify/runtime.manifest"
 grep -q '^p4_creation=first-boot-fat32-PLUMOS$' "$verify/runtime.manifest"
 if [ "$personalized" = yes ]; then
     debugfs -R 'stat /plumos/config/wpa_supplicant.conf' \
@@ -146,7 +146,7 @@ fi
 
 MTOOLS_SKIP_CHECK=1 mtype -i "$verify/flash.fat" \
     ::/plumos-image.manifest > "$verify/plumos-image.manifest"
-grep -q '^layout=validation-seed-v3,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-2304MiB,no-p4$' \
+grep -q '^layout=validation-seed-v3,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-2176MiB,no-p4$' \
     "$verify/plumos-image.manifest"
 grep -q '^format=plumos-mini-plus-full-stack-validation-image-v3$' "$verify/plumos-image.manifest"
 grep -q '^p3_size_calculation=ceil-app-plus-headroom-to-128MiB$' \

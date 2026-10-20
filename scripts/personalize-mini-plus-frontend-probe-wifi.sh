@@ -55,7 +55,7 @@ parted -ms "$base" unit s print >"$work/partitions.txt"
 runtime_start=$(awk -F: '$1 == 3 {gsub(/s/, "", $2); print $2}' "$work/partitions.txt")
 runtime_sectors=$(awk -F: '$1 == 3 {gsub(/s/, "", $4); print $4}' "$work/partitions.txt")
 case "$runtime_start:$runtime_sectors" in
-    1212416:3145728|1212416:4718592) ;;
+    1212416:4456448) ;;
     *) echo 'unsupported p3 geometry' >&2; exit 2 ;;
 esac
 cp --sparse=always "$base" "$incoming"
@@ -93,7 +93,7 @@ mv "$incoming" "$output"
 base_sha=$(sha256sum "$base" | cut -d' ' -f1)
 output_sha=$(sha256sum "$output" | cut -d' ' -f1)
 cat > "$output.manifest" <<EOF
-format=plumos-mini-plus-personalized-full-stack-validation-v2
+format=plumos-mini-plus-personalized-full-stack-validation-v3
 file=$(basename "$output")
 image_size=$(stat -c '%s' "$output")
 image_sha256=$output_sha

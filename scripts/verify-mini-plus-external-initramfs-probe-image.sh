@@ -25,7 +25,7 @@ personalized_manifest=$image.manifest
 manifest=$base_manifest
 personalized=no
 if [ -f "$personalized_manifest" ] && \
-    grep -q '^format=plumos-mini-plus-personalized-external-initramfs-probe-v1$' \
+    grep -q '^format=plumos-mini-plus-personalized-external-initramfs-probe-v2$' \
         "$personalized_manifest"; then
     manifest=$personalized_manifest
     personalized=yes
@@ -42,20 +42,20 @@ mkdir -p "$verify/matching" "$verify/initramfs"
 expected_size=$(awk -F= '$1 == "image_size" {print $2}' "$manifest")
 expected_sha=$(awk -F= '$1 == "image_sha256" {print $2}' "$manifest")
 expected_p2_sha=$(awk -F= '$1 == "p2_raw_partition_sha256" {print $2}' "$base_manifest")
-test "$expected_size" -eq 2231369728
+test "$expected_size" -eq 2902458368
 test "$(stat -c '%s' "$image")" = "$expected_size"
 test "$(sha256sum "$image" | cut -d' ' -f1)" = "$expected_sha"
 
 parted -ms "$image" unit s print > "$verify/partitions.txt"
 grep -q '^1:32768s:1081343s:1048576s:fat32::boot, lba;$' "$verify/partitions.txt"
 grep -q '^2:1081344s:1212415s:131072s:::;$' "$verify/partitions.txt"
-grep -q '^3:1212416s:4358143s:3145728s:ext4::;$' "$verify/partitions.txt"
+grep -q '^3:1212416s:5668863s:4456448s:ext4::;$' "$verify/partitions.txt"
 ! grep -q '^4:' "$verify/partitions.txt"
 cmp -i 512:512 -n 16776704 "$prefix" "$image"
 
 dd if="$image" of="$verify/flash.fat" bs=512 skip=32768 count=1048576 status=none
 dd if="$image" of="$verify/matching.raw" bs=512 skip=1081344 count=131072 status=none
-dd if="$image" of="$verify/runtime.ext4" bs=512 skip=1212416 count=3145728 status=none
+dd if="$image" of="$verify/runtime.ext4" bs=512 skip=1212416 count=4456448 status=none
 test "$(sha256sum "$verify/matching.raw" | cut -d' ' -f1)" = "$expected_p2_sha"
 test "$(dd if="$verify/matching.raw" bs=1 count=6 status=none)" = 070701
 test -z "$(blkid -p -s TYPE -o value "$verify/matching.raw" 2>/dev/null || true)"
@@ -103,16 +103,18 @@ gzip -dc "$initramfs" | (cd "$verify/initramfs" && /bin/busybox cpio -idm 2>/dev
 for stage in S21 S22 S23 S24 S25 S26 S27 S28 S29 E23 E24 E25 E26 E27 E28 E29; do
     grep -q "$stage" "$verify/initramfs/init"
 done
-! grep -Eq '(^|[[:space:]])(parted|sfdisk|fdisk|mkfs|resize2fs|growpart)([[:space:]]|$)' \
-    "$verify/initramfs/init"
 test "$(stat -c '%a' "$verify/initramfs/init")" = 755
+test "$(stat -c '%a' "$verify/initramfs/usr/sbin/plumos-mini-plus-provision-storage")" = 755
+for tool in parted partprobe e2fsck resize2fs mkfs.fat fsck.fat; do
+    test -x "$verify/initramfs/usr/sbin/$tool"
+done
 readelf -h "$verify/initramfs/bin/busybox" | grep -q 'Machine:.*AArch64'
 
 debugfs -R 'cat /plumos/external-initramfs-probe.manifest' \
     "$verify/runtime.ext4" 2>/dev/null > "$verify/runtime.manifest"
 grep -q '^authorized=yes$' "$verify/runtime.manifest"
-grep -q '^partition_expansion=not-included$' "$verify/runtime.manifest"
-grep -q '^p4_creation=not-included$' "$verify/runtime.manifest"
+grep -q '^partition_expansion=p3-seed-2176MiB-to-8192MiB$' "$verify/runtime.manifest"
+grep -q '^p4_creation=first-boot-fat32-PLUMOS$' "$verify/runtime.manifest"
 if [ "$personalized" = yes ]; then
     debugfs -R 'stat /plumos/config/wpa_supplicant.conf' \
         "$verify/runtime.ext4" 2>/dev/null | grep -q 'Mode:  0600'
@@ -120,9 +122,9 @@ fi
 
 MTOOLS_SKIP_CHECK=1 mtype -i "$verify/flash.fat" \
     ::/plumos-image.manifest > "$verify/plumos-image.manifest"
-grep -q '^layout=probe-v1,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-1536MiB,no-p4$' \
+grep -q '^layout=storage-contract-probe-v2,raw-prefix-16MiB,p1-fat32-512MiB,p2-raw-64MiB,p3-ext4-2176MiB,no-p4$' \
     "$verify/plumos-image.manifest"
-grep -q '^final_partition_contract=no$' "$verify/plumos-image.manifest"
+grep -q '^final_partition_contract=host-candidate$' "$verify/plumos-image.manifest"
 grep -q '^publishable=no$' "$verify/plumos-image.manifest"
 
 echo "miniplus_external_probe_verify=result-ok image=$image sha256=$expected_sha personalized=$personalized"

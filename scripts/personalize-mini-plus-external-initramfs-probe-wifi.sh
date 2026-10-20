@@ -51,10 +51,10 @@ trap cleanup EXIT HUP INT TERM
 find "$work" -depth -delete 2>/dev/null || true
 mkdir -p "$work" "${output%/*}"
 
-test "$(stat -c '%s' "$base")" -eq 2231369728
+test "$(stat -c '%s' "$base")" -eq 2902458368
 cp --sparse=always "$base" "$incoming"
 dd if="$incoming" of="$work/runtime.ext4" bs=512 skip=1212416 \
-    count=3145728 status=none
+    count=4456448 status=none
 debugfs -R 'cat /plumos/external-initramfs-probe.manifest' \
     "$work/runtime.ext4" 2>/dev/null | grep -q '^authorized=yes$'
 if debugfs -R 'ls -p /plumos/config' "$work/runtime.ext4" 2>/dev/null | \
@@ -87,16 +87,15 @@ mv "$incoming" "$output"
 base_sha=$(sha256sum "$base" | cut -d' ' -f1)
 output_sha=$(sha256sum "$output" | cut -d' ' -f1)
 cat > "$output.manifest" <<EOF
-format=plumos-mini-plus-personalized-external-initramfs-probe-v1
+format=plumos-mini-plus-personalized-external-initramfs-probe-v2
 file=$(basename "$output")
 image_size=$(stat -c '%s' "$output")
 image_sha256=$output_sha
 base_image_sha256=$base_sha
 personalization=external-wpa-supplicant-config-in-p3
 credential_hash_recorded=no
-final_partition_contract=no
+final_partition_contract=host-candidate
 publishable=no
 EOF
 printf '%s  %s\n' "$output_sha" "$(basename "$output")" > "$output.sha256"
 echo "miniplus_external_probe_wifi_personalize=result-ok output=$output sha256=$output_sha"
-

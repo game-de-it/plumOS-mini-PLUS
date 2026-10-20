@@ -69,7 +69,7 @@ make_seed() {
     parted -s "$image" unit s mklabel msdos \
         mkpart primary fat32 32768s 1081343s \
         mkpart primary ext2 1081344s 1212415s \
-        mkpart primary ext4 1212416s 5931007s
+        mkpart primary ext4 1212416s 5668863s
     attach_image "$image"
     mkfs.ext4 -q -F -L PLUMOS_SYS "${ACTIVE_LOOP}p3"
     detach_image

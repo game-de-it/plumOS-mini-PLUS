@@ -147,7 +147,7 @@ runtime_seed_mib=$((runtime_bytes / 1048576))
 # Early userspace deliberately admits only the geometry that has interruption
 # and resume fixtures. App growth must update that contract and its tests rather
 # than silently producing a different partition map.
-test "$runtime_seed_mib" -eq 2304 || {
+test "$runtime_seed_mib" -eq 2176 || {
     echo "calculated p3 seed is ${runtime_seed_mib} MiB; update the validated storage contract" >&2
     exit 1
 }

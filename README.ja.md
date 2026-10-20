@@ -46,7 +46,7 @@ output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-vali
 output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-validation.7z
 ```
 
-ブート資産はGit管理外の`artifacts/vendor/mini-plus-stock-source/`に置き、各ファイルを固定ハッシュで検証します。stock `SYSTEM`本体は解析専用で、生成イメージへコピーしません。rawは2,902,458,368 bytesで、配布用の検証済み7zは500 MB未満です。
+ブート資産はGit管理外の`artifacts/vendor/mini-plus-stock-source/`に置き、各ファイルを固定ハッシュで検証します。stock `SYSTEM`本体は解析専用で、生成イメージへコピーしません。rawは2,902,458,368 bytes、配布用の検証済み7zは485,622,918 bytes（463.13 MiB）で、500 MB未満です。
 
 ## 重要な状態表示
 
@@ -57,6 +57,7 @@ output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-vali
 - [ホスト候補ビルド記録](docs/validation/2026-10-20-mini-plus-host-candidate.md)
 - [frontend実機確認記録](docs/validation/2026-10-20-mini-plus-frontend-user-acceptance.md)
 - [Bubble contract修正後host候補とチェック表](docs/validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
+- [live stock Wi-Fi反映後の再ビルド記録](docs/validation/2026-10-20-mini-plus-live-wifi-rebuild.md)
 - [Bubble由来の参考検証](docs/reference/bubble/validation/)
 
 ## ライセンス

@@ -42,7 +42,7 @@ output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-vali
 
 Use `Settings` → `Network` → `Connect Wi-Fi` for the first association. SSH starts by default before association and becomes reachable as soon as DHCP assigns an address. The address is shown in Network Information; after a boot with saved credentials it is also written to `plumos-probe/network-address.txt` on the FAT partition. SSH/SFTP use port 22 with the initial login `root` / `plumos`. Use this only on a trusted test network and change the password before broader use.
 
-The host build verifies complete image and partition checksums, filesystems, raw boot prefix, kernel, DTBs/overlays, the Wi-Fi ABI and payload hashes, the 114-core load smoke test and catalog coverage. The raw image is 2,902,458,368 bytes; the compressed validation asset remains below 500 MB. Audio, every control, emulator/GPU runtime, power management, Wi-Fi/SSH and SD readback still require physical-device validation.
+The host build verifies complete image and partition checksums, filesystems, raw boot prefix, kernel, DTBs/overlays, the Wi-Fi ABI and payload hashes, the 114-core load smoke test and catalog coverage. The raw image is 2,902,458,368 bytes; its verified 7z is 485,622,918 bytes (463.13 MiB), below 500 MB. Audio, every control, emulator/GPU runtime, power management, Wi-Fi/SSH and SD readback still require physical-device validation.
 
 - [Bring-up status](TODO.md)
 - [Read-only stock inventory](docs/validation/2026-10-20-mini-plus-read-only-inventory.md)
@@ -50,6 +50,7 @@ The host build verifies complete image and partition checksums, filesystems, raw
 - [Frontend physical acceptance reported by the user](docs/validation/2026-10-20-mini-plus-frontend-user-acceptance.md)
 - [Full host candidate build and verification record](docs/validation/2026-10-20-mini-plus-full-host-candidate.md)
 - [Corrected Bubble-contract host candidate and checklist](docs/validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
+- [Live-stock Wi-Fi rebuild record](docs/validation/2026-10-20-mini-plus-live-wifi-rebuild.md)
 - [Preserved Bubble reference evidence](docs/reference/bubble/validation/)
 
 plumOS-authored material is covered by the [MIT License](LICENSE). StockOS-derived boot/runtime inputs and third-party components retain their own terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

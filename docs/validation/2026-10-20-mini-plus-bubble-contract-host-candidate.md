@@ -2,6 +2,9 @@
 
 Date: 2026-10-20
 
+> Historical artifact record. The current live-stock `bcmdhd` rebuild supersedes this
+> candidate; see `2026-10-20-mini-plus-live-wifi-rebuild.md`.
+
 Baseline: `docs/plumos-implementation-checklist.ja.md`
 
 ## 結論

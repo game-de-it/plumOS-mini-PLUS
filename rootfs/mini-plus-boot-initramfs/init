@@ -1,0 +1,90 @@
+#!/bin/sh
+set -u
+
+bb=/bin/busybox
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export PATH HOME=/root HOSTNAME=plumos-mini-plus-initramfs
+
+flash=/flash
+newroot=/newroot
+flash_device=
+storage_device=
+
+log() {
+    message="plumos-mini-plus-initramfs=$*"
+    printf '%s\n' "$message" >/dev/console 2>/dev/null || true
+    printf '%s\n' "$message" >/dev/kmsg 2>/dev/null || true
+}
+
+fail() {
+    log "stage=$1 detail=$2"
+    $bb sync
+    exec $bb sh
+}
+
+mounted() {
+    $bb grep -qs " $1 " /proc/mounts 2>/dev/null
+}
+
+$bb mkdir -p /proc /sys /dev /dev/pts /run /tmp /root "$flash" "$newroot"
+mounted /proc || $bb mount -t proc proc /proc || exec $bb sh
+mounted /sys || $bb mount -t sysfs sysfs /sys || exec $bb sh
+mounted /dev || $bb mount -t devtmpfs devtmpfs /dev || exec $bb sh
+$bb [ -c /dev/console ] || $bb mknod /dev/console c 5 1
+exec </dev/console >/dev/console 2>&1
+mounted /dev/pts || $bb mount -t devpts devpts /dev/pts 2>/dev/null || true
+$bb mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /run 2>/dev/null || true
+$bb mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /tmp 2>/dev/null || true
+$bb hostname "$HOSTNAME" 2>/dev/null || true
+log 'stage=S21_ENTRY'
+
+count=0
+while [ "$count" -lt 100 ]; do
+    for candidate in /dev/mmcblk*p1; do
+        [ -b "$candidate" ] || continue
+        if $bb mount -t vfat -o ro "$candidate" "$flash" 2>/dev/null; then
+            if [ -f "$flash/plumos-image.manifest" ] &&
+                $bb grep -qx 'device=gkd-mini-plus' "$flash/plumos-image.manifest"; then
+                flash_device=$candidate
+                storage_device=${candidate%p1}p2
+                break 2
+            fi
+            $bb umount "$flash" 2>/dev/null || true
+        fi
+    done
+    $bb sleep 0.1
+    count=$((count + 1))
+done
+[ -n "$flash_device" ] || fail E22 BOOT_PARTITION_NOT_FOUND
+[ -b "$storage_device" ] || fail E22 STORAGE_PARTITION_NOT_FOUND
+log "stage=S22_MEDIA_RESOLVED flash=$flash_device storage=$storage_device"
+
+[ -f "$flash/SYSTEM" ] || fail E23 SYSTEM_MISSING
+[ -f "$flash/SYSTEM.sha256" ] || fail E23 SYSTEM_CHECKSUM_MISSING
+expected=$($bb awk 'NF {print $1; exit}' "$flash/SYSTEM.sha256" 2>/dev/null || true)
+actual=$($bb sha256sum "$flash/SYSTEM" 2>/dev/null | $bb awk '{print $1}' || true)
+[ -n "$expected" ] && [ "$actual" = "$expected" ] || fail E23 SYSTEM_CHECKSUM_MISMATCH
+log "stage=S23_SYSTEM_VERIFIED sha256=$actual"
+
+[ -b /dev/loop0 ] || $bb mknod /dev/loop0 b 7 0
+$bb losetup /dev/loop0 "$flash/SYSTEM" || fail E24 LOOP_SETUP_FAILED
+$bb mount -t squashfs -o ro /dev/loop0 "$newroot" || fail E24 SYSTEM_MOUNT_FAILED
+for required in init flash storage proc sys dev run tmp; do
+    [ -e "$newroot/$required" ] || fail E24 SYSTEM_CONTRACT_MISSING_$required
+done
+log 'stage=S24_SYSTEM_MOUNTED'
+
+$bb mount -t ext4 -o rw,noatime "$storage_device" "$newroot/storage" ||
+    fail E25 STORAGE_MOUNT_FAILED
+$bb mkdir -p "$newroot/storage/plumos/logs" "$newroot/storage/plumos/config"
+log 'stage=S25_STORAGE_MOUNTED'
+
+$bb sync
+log 'stage=S26_SWITCH_ROOT'
+$bb mount --move "$flash" "$newroot/flash" || fail E26 FLASH_MOVE_FAILED
+$bb mount --move /proc "$newroot/proc" || fail E26 PROC_MOVE_FAILED
+$bb mount --move /sys "$newroot/sys" || fail E26 SYS_MOVE_FAILED
+$bb mount --move /run "$newroot/run" || fail E26 RUN_MOVE_FAILED
+$bb mount --move /tmp "$newroot/tmp" || fail E26 TMP_MOVE_FAILED
+$bb mount --move /dev "$newroot/dev" || fail E26 DEV_MOVE_FAILED
+exec $bb switch_root "$newroot" /init

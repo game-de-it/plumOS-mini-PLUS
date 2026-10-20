@@ -1,6 +1,6 @@
 # 対応システム・ROMフォルダ・拡張子・エミュレータ一覧
 
-この一覧は、GKD Bubble版plumOSのフロントエンドで現在有効なシステムを
+この一覧は、GKD mini PLUS版plumOSのフロントエンドで現在有効なシステムを
 すべて掲載しています。ROMはSD1（本体上部のSYSスロット）またはSD2
 （本体下部のSD2スロット）の`Roms/`以下へ置きます。各行の最初のフォルダ名を
 推奨します。2つ目以降も別名として認識しますが、同じシステムのフォルダを複数
@@ -69,7 +69,7 @@ CD系は`.cue`、`.gdi`、`.m3u`など、トラック関係を保持できる形
 | Game & Watch | `Roms/GW/`<br>`Roms/GAMEANDWATCH/`<br>`Roms/gameandwatch/`<br>`Roms/_etc/gameandwatch/` | `.mgw`, `.zip`, `.7z` | **既定:** RA `gw` |
 | Pokemon Mini | `Roms/POKEMINI/`<br>`Roms/pokemini/`<br>`Roms/_etc/pokemini/` | `.min`, `.zip`, `.7z` | **既定:** RA `pokemini` |
 | Doom | `Roms/DOOM/`<br>`Roms/doom/`<br>`Roms/_etc/doom/` | `.wad`, `.iwad`, `.pwad`, `.zip` | **既定:** RA `prboom` |
-| Pyxel | `Roms/pyxel/`<br>`Roms/PYXEL/` | `.pyxapp`, `.py` | **既定:** Pyxel `bubble` |
+| Pyxel | `Roms/pyxel/`<br>`Roms/PYXEL/` | `.pyxapp`, `.py` | **既定:** Pyxel `mini-plus` |
 | 3DO | `Roms/PANASONIC/`<br>`Roms/3do/`<br>`Roms/_etc/3do/` | `.iso`, `.chd`, `.bin`, `.cue` | **既定:** RA `opera` |
 | Amiga | `Roms/AMIGA/`<br>`Roms/amiga/`<br>`Roms/_etc/amiga/` | `.adf`, `.adz`, `.dms`, `.fdi`, `.ipf`, `.hdf`, `.hdz`, `.lha`, `.slave`, `.info`, `.cue`, `.ccd`, `.nrg`, `.mds`, `.iso`, `.chd`, `.uae`, `.m3u`, `.zip`, `.7z`, `.rp9` | **既定:** RA `puae`<br>RA: `puae2021`, `uae4arm`, `km_puae_xtreme_amped` |
 | Atari 5200 | `Roms/FIFTYTWOHUNDRED/`<br>`Roms/atari5200/`<br>`Roms/ATARI/5200/` | `.a52`, `.bin`, `.rom`, `.xfd`, `.atr`, `.atx`, `.cas`, `.car`, `.xex`, `.zip`, `.7z` | **既定:** RA `atari800`<br>RA: `a5200` |
@@ -108,7 +108,7 @@ CD系は`.cue`、`.gdi`、`.m3u`など、トラック関係を保持できる形
 
 ## 現在無効なシステム
 
-次の項目は内部カタログに残っていますが、Bubbleでは対応済みとして公開せず、
+次の項目は内部カタログに残っていますが、mini PLUSでは対応済みとして公開せず、
 通常のTOP画面にも表示しません。3DSはRK3566の性能対象外のためカタログ自体から
 除外しています。Java MEは実機検証で利用可能なゲームを確認できなかったため無効です。
 
@@ -130,5 +130,5 @@ CD系は`.cue`、`.gdi`、`.m3u`など、トラック関係を保持できる形
 - [SDカードとフォルダ](storage.ja.md)
 - [BIOS、セーブ、スクリーンショット](save-data.ja.md)
 
-このファイルは`package/frontend-bubble/plumos/config/frontend/systems.json`を
-正として、`scripts/generate-bubble-supported-systems-doc.py`で生成します。
+このファイルは`package/frontend-mini-plus/plumos/config/frontend/systems.json`を
+正として、`scripts/generate-mini-plus-supported-systems-doc.py`で生成します。

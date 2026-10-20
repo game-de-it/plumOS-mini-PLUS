@@ -1,0 +1,210 @@
+#!/bin/sh
+set -eu
+
+BB=${PLUMOS_BUSYBOX:-/bin/busybox}
+PLUMOS_ROOT=${PLUMOS_ROOT:-/storage/plumos}
+config=${PLUMOS_RETROARCH_CONFIG:-$PLUMOS_ROOT/config/retroarch/retroarch-mini-plus.cfg}
+factory=${PLUMOS_RETROARCH_FACTORY_CONFIG:-$PLUMOS_ROOT/factory-defaults/retroarch/retroarch-mini-plus.cfg}
+legacy_defaults=${PLUMOS_RETROARCH_LEGACY_DEFAULTS:-$PLUMOS_ROOT/factory-defaults/retroarch/retroarch-mini-plus-pre-v90s.cfg}
+state_dir=${PLUMOS_RETROARCH_CONFIG_STATE:-$PLUMOS_ROOT/state/retroarch}
+marker=$state_dir/factory-config.sha256
+# Initial mini PLUS factory shipped before the V90S configuration surface was
+# ported. It is safe to replace only when the active file is byte-identical.
+legacy_miniplus_sha256=9e0cee764c7840a904403ba8fcde7c1cc4729d1b759aabbe4563e43f4112627b
+# First full V90S-derived mini PLUS factory. Its missing-key-only migration left
+# RetroArch's serialized pre-port defaults in every existing setting slot.
+pre_v90s_full_factory_sha256=0a10e596d378325e9449fa8374f3f62d9c198461b3db4a69f61634824ddc638a
+# mini PLUS factory generation that assigned Function2 to RGUI and Function1 to
+# screenshots. The physical acceptance policy now assigns every emulator menu
+# to Function1. Only migrate the exact managed pair; user remaps still win.
+function2_menu_factory_sha256=23878b2e84b5145f43925f15aae1a424be75748e84b5ba209fbe7b4231de9635
+# First full mini PLUS factory after the Function1 migration.  It accidentally
+# kept a fixed 4:3 aspect instead of MF's core-provided aspect policy.
+fixed_aspect_factory_sha256=04bf95ccb13544c17fe03dabe70024be8ed17e8a40f2ae9e3f313a09f5b82348
+
+[ -s "$factory" ] || {
+    printf 'retroarch_config=result-error reason=factory-missing path=%s\n' "$factory" >&2
+    exit 1
+}
+$BB mkdir -p "${config%/*}" "$state_dir"
+set -- $($BB sha256sum "$factory")
+factory_sha256=$1
+
+atomic_copy() {
+    source=$1
+    target=$2
+    temporary=${target}.next.$$
+    $BB cp "$source" "$temporary"
+    $BB sync
+    $BB mv "$temporary" "$target"
+    $BB sync
+}
+
+merge_missing_keys() {
+    merge_next=${config}.next.$$
+    merge_count=$state_dir/merge-count.$$
+    $BB cp "$config" "$merge_next"
+    printf '\n' >>"$merge_next"
+    $BB awk '
+        NR == FNR {
+            if ($0 ~ /^[A-Za-z0-9_.-]+[[:space:]]*=/) {
+                key=$0
+                sub(/[[:space:]]*=.*/, "", key)
+                present[key]=1
+            }
+            next
+        }
+        $0 ~ /^[A-Za-z0-9_.-]+[[:space:]]*=/ {
+            key=$0
+            sub(/[[:space:]]*=.*/, "", key)
+            if (!present[key]) {
+                print
+                added++
+            }
+        }
+        END { print added + 0 > count_file }
+    ' count_file="$merge_count" "$config" "$factory" >>"$merge_next"
+    added=$($BB sed -n '1p' "$merge_count" 2>/dev/null || printf '0')
+    $BB rm -f "$merge_count"
+    if [ "$added" -gt 0 ]; then
+        $BB sync
+        $BB mv "$merge_next" "$config"
+        $BB sync
+        result=merged
+    else
+        $BB rm -f "$merge_next"
+        result=unchanged
+    fi
+}
+
+migrate_pre_v90s_defaults() {
+    migrate_next=${config}.next.$$
+    migrate_count=$state_dir/migrate-pre-v90s-count.$$
+    $BB awk '
+        NR == FNR {
+            if ($0 ~ /^[A-Za-z0-9_.-]+[[:space:]]*=/) {
+                key=$0
+                sub(/[[:space:]]*=.*/, "", key)
+                legacy[key]=$0
+            }
+            next
+        }
+        FILENAME == factory_path {
+            if ($0 ~ /^[A-Za-z0-9_.-]+[[:space:]]*=/) {
+                key=$0
+                sub(/[[:space:]]*=.*/, "", key)
+                replacement[key]=$0
+            }
+            next
+        }
+        {
+            line=$0
+            if ($0 ~ /^[A-Za-z0-9_.-]+[[:space:]]*=/) {
+                key=$0
+                sub(/[[:space:]]*=.*/, "", key)
+                if ((key in legacy) && (key in replacement) &&
+                    line == legacy[key] && line != replacement[key]) {
+                    line=replacement[key]
+                    changed++
+                }
+            }
+            print line
+        }
+        END { print changed + 0 > count_file }
+    ' count_file="$migrate_count" factory_path="$factory" \
+        "$legacy_defaults" "$factory" "$config" \
+        >"$migrate_next"
+    legacy_changed=$($BB sed -n '1p' "$migrate_count" 2>/dev/null || printf '0')
+    $BB rm -f "$migrate_count"
+    if [ "$legacy_changed" -gt 0 ]; then
+        legacy_backup=$state_dir/pre-v90s-active.cfg
+        [ -s "$legacy_backup" ] || atomic_copy "$config" "$legacy_backup"
+        $BB sync
+        $BB mv "$migrate_next" "$config"
+        $BB sync
+    else
+        $BB rm -f "$migrate_next"
+    fi
+}
+
+migrate_function1_menu_defaults() {
+    menu_changed=0
+    if $BB grep -qx 'input_menu_toggle_btn = "10"' "$config" &&
+       $BB grep -qx 'input_screenshot_btn = "17"' "$config"; then
+        menu_backup=$state_dir/pre-function1-menu-active.cfg
+        [ -s "$menu_backup" ] || atomic_copy "$config" "$menu_backup"
+        menu_next=${config}.next.$$
+        $BB sed \
+            -e 's/^input_menu_toggle_btn = "10"$/input_menu_toggle_btn = "17"/' \
+            -e 's/^input_screenshot_btn = "17"$/input_screenshot_btn = "10"/' \
+            "$config" >"$menu_next"
+        $BB sync
+        $BB mv "$menu_next" "$config"
+        $BB sync
+        menu_changed=2
+    fi
+}
+
+migrate_fixed_aspect_default() {
+    aspect_changed=0
+    if $BB grep -qx 'video_aspect_ratio_auto = "false"' "$config"; then
+        aspect_backup=$state_dir/pre-core-aspect-active.cfg
+        [ -s "$aspect_backup" ] || atomic_copy "$config" "$aspect_backup"
+        aspect_next=${config}.next.$$
+        $BB sed \
+            's/^video_aspect_ratio_auto = "false"$/video_aspect_ratio_auto = "true"/' \
+            "$config" >"$aspect_next"
+        $BB sync
+        $BB mv "$aspect_next" "$config"
+        $BB sync
+        aspect_changed=1
+    fi
+}
+
+result=unchanged
+added=0
+if [ ! -s "$config" ]; then
+    atomic_copy "$factory" "$config"
+    result=installed
+    added=3376
+else
+    set -- $($BB sha256sum "$config")
+    config_sha256=$1
+    if [ "$config_sha256" = "$legacy_miniplus_sha256" ]; then
+        atomic_copy "$factory" "$config"
+        result=replaced-legacy
+        added=3315
+    elif [ -r "$marker" ] &&
+         [ "$($BB sed -n '1p' "$marker")" = "$function2_menu_factory_sha256" ]; then
+        migrate_function1_menu_defaults
+        merge_missing_keys
+        result=migrated-function1-menu
+        added=$((menu_changed + added))
+    elif [ -s "$legacy_defaults" ] && [ -r "$marker" ] &&
+         [ "$($BB sed -n '1p' "$marker")" = "$pre_v90s_full_factory_sha256" ]; then
+        # Three-way migration: update only values that still exactly match the
+        # defaults serialized from the pre-port cfg. Explicit user values win.
+        migrate_pre_v90s_defaults
+        merge_missing_keys
+        result=migrated-pre-v90s
+        added=$((legacy_changed + added))
+    elif [ -r "$marker" ] &&
+         [ "$($BB sed -n '1p' "$marker")" = "$fixed_aspect_factory_sha256" ]; then
+        migrate_fixed_aspect_default
+        merge_missing_keys
+        result=migrated-core-aspect
+        added=$((aspect_changed + added))
+    elif [ ! -r "$marker" ] ||
+         [ "$($BB sed -n '1p' "$marker")" != "$factory_sha256" ]; then
+        # User values always win. Only keys absent from the active config are
+        # appended from the shared plumOS factory surface.
+        merge_missing_keys
+    fi
+fi
+
+printf '%s\n' "$factory_sha256" >"$marker.next"
+$BB sync
+$BB mv "$marker.next" "$marker"
+$BB sync
+printf 'retroarch_config=result-%s added=%s sha256=%s\n' \
+    "$result" "$added" "$factory_sha256"

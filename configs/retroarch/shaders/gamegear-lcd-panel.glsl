@@ -148,7 +148,7 @@ vec3 taps(float sigma, float shift) {
  * field: uniform along most of the tube, smoothly rounded only beyond its
  * ends.  This avoids the false concentric rings produced by a radial field.
  * X is converted to physical viewport distance because the Game Gear's
- * logical pixels are stretched to a 4:3 aperture on Bubble. */
+ * logical pixels are stretched to a 4:3 aperture on mini PLUS. */
 float horizontal_tube_distance(vec2 uv) {
    vec2 p = uv - vec2(0.5);
    float beyond_end = max(abs(p.x) - 0.38, 0.0);
@@ -197,7 +197,7 @@ float edge2_coverage(float centre, float width) {
 }
 
 void main(void) {
-   /* TextureSize is the backing FBO (256x256 on Bubble), while InputSize is
+   /* TextureSize is the backing FBO (256x256 on mini PLUS), while InputSize is
     * the valid Game Gear picture (160x144).  `cell` deliberately uses the
     * former because vTex addresses that backing texture; content_uv and every
     * scale calculation must use the latter or the image centre is mistaken
@@ -387,7 +387,7 @@ void main(void) {
    vec3 stripe = mix(stripe_point, stripe_integrated, element_misalignment);
 
    /* The 4:3 SEGA aperture gives exactly four output pixels to one source
-    * cell on Bubble.  The hardware close-up shows three colour apertures and
+    * cell on mini PLUS.  The hardware close-up shows three colour apertures and
     * a conspicuously dark boundary, rather than four blended colour samples.
     * Model that as R/G/B/gap.  The gap is kept separate from subpixel colour
     * strength because it is an aperture/black-matrix property. */
@@ -401,7 +401,7 @@ void main(void) {
     * separators between the colour filters remain in gg_elemgap and are
     * largely filled by the optics pass; the low-luminance B filter and the
     * adjacent black band consequently read as one broad dark trough.  At the
-    * Bubble's exact 4x scale each band maps to one output pixel. */
+    * mini PLUS's exact 4x scale each band maps to one output pixel. */
    float q_r = periodic_box_coverage(cell.x, quad_width, 0.00, 0.25);
    float q_g = periodic_box_coverage(cell.x, quad_width, 0.25, 0.50);
    float q_b = periodic_box_coverage(cell.x, quad_width, 0.50, 0.75);
@@ -426,7 +426,7 @@ void main(void) {
    const float B1_REFERENCE_MEAN = 0.912;
    /* Deliberately leave RG attenuation out of this historical comparison
     * normaliser.  The user prefers to recover absolute brightness with the
-    * Bubble backlight; compensating here would make R/G prominent again. */
+    * mini PLUS backlight; compensating here would make R/G prominent again. */
    float rgbk_mean =
       0.25 * (2.0 + B_BAND_TRANSMISSION) +
       0.25 * (1.0 - gg_aperture);

@@ -13,7 +13,7 @@ component manifest and this notice. This notice makes no additional claim
 about redistribution rights for the DraStic executable.
 
 Release inclusion policy:
-DraStic standalone is intentionally included in plumOS-Bubble releases under
+DraStic standalone is intentionally included in plumOS-mini-PLUS releases under
 the same project-approved inclusion policy used by plumOS-MF, following its
 long-standing distribution in handheld custom firmware. This project decision
 does not apply LGPL-2.1 or the plumOS MIT License to the separately authored

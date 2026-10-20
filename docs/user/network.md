@@ -8,9 +8,9 @@ Factory credentials are below. Change the password after initial setup.
 
 | Method | Address / port | User | Password | Purpose |
 | --- | --- | --- | --- | --- |
-| SSH | Bubble IP / 22 | `root` | `plumos` | Shell |
-| SFTP | Bubble IP / 22 | `root` | `plumos` | Secure file transfer |
-| FTP | Bubble IP / 21 | anonymous | none | Simple file transfer |
+| SSH | mini PLUS IP / 22 | `root` | `plumos` | Shell |
+| SFTP | mini PLUS IP / 22 | `root` | `plumos` | Secure file transfer |
+| FTP | mini PLUS IP / 21 | anonymous | none | Simple file transfer |
 | Samba | `\\<IP>\SDCARD` | `plumos` | `plumos` | Windows/macOS share |
 
 All three file-transfer routes expose the user area. Put ROMs in

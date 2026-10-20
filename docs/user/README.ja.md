@@ -1,6 +1,8 @@
-# plumOS Bubble 取扱説明書
+# plumOS mini PLUS 取扱説明書
 
-この章はGKD BubbleでplumOSを使う方向けです。開発・ビルド情報は
+> 移植中の草案です。現在のhost candidateは実機未検証で、以下の全機能を提供するreleaseではありません。stockOS SDへ上書きせず、実機検証には別の空SDを使用してください。
+
+この章はGKD mini PLUSでplumOSを使う方向けです。開発・ビルド情報は
 [開発者向けガイド](../developer/README.ja.md)へ分離しています。
 
 ## 最初に覚える位置
@@ -34,7 +36,7 @@ Function 1とFunction 2は位置が異なります。本書では必ず
 
 - USB端子は充電専用として扱います。ADBはメニューに表示しません。
 - HDMI出力は現在未対応です。
-- Nintendo 3DSとJava MEはBubbleの対応システムには含みません。
+- Nintendo 3DSとJava MEはmini PLUSの対応システムには含みません。
 - ROM、利用者用BIOS、市販ゲームは配布イメージに含まれません。
 
 ## 言語

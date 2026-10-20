@@ -2663,7 +2663,7 @@ static const char *runtime_plumos_root(void) {
 }
 
 static int runtime_device_is_mf(void);
-static int runtime_device_is_bubble(void);
+static int runtime_device_is_miniplus(void);
 
 static int runtime_volume_control_path(char *out, size_t out_size) {
   return join_path(out, out_size, runtime_plumos_root(), "bin/plumos-volume-control");
@@ -2750,7 +2750,7 @@ static int run_display_control_command(const char *action, long brightness,
   }
   if (include_brightness) {
     long max_brightness =
-        (runtime_device_is_mf() || runtime_device_is_bubble()) ? 20 : 6;
+        (runtime_device_is_mf() || runtime_device_is_miniplus()) ? 20 : 6;
     snprintf(brightness_buf, sizeof(brightness_buf), "%ld",
              clamp_long(brightness, 1, max_brightness));
   } else {
@@ -2819,12 +2819,12 @@ static int runtime_device_is_mf(void) {
   return access("/sys/devices/platform/hall-mh248/hallvalue", R_OK) == 0;
 }
 
-static int runtime_device_is_bubble(void) {
+static int runtime_device_is_miniplus(void) {
   const char *device_id = getenv("PLUMOS_DEVICE_ID");
-  return device_id && strcmp(device_id, "bubble") == 0;
+  return device_id && strcmp(device_id, "mini-plus") == 0;
 }
 
-static int runtime_bubble_drm_property_available(const char *name) {
+static int runtime_miniplus_drm_property_available(const char *name) {
 #if defined(PLUMOS_ENABLE_FBDEV_RENDERER) && defined(PLUMOS_FBDEV_ENABLE_DRM)
   const char *path;
   drmModeRes *resources;
@@ -2832,7 +2832,7 @@ static int runtime_bubble_drm_property_available(const char *name) {
   int index;
   int available = 0;
 
-  if (!runtime_device_is_bubble() || !name || !name[0]) {
+  if (!runtime_device_is_miniplus() || !name || !name[0]) {
     return 0;
   }
   path = getenv("PLUMOS_DRM_DEVICE");
@@ -2923,7 +2923,7 @@ static int system_number_setting_runtime_available(const char *id) {
            runtime_lcd_backend_available() || runtime_mmf_lcd_backend_available();
   }
   if (strcmp(id, "system_lumination") == 0) {
-    if (runtime_bubble_drm_property_available("brightness")) {
+    if (runtime_miniplus_drm_property_available("brightness")) {
       return 1;
     }
     return runtime_enhance_backend_available() ||
@@ -2931,7 +2931,7 @@ static int system_number_setting_runtime_available(const char *id) {
            runtime_v90s_enhance_bright_available();
   }
   if (strcmp(id, "system_contrast") == 0) {
-    if (runtime_bubble_drm_property_available("contrast")) {
+    if (runtime_miniplus_drm_property_available("contrast")) {
       return 1;
     }
     return runtime_enhance_backend_available() ||
@@ -2939,7 +2939,7 @@ static int system_number_setting_runtime_available(const char *id) {
            runtime_v90s_enhance_contrast_available();
   }
   if (strcmp(id, "system_hue") == 0) {
-    if (runtime_bubble_drm_property_available("hue")) {
+    if (runtime_miniplus_drm_property_available("hue")) {
       return 1;
     }
     return runtime_enhance_backend_available() ||
@@ -2947,7 +2947,7 @@ static int system_number_setting_runtime_available(const char *id) {
            runtime_v90s_color_temperature_available();
   }
   if (strcmp(id, "system_saturation") == 0) {
-    if (runtime_bubble_drm_property_available("saturation")) {
+    if (runtime_miniplus_drm_property_available("saturation")) {
       return 1;
     }
     return runtime_enhance_backend_available() ||
@@ -3033,9 +3033,9 @@ static void update_device_backend_status(struct device_settings *device) {
   mmf_lcd_available = runtime_mmf_lcd_backend_available();
   mmf_enhance_available = runtime_mmf_enhance_backend_available();
   v90s_backlight_available = runtime_v90s_backlight_available();
-  if (runtime_device_is_bubble() && v90s_backlight_available) {
+  if (runtime_device_is_miniplus() && v90s_backlight_available) {
     copy_string(device->brightness_backend, sizeof(device->brightness_backend),
-                "Bubble RK3566 backlight");
+                "mini PLUS RK3566 backlight");
   } else if (runtime_device_is_mf() && v90s_backlight_available) {
     copy_string(device->brightness_backend, sizeof(device->brightness_backend),
                 "MF RK3566 backlight");
@@ -3139,10 +3139,10 @@ static int apply_runtime_v90s_brightness(
   long maximum;
 
   if (!device || (!runtime_device_is_v90s() && !runtime_device_is_mf() &&
-                  !runtime_device_is_bubble())) {
+                  !runtime_device_is_miniplus())) {
     return 0;
   }
-  maximum = (runtime_device_is_mf() || runtime_device_is_bubble()) ? 20 : 6;
+  maximum = (runtime_device_is_mf() || runtime_device_is_miniplus()) ? 20 : 6;
   return run_display_control_command(
       "apply", clamp_long(device->brightness, 1, maximum), 1);
 }
@@ -3312,7 +3312,7 @@ static int apply_runtime_v90s_display_enhance(const struct device_settings *devi
   return attempted && ok;
 }
 
-static int apply_runtime_bubble_drm_display_property(
+static int apply_runtime_miniplus_drm_display_property(
     struct ui_state *ui, const char *id) {
 #if defined(PLUMOS_ENABLE_FBDEV_RENDERER) && defined(PLUMOS_FBDEV_ENABLE_DRM)
   const char *property = NULL;
@@ -3321,7 +3321,7 @@ static int apply_runtime_bubble_drm_display_property(
   uint64_t runtime_value;
   uint64_t readback = 0;
 
-  if (!ui || !id || !runtime_device_is_bubble() || !ui->renderer_fbdev ||
+  if (!ui || !id || !runtime_device_is_miniplus() || !ui->renderer_fbdev ||
       !ui->fbdev_renderer.drm_active) {
     return 0;
   }
@@ -3358,17 +3358,17 @@ static int apply_runtime_bubble_drm_display_property(
 #endif
 }
 
-static int apply_runtime_bubble_drm_display_settings(struct ui_state *ui) {
+static int apply_runtime_miniplus_drm_display_settings(struct ui_state *ui) {
   static const char *ids[] = {"system_lumination", "system_contrast",
                               "system_hue", "system_saturation"};
   size_t index;
   int ok = 1;
 
-  if (!ui || !runtime_device_is_bubble()) {
+  if (!ui || !runtime_device_is_miniplus()) {
     return 0;
   }
   for (index = 0; index < sizeof(ids) / sizeof(ids[0]); ++index) {
-    ok = apply_runtime_bubble_drm_display_property(ui, ids[index]) && ok;
+    ok = apply_runtime_miniplus_drm_display_property(ui, ids[index]) && ok;
   }
   return ok;
 }
@@ -3458,8 +3458,8 @@ static int apply_device_runtime_settings(const struct device_settings *device,
     if (!apply_runtime_v90s_display_enhance(device, id)) {
       ok = 0;
     }
-  } else if (needs_enhance && runtime_device_is_bubble()) {
-    /* The Bubble DRM master is owned by the renderer.  Interactive and
+  } else if (needs_enhance && runtime_device_is_miniplus()) {
+    /* The mini PLUS DRM master is owned by the renderer.  Interactive and
      * startup application is performed with that exact fd after init. */
     attempted = 1;
   } else if (needs_enhance && id) {
@@ -5006,8 +5006,8 @@ static void init_device_settings(struct device_settings *device) {
   copy_string(device->language, sizeof(device->language), "en.lang");
   copy_string(device->theme, sizeof(device->theme), "default");
   copy_string(device->timezone, sizeof(device->timezone), plumos_default_timezone());
-  if (runtime_device_is_bubble()) {
-    default_model = "GKD Bubble";
+  if (runtime_device_is_miniplus()) {
+    default_model = "GKD mini PLUS";
     default_gpu = "Mali-G52 isolated / CPU DRM";
   } else {
     default_model = runtime_device_is_mf() ? "Miyoo Flip" : "POWKIDDY V90S";
@@ -6514,7 +6514,7 @@ static void add_system_settings_entries(struct ui_state *ui) {
   format_runtime_number_setting_value("system_brightness", device->brightness,
                                       value, sizeof(value));
   add_setting_entry(ui, "system_brightness", "Brightness", value);
-  if (runtime_device_is_bubble()) {
+  if (runtime_device_is_miniplus()) {
     add_unavailable_setting_entry(ui, "system_lid_suspend", "Lid Suspend");
   } else {
     add_bool_setting_entry(ui, "system_lid_suspend", "Lid Suspend",
@@ -6577,40 +6577,40 @@ static void add_system_factory_reset_entries(struct ui_state *ui) {
   int has_sa = 0;
 
   if (join_path(path, sizeof(path), ui->plumos_root,
-                runtime_device_is_bubble() ? "factory-defaults/retroarch"
+                runtime_device_is_miniplus() ? "factory-defaults/retroarch"
                                            : "factory-defaults/ra")) {
     has_ra = dir_exists(path);
   }
   if (join_path(path, sizeof(path), ui->plumos_root,
-                runtime_device_is_bubble() ? "factory-defaults/picoarch"
+                runtime_device_is_miniplus() ? "factory-defaults/picoarch"
                                            : "factory-defaults/pico")) {
     has_pico = dir_exists(path);
   }
   if (join_path(path, sizeof(path), ui->plumos_root,
-                runtime_device_is_bubble() ? "factory-defaults/standalone"
+                runtime_device_is_miniplus() ? "factory-defaults/standalone"
                                            : "factory-defaults/sa")) {
     has_sa = dir_exists(path);
   }
-  if ((runtime_device_is_bubble() && (has_ra || has_pico || has_sa)) ||
+  if ((runtime_device_is_miniplus() && (has_ra || has_pico || has_sa)) ||
       (has_ra && has_pico && has_sa)) {
     add_setting_entry(ui, "system_factory_reset_all", "All Emulator Settings",
                       "RA + PICO + SA");
   }
   if (has_ra) {
     add_setting_entry(ui, "system_factory_reset_ra", "RetroArch Settings", "");
-  } else if (runtime_device_is_bubble()) {
+  } else if (runtime_device_is_miniplus()) {
     add_unavailable_setting_entry(ui, "system_factory_reset_ra",
                                   "RetroArch Settings");
   }
   if (has_pico) {
     add_setting_entry(ui, "system_factory_reset_pico", "PicoArch Settings", "");
-  } else if (runtime_device_is_bubble()) {
+  } else if (runtime_device_is_miniplus()) {
     add_unavailable_setting_entry(ui, "system_factory_reset_pico",
                                   "PicoArch Settings");
   }
   if (has_sa) {
     add_setting_entry(ui, "system_factory_reset_sa", "Standalone Settings", "");
-  } else if (runtime_device_is_bubble()) {
+  } else if (runtime_device_is_miniplus()) {
     add_unavailable_setting_entry(ui, "system_factory_reset_sa",
                                   "Standalone Settings");
   }
@@ -6714,7 +6714,7 @@ static void add_network_service_entries(struct ui_state *ui) {
 
   add_bool_setting_entry(ui, "network_ssh_enabled", "SSH",
                          device->ssh_service_running);
-  if (runtime_device_is_bubble()) {
+  if (runtime_device_is_miniplus()) {
     add_bool_setting_entry(ui, "network_ftp_enabled", "FTP",
                            device->ftp_service_running);
     add_bool_setting_entry(ui, "network_sftp_enabled", "SFTP",
@@ -6777,7 +6777,7 @@ static void add_network_information_entries(struct ui_state *ui) {
   add_setting_entry(ui, "network_ftp_status", "FTP", device->ftp_status);
   add_setting_entry(ui, "network_sftp_status", "SFTP", device->sftp_status);
   add_setting_entry(ui, "network_samba_status", "Samba", device->samba_status);
-  if (!runtime_device_is_bubble()) {
+  if (!runtime_device_is_miniplus()) {
     add_setting_entry(ui, "network_adb_status", "ADB", device->adb_status);
   }
 }
@@ -9110,7 +9110,7 @@ static long ui_graphic_top_transition_duration_ms(const struct ui_state *ui) {
 }
 
 static int ui_animation_cpu_boost(struct ui_state *ui) {
-  if (!ui || !runtime_device_is_bubble()) {
+  if (!ui || !runtime_device_is_miniplus()) {
     return 0;
   }
   if (ui->animation_cpu_boosted) {
@@ -10062,13 +10062,13 @@ static void setting_help_lines(const struct ui_state *ui,
   } else if (strcmp(id, "network_services") == 0) {
     copy_string(line1, line1_size, "Open network services.");
     copy_string(line2, line2_size,
-                runtime_device_is_bubble()
+                runtime_device_is_miniplus()
                     ? "SSH, FTP, SFTP, and Samba."
                     : "SSH, FTP, SFTP, Samba, and ADB.");
   } else if (strcmp(id, "network_information") == 0) {
     copy_string(line1, line1_size, "Open read-only network information.");
     copy_string(line2, line2_size,
-                runtime_device_is_bubble()
+                runtime_device_is_miniplus()
                     ? "Connection, IP, signal, link speed, and file services."
                     : "Connection, IP, signal, link speed, SSH, and ADB.");
   } else if (strncmp(id, "network_", 8) == 0) {
@@ -12533,7 +12533,7 @@ static int request_latest_system_update(struct ui_state *ui) {
     set_status(ui, "System Update log path too long");
     return 0;
   }
-  set_status(ui, "Verifying latest Bubble runtime update...");
+  set_status(ui, "Verifying latest mini PLUS runtime update...");
   render_ui(ui);
   cmd[0] = '\0';
   if (!append_string(cmd, sizeof(cmd), &pos, "mkdir -p ") ||
@@ -13916,17 +13916,17 @@ static int save_setting_number(struct ui_state *ui, const char *id,
       return 0;
     }
     set_device_setting_number(&ui->device, id, value);
-    if (runtime_device_is_bubble() &&
+    if (runtime_device_is_miniplus() &&
         (strcmp(id, "system_lumination") == 0 ||
          strcmp(id, "system_contrast") == 0 ||
          strcmp(id, "system_hue") == 0 ||
          strcmp(id, "system_saturation") == 0)) {
-      if (apply_runtime_bubble_drm_display_property(ui, id)) {
+      if (apply_runtime_miniplus_drm_display_property(ui, id)) {
         copy_string(runtime_status, sizeof(runtime_status),
-                    "Bubble DRM property applied");
+                    "mini PLUS DRM property applied");
       } else {
         copy_string(runtime_status, sizeof(runtime_status),
-                    "Bubble DRM property apply failed");
+                    "mini PLUS DRM property apply failed");
       }
     } else {
       apply_device_runtime_settings(&ui->device, id, runtime_status,
@@ -15485,7 +15485,7 @@ static enum ui_action action_from_key_code(unsigned int code) {
   case BTN_DPAD_RIGHT:
     return ACTION_RIGHT;
   case KEY_SPACE:
-#ifdef PLUMOS_BUBBLE_INPUT
+#ifdef PLUMOS_MINI_PLUS_INPUT
   case BTN_EAST:
 #else
   case BTN_SOUTH:
@@ -15494,7 +15494,7 @@ static enum ui_action action_from_key_code(unsigned int code) {
   case 7:
     return ACTION_A;
   case KEY_LEFTCTRL:
-#ifdef PLUMOS_BUBBLE_INPUT
+#ifdef PLUMOS_MINI_PLUS_INPUT
   case BTN_SOUTH:
 #else
   case BTN_EAST:
@@ -16854,8 +16854,8 @@ int main(int argc, char **argv) {
     if (!ui.rescue_network && !ui.power_overlay &&
         !runtime_device_is_mf()) {
       apply_device_runtime_settings(&ui.device, "system_brightness", NULL, 0);
-      if (runtime_device_is_bubble()) {
-        (void)apply_runtime_bubble_drm_display_settings(&ui);
+      if (runtime_device_is_miniplus()) {
+        (void)apply_runtime_miniplus_drm_display_settings(&ui);
       }
       schedule_mmf_brightness_reapply(&ui);
     }

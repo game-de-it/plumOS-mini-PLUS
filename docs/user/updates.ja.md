@@ -1,9 +1,9 @@
 # 更新
 
-plumOS Bubbleの更新packageは署名と機種、versionを検証します。同じversionや古いversion
+plumOS mini PLUSの更新packageは署名と機種、versionを検証します。同じversionや古いversion
 へのdowngradeは拒否されます。
 
-1. Bubble用の正しいupdate packageと公開されたchecksumを取得します。
+1. mini PLUS用の正しいupdate packageと公開されたchecksumを取得します。
 2. checksumを確認します。
 3. SYSカードをPCへ接続した場合は`PLUMOS`領域の`updates/`へコピーします。network共有
    からは`user/updates/`、実機pathでは`/storage/user/updates`です。

@@ -4,7 +4,7 @@ Date: 2026-09-10
 
 ## Decision
 
-Bubbleだけに、U-Boot active environmentの保存offset・冗長性、UART `printenv`、boot source
+mini PLUSだけに、U-Boot active environmentの保存offset・冗長性、UART `printenv`、boot source
 fallbackの故意の発動をrelease必須条件として要求しない。他のplumOSシリーズと同じく、再現imageを
 安全に起動・復旧できるために必要なboot substrateとmatching setの証跡を acceptance boundary とする。
 

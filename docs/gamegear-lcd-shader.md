@@ -9,7 +9,7 @@ applying a generic LCD filter.
 
 ## Why GLSL and not slang
 
-`scripts/build-bubble-retroarch.sh` configures RetroArch with
+`scripts/build-mini-plus-retroarch.sh` configures RetroArch with
 `--enable-opengles --disable-opengl_core`, so this device has no glcore or
 Vulkan context and the slang path does not exist on it. GLSL is the only
 format that will load.
@@ -66,7 +66,7 @@ lit. Kept gentle - the point is only that it is not flat.
 
 ## Scaling: 4:3 non-square dots without moire
 
-The SEGA profile maps the 160x144 image to the Bubble's full 640x480 aperture.
+The SEGA profile maps the 160x144 image to the mini PLUS's full 640x480 aperture.
 One source dot is therefore 4.00 output pixels across and 3.33 pixels down: it
 is a horizontal rectangle, not a square.
 
@@ -262,7 +262,7 @@ the picture is stationary.
 
 ## Installing and using it
 
-`scripts/build-bubble-retroarch.sh` stages the three files into
+`scripts/build-mini-plus-retroarch.sh` stages the three files into
 `factory-defaults/shaders`, and `plumos-retroarch-launch` copies any that are
 missing into `config/shaders`, which is where `video_shader_dir` points. They
 are copied rather than linked and never overwritten, so an edited preset

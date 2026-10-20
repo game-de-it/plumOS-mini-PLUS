@@ -5,7 +5,7 @@ Status: Accepted
 
 ## Decision
 
-Bubbleの通常Runtime Updateが所有するのは、p3のmanaged app-layerと、そのcomponent
+mini PLUSの通常Runtime Updateが所有するのは、p3のmanaged app-layerと、そのcomponent
 manifest/checksum/journalだけとする。active config、credential、ROM、BIOS、save/state、
 PortMaster/Pyxelの利用者データ、p4、SD2はdevice/user-ownedであり更新対象にしない。
 
@@ -22,11 +22,11 @@ pending metadataをcommitする。boot/kernel/DTB/module/initramfsの変更は�
 
 ## Evidence
 
-- `docs/validation/2026-09-01-bubble-read-only-inventory.md` がpartition/path ownershipと
+- `docs/validation/2026-10-20-mini-plus-read-only-inventory.md` がpartition/path ownershipと
   stock substrateのhashを記録している。
 - `docs/decisions/0001-v90s-derived-four-partition-layout.md` がp1 System A/B、p2 matching
   boot、p3 managed runtime、p4 user/update、optional SD2の役割を固定している。
-- `docs/plumos-bubble-runtime-update.md` が署名、staging、journal、rollback、health gateと
+- `docs/plumos-mini-plus-runtime-update.md` が署名、staging、journal、rollback、health gateと
   mutable data除外を規定している。
 - clean image verifierはvendor artifactのhash、必須NOTICE、個別distribution policyを
   公開境界として検証する。

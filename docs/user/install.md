@@ -1,8 +1,10 @@
 # Writing the system card and first boot
 
+> The current mini-PLUS image is a device-unverified bring-up candidate. Do not write it over the stockOS card; use a separate blank SD only.
+
 ## Requirements
 
-- A GKD Bubble
+- A GKD mini PLUS
 - A 16 GB or larger microSD card for SYS
 - The compressed release image and `SHA256SUMS`
 - A raw-image writer such as Raspberry Pi Imager or balenaEtcher
@@ -13,7 +15,7 @@
 2. Verify the SHA-256 digest.
 3. Write the card as a **raw disk image**, not as a copied file.
 4. Let the writer verify it, then safely eject the card.
-5. With the Bubble powered off, insert it into the **top-edge SYS slot**.
+5. With the mini PLUS powered off, insert it into the **top-edge SYS slot**.
 6. Power on and wait until first-boot setup finishes and the frontend appears.
 
 First boot expands partitions and creates the writable user area. Do not power

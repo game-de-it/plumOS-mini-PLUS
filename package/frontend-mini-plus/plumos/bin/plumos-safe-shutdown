@@ -1,0 +1,345 @@
+#!/bin/sh
+set -u
+
+PLUMOS_ROOT=${PLUMOS_ROOT:-/storage/plumos}
+RUNTIME_ROOT=${PLUMOS_RUNTIME_ROOT:-/run/plumos}
+BB=${PLUMOS_BUSYBOX:-/bin/busybox}
+LOG=${PLUMOS_POWER_ACTION_LOG:-$PLUMOS_ROOT/logs/power-action.log}
+SD2_MOUNT=${PLUMOS_SD2_MOUNT:-/run/media/sd2}
+SD2_MANAGER=${PLUMOS_SD2_MANAGER:-$PLUMOS_ROOT/bin/plumos-mini-plus-mount-sd2}
+USER_MOUNT=${PLUMOS_USER_MOUNT:-/storage/user}
+CLEAN_P3_MARKER=${PLUMOS_CLEAN_P3_MARKER:-$PLUMOS_ROOT/provision/clean-shutdown}
+CLEAN_P4_MARKER=${PLUMOS_CLEAN_P4_MARKER:-$USER_MOUNT/.plumos-clean-shutdown}
+MOUNTS_FILE=${PLUMOS_MOUNTS_FILE:-/proc/mounts}
+POWER_REQUEST=${PLUMOS_POWER_REQUEST:-$RUNTIME_ROOT/power-action/request}
+USER_SOURCE_FILE=${PLUMOS_USER_SOURCE_FILE:-$RUNTIME_ROOT/power-action/user-source}
+NETWORK_SERVICES=${PLUMOS_NETWORK_SERVICES:-$PLUMOS_ROOT/bin/plumos-network-services}
+NETWORK_CONTROL=${PLUMOS_NETWORK_CONTROL:-$PLUMOS_ROOT/bin/plumos-network-control}
+VOLUME_KEYS_SERVICE=${PLUMOS_VOLUME_KEYS_SERVICE:-$PLUMOS_ROOT/bin/plumos-volume-keys-service}
+VOLUME_CONTROL=${PLUMOS_VOLUME_CONTROL:-$PLUMOS_ROOT/bin/plumos-volume-control}
+DISPLAY_CONTROL=${PLUMOS_DISPLAY_CONTROL:-$PLUMOS_ROOT/bin/plumos-display-control}
+RUNTIME_QUIESCE=${PLUMOS_RUNTIME_QUIESCE:-$PLUMOS_ROOT/bin/plumos-runtime-quiesce}
+POWER_FINALIZER=${PLUMOS_POWER_FINALIZER:-$PLUMOS_ROOT/bin/plumos-power-request-finalizer}
+FOREGROUND_MARKER=${PLUMOS_FOREGROUND_MARKER:-$RUNTIME_ROOT/frontend/foreground.pgid}
+POWER_STATE=${PLUMOS_POWER_STATE:-/sys/power/state}
+RTC_WAKEALARM=${PLUMOS_RTC_WAKEALARM:-/sys/class/rtc/rtc0/wakealarm}
+WIFI_INTERFACE_PATH=${PLUMOS_WIFI_INTERFACE_PATH:-/sys/class/net/wlan0}
+SLEEP_NETWORK_LOG=${PLUMOS_SLEEP_NETWORK_LOG:-$RUNTIME_ROOT/power-action/sleep-network.log}
+ACTION=shutdown
+POWER_OFF=0
+DRY_RUN=0
+SLEEP_BACKEND=mem
+WAKEUP_SEC=
+
+usage() {
+    printf '%s\n' \
+        'Usage: plumos-safe-shutdown [--shutdown|--reboot|--sleep]' \
+        '       [--poweroff|--no-poweroff] [--dry-run]'
+}
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --shutdown) ACTION=shutdown ;;
+        --reboot) ACTION=reboot ;;
+        --sleep) ACTION=sleep ;;
+        --poweroff) POWER_OFF=1 ;;
+        --no-poweroff|--no-hold-resume|--hold-resume) : ;;
+        --sleep-backend)
+            shift
+            [ "$#" -gt 0 ] || { usage >&2; exit 2; }
+            SLEEP_BACKEND=$1
+            ;;
+        --wakeup-sec)
+            shift
+            [ "$#" -gt 0 ] || { usage >&2; exit 2; }
+            WAKEUP_SEC=$1
+            ;;
+        --power-backend|--wait-sec)
+            shift
+            [ "$#" -gt 0 ] || { usage >&2; exit 2; }
+            ;;
+        --dry-run) DRY_RUN=1 ;;
+        -h|--help) usage; exit 0 ;;
+        *) printf 'error: unknown option: %s\n' "$1" >&2; usage >&2; exit 2 ;;
+    esac
+    shift
+done
+
+case "$SLEEP_BACKEND" in mem|freeze) ;; *) exit 2 ;; esac
+case "$WAKEUP_SEC" in
+    '') ;;
+    *[!0-9]*) exit 2 ;;
+    *) [ "$WAKEUP_SEC" -ge 1 ] && [ "$WAKEUP_SEC" -le 3600 ] || exit 2 ;;
+esac
+
+mkdir -p "${LOG%/*}" "$RUNTIME_ROOT" 2>/dev/null || true
+log() {
+    message="$($BB date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || printf unknown) $*"
+    printf '%s\n' "$message" >>"$LOG" 2>/dev/null || true
+    printf 'plumos-mini-plus-power=%s\n' "$*" >/dev/console 2>/dev/null || true
+}
+
+start_power_finalizer() {
+    [ -x "$POWER_FINALIZER" ] || {
+        log 'stage=power-fallback result=unavailable owner=pid1-only'
+        return 0
+    }
+    finalizer_log=$RUNTIME_ROOT/power-action/finalizer.log
+    "$BB" mkdir -p "${finalizer_log%/*}" 2>/dev/null || true
+    PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+        PLUMOS_BUSYBOX="$BB" PLUMOS_POWER_REQUEST="$POWER_REQUEST" \
+        PLUMOS_POWER_ACTION_LOG="$LOG" PLUMOS_MOUNTS_FILE="$MOUNTS_FILE" \
+        PLUMOS_USER_MOUNT="$USER_MOUNT" PLUMOS_CLEAN_P3_MARKER="$CLEAN_P3_MARKER" \
+        "$BB" sh "$POWER_FINALIZER" "$ACTION" \
+        >>"$finalizer_log" 2>&1 </dev/null &
+    log "stage=power-fallback result=armed action=$ACTION"
+}
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    printf 'result=dry-run action=%s poweroff=%s sd2=%s user=%s sleep_backend=%s\n' \
+        "$ACTION" "$POWER_OFF" "$SD2_MOUNT" "$USER_MOUNT" "$SLEEP_BACKEND"
+    exit 0
+fi
+
+sleep_restore_network() {
+    [ "$1" -eq 1 ] || return 0
+    "$BB" mkdir -p "${SLEEP_NETWORK_LOG%/*}" 2>/dev/null || true
+    (
+        PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            PLUMOS_BUSYBOX="$BB" "$BB" sh "$NETWORK_CONTROL" --wifi on
+        [ ! -x "$NETWORK_SERVICES" ] || \
+            "$BB" sh "$NETWORK_SERVICES" start-enabled
+    ) >>"$SLEEP_NETWORK_LOG" 2>&1 &
+}
+
+if [ "$ACTION" = sleep ]; then
+    [ -w "$POWER_STATE" ] && "$BB" grep -qw "$SLEEP_BACKEND" "$POWER_STATE" || {
+        log "result=error action=sleep stage=backend backend=$SLEEP_BACKEND"
+        exit 1
+    }
+    wifi_restore=0
+    if [ -d "$WIFI_INTERFACE_PATH" ]; then
+        wifi_setting=$($BB sed -n \
+            's/.*"wifi_enabled"[[:space:]]*:[[:space:]]*\([^,}]*\).*/\1/p' \
+            "$PLUMOS_ROOT/config/system/settings.json" 2>/dev/null | \
+            $BB head -n 1 | $BB tr -d '[:space:]"' || true)
+        case "$wifi_setting" in false|0|off|OFF) ;; *) wifi_restore=1 ;; esac
+    fi
+    volume_before=
+    brightness_before=
+    [ ! -x "$VOLUME_CONTROL" ] || \
+        volume_before=$(PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            "$BB" sh "$VOLUME_CONTROL" get 2>/dev/null || true)
+    [ ! -x "$DISPLAY_CONTROL" ] || \
+        brightness_before=$(PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            "$BB" sh "$DISPLAY_CONTROL" get 2>/dev/null || true)
+    log "stage=begin action=sleep backend=$SLEEP_BACKEND wifi_restore=$wifi_restore"
+    if [ "$wifi_restore" -eq 1 ]; then
+        [ -x "$NETWORK_CONTROL" ] || {
+            log 'result=error action=sleep stage=wifi-control-missing'
+            exit 1
+        }
+        PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            PLUMOS_BUSYBOX="$BB" PLUMOS_NETWORK_LOG="$SLEEP_NETWORK_LOG" \
+            "$BB" sh "$NETWORK_CONTROL" --wifi suspend >>"$LOG" 2>&1 || {
+                log 'result=error action=sleep stage=wifi-pause'
+                exit 1
+            }
+        # The vendor bcmdhd driver returns EBUSY if deep suspend races its
+        # interface-down callback. This bounded settle is needed only for
+        # Sleep; it is not part of reboot or shutdown latency.
+        "$BB" sleep 1
+    fi
+    if [ -n "$WAKEUP_SEC" ]; then
+        [ -w "$RTC_WAKEALARM" ] || {
+            sleep_restore_network "$wifi_restore"
+            log 'result=error action=sleep stage=rtc-unavailable'
+            exit 1
+        }
+        printf '0\n' >"$RTC_WAKEALARM" 2>/dev/null || true
+        printf '+%s\n' "$WAKEUP_SEC" >"$RTC_WAKEALARM" || {
+            sleep_restore_network "$wifi_restore"
+            log 'result=error action=sleep stage=rtc-arm'
+            exit 1
+        }
+        log "stage=wakealarm result=armed seconds=$WAKEUP_SEC"
+    fi
+    "$BB" sync
+    log "stage=suspend-enter backend=$SLEEP_BACKEND"
+    if ! printf '%s\n' "$SLEEP_BACKEND" >"$POWER_STATE"; then
+        [ -z "$WAKEUP_SEC" ] || printf '0\n' >"$RTC_WAKEALARM" 2>/dev/null || true
+        sleep_restore_network "$wifi_restore"
+        log "result=error action=sleep stage=suspend-entry backend=$SLEEP_BACKEND"
+        exit 1
+    fi
+    [ -z "$WAKEUP_SEC" ] || printf '0\n' >"$RTC_WAKEALARM" 2>/dev/null || true
+    log "stage=suspend-resume backend=$SLEEP_BACKEND"
+    case "$brightness_before" in ''|*[!0-9]*) ;; *)
+        PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            "$BB" sh "$DISPLAY_CONTROL" apply "$brightness_before" >/dev/null 2>&1 || \
+            log "stage=display-restore result=failed value=$brightness_before"
+        ;;
+    esac
+    case "$volume_before" in ''|*[!0-9]*) ;; *)
+        PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            "$BB" sh "$VOLUME_CONTROL" apply "$volume_before" >/dev/null 2>&1 || \
+            log "stage=volume-restore result=failed value=$volume_before"
+        ;;
+    esac
+    sleep_restore_network "$wifi_restore"
+    log "result=resumed action=sleep backend=$SLEEP_BACKEND network=background"
+    printf 'result=resumed action=sleep backend=%s\n' "$SLEEP_BACKEND"
+    exit 0
+fi
+
+log "stage=begin action=$ACTION poweroff=$POWER_OFF"
+"$BB" sync
+if [ -x "$RUNTIME_QUIESCE" ]; then
+    PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+        PLUMOS_BUSYBOX="$BB" "$BB" sh "$RUNTIME_QUIESCE" \
+        terminate-active "$FOREGROUND_MARKER" >>"$LOG" 2>&1 || {
+            log 'result=error stage=foreground-termination'
+            exit 1
+        }
+    PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+        PLUMOS_BUSYBOX="$BB" "$BB" sh "$RUNTIME_QUIESCE" \
+        terminate-storage "$USER_MOUNT" "$SD2_MOUNT" /storage/Roms \
+        /storage/BIOS >>"$LOG" 2>&1 || {
+            log 'result=error stage=storage-blocker-termination'
+            exit 1
+        }
+fi
+if [ -x "$SD2_MANAGER" ]; then
+    PLUMOS_MOUNTS_FILE="$MOUNTS_FILE" "$BB" sh "$SD2_MANAGER" stop \
+        >>"$LOG" 2>&1 || log 'stage=sd2-content-stop result=failed'
+elif "$BB" grep -qs " $SD2_MOUNT " "$MOUNTS_FILE" 2>/dev/null; then
+    "$BB" umount "$SD2_MOUNT" 2>/dev/null || log 'stage=sd2-unmount result=failed'
+fi
+"$BB" sync
+
+if [ "$ACTION" = shutdown ] && [ "$POWER_OFF" -eq 0 ]; then
+    log 'result=sync-only'
+    exit 0
+fi
+
+log "stage=terminal action=$ACTION"
+clean_markers=0
+"$BB" mkdir -p "${POWER_REQUEST%/*}" 2>/dev/null || {
+    log 'result=error stage=power-request-directory'
+    exit 1
+}
+# A committed request is volatile (/run) and is written only after p4 was
+# marked and unmounted successfully.  If the frontend did not exit after that
+# first request, let a repeated selection complete the same transaction
+# instead of deleting its clean-shutdown evidence and trapping the UI in the
+# running system with /storage/user unavailable.
+pending_action=$($BB sed -n '1p' "$POWER_REQUEST" 2>/dev/null || true)
+if ! "$BB" grep -qs " $USER_MOUNT " "$MOUNTS_FILE" 2>/dev/null; then
+    case "$pending_action" in
+        reboot|shutdown)
+            if [ "$pending_action" = "$ACTION" ]; then
+                pending_result=reused
+            else
+                printf '%s\n' "$ACTION" >"$POWER_REQUEST.next.$$" || {
+                    log 'result=error stage=power-request-restage'
+                    exit 1
+                }
+                "$BB" mv -f "$POWER_REQUEST.next.$$" "$POWER_REQUEST" || {
+                    "$BB" rm -f "$POWER_REQUEST.next.$$" 2>/dev/null || true
+                    log 'result=error stage=power-request-recommit'
+                    exit 1
+                }
+                pending_result="updated-from-$pending_action"
+            fi
+            "$BB" sync
+            start_power_finalizer
+            log "result=requested action=$ACTION owner=pid1 pending=$pending_result"
+            printf 'result=requested action=%s owner=pid1 pending=%s\n' \
+                "$ACTION" "$pending_result"
+            exit 0
+            ;;
+    esac
+fi
+printf '%s\n' "$ACTION" >"$POWER_REQUEST.next.$$" || {
+    log 'result=error stage=power-request-stage'
+    exit 1
+}
+if "$BB" grep -qs " $USER_MOUNT " "$MOUNTS_FILE" 2>/dev/null; then
+    user_source=$($BB awk -v mount="$USER_MOUNT" '$2 == mount { print $1; exit }' \
+        "$MOUNTS_FILE" 2>/dev/null || true)
+    case "$user_source" in
+        /dev/*)
+            "$BB" mkdir -p "${USER_SOURCE_FILE%/*}" 2>/dev/null || true
+            printf '%s\n' "$user_source" >"$USER_SOURCE_FILE.next.$$" &&
+                "$BB" mv -f "$USER_SOURCE_FILE.next.$$" "$USER_SOURCE_FILE"
+            ;;
+    esac
+    if "$BB" mkdir -p "${CLEAN_P3_MARKER%/*}" 2>/dev/null &&
+        "$BB" touch "$CLEAN_P3_MARKER" "$CLEAN_P4_MARKER" 2>/dev/null; then
+        "$BB" sync
+        markers_written=1
+    else
+        markers_written=0
+        "$BB" rm -f "$CLEAN_P3_MARKER" "$CLEAN_P4_MARKER" 2>/dev/null || true
+        log 'stage=clean-markers result=failed'
+    fi
+    if [ "$markers_written" -eq 1 ] &&
+        "$BB" umount "$USER_MOUNT" 2>/dev/null; then
+        user_unmounted=1
+    else
+        user_unmounted=0
+    fi
+    if [ "$user_unmounted" -eq 1 ] && [ "$markers_written" -eq 1 ]; then
+        clean_markers=1
+        log 'stage=user-unmount result=ok clean-markers=written'
+    elif [ "$markers_written" -eq 0 ]; then
+        log 'stage=user-unmount result=skipped clean-markers=unavailable'
+    else
+        "$BB" rm -f "$CLEAN_P3_MARKER" "$CLEAN_P4_MARKER" 2>/dev/null || true
+        "$BB" sync
+        log 'stage=user-unmount result=failed clean-markers=removed'
+    fi
+else
+    "$BB" rm -f "$CLEAN_P3_MARKER" 2>/dev/null || true
+    log 'stage=user-unmount result=not-mounted clean-markers=disabled'
+fi
+if [ "$clean_markers" -ne 1 ]; then
+    "$BB" rm -f "$POWER_REQUEST.next.$$" 2>/dev/null || true
+    "$BB" sync
+    log 'result=error stage=user-storage-not-clean'
+    exit 1
+fi
+"$BB" sync
+# Stop background services only after every fallible storage step has passed.
+# A refused transaction therefore leaves SSH, shares and volume keys usable
+# for diagnosis instead of returning to FE with networking silently stopped.
+if [ -x "$VOLUME_KEYS_SERVICE" ]; then
+    PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+        "$BB" sh "$VOLUME_KEYS_SERVICE" stop >/dev/null 2>&1 ||
+        log 'stage=volume-keys-stop result=failed'
+fi
+if [ -x "$NETWORK_SERVICES" ]; then
+    "$BB" sh "$NETWORK_SERVICES" quiesce >/dev/null 2>&1 ||
+        log 'stage=network-quiesce result=failed'
+fi
+# A service listener can exit while an accepted child keeps the inherited log
+# descriptor open. Kill only remaining /storage users as one bounded group;
+# the helper excludes this transaction and its frontend/PID-1 ancestors.
+if [ -x "$RUNTIME_QUIESCE" ]; then
+    PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+        PLUMOS_BUSYBOX="$BB" "$BB" sh "$RUNTIME_QUIESCE" \
+        terminate-storage /storage >>"$LOG" 2>&1 || {
+            "$BB" rm -f "$CLEAN_P3_MARKER" 2>/dev/null || true
+            log 'result=error stage=storage-writer-termination'
+            exit 1
+        }
+fi
+if ! "$BB" mv -f "$POWER_REQUEST.next.$$" "$POWER_REQUEST"; then
+    "$BB" rm -f "$CLEAN_P3_MARKER" 2>/dev/null || true
+    "$BB" sync
+    log 'result=error stage=power-request-commit'
+    exit 1
+fi
+start_power_finalizer
+log "result=requested action=$ACTION owner=pid1"
+exit 0

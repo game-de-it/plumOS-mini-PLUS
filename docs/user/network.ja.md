@@ -12,9 +12,9 @@
 
 | 方法 | 接続先／port | user | password | 用途 |
 | --- | --- | --- | --- | --- |
-| SSH | BubbleのIP / 22 | `root` | `plumos` | shell |
-| SFTP | BubbleのIP / 22 | `root` | `plumos` | 安全なfile transfer |
-| FTP | BubbleのIP / 21 | anonymous | 不要 | 簡易file transfer |
+| SSH | mini PLUSのIP / 22 | `root` | `plumos` | shell |
+| SFTP | mini PLUSのIP / 22 | `root` | `plumos` | 安全なfile transfer |
+| FTP | mini PLUSのIP / 21 | anonymous | 不要 | 簡易file transfer |
 | Samba | `\\<IP>\SDCARD` | `plumos` | `plumos` | Windows/macOSの共有 |
 
 FTP、SFTP、Sambaはいずれも利用者領域を参照します。ROMを追加する場合は

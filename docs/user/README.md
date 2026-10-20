@@ -1,6 +1,8 @@
-# plumOS Bubble User Manual
+# plumOS mini PLUS User Manual
 
-This section is for people using plumOS on a GKD Bubble. Build and development
+> This is a porting draft. The current host candidate is device-unverified and is not a release providing every feature below. Never overwrite the stockOS card; use a separate blank SD for bring-up.
+
+This section is for people using plumOS on a GKD mini PLUS. Build and development
 information lives in the [developer guide](../developer/README.md).
 
 ## Locations to learn first
@@ -15,7 +17,7 @@ information lives in the [developer guide](../developer/README.md).
 Function 1 and Function 2 are in different places. This manual therefore uses
 the explicit forms “Function 1 (front face)” and “Function 2 (top edge).”
 
-> Power the Bubble off before inserting or removing SD2. Hot-plugging SD2 while
+> Power the mini PLUS off before inserting or removing SD2. Hot-plugging SD2 while
 > the system is running is unsupported.
 
 ## Guides
@@ -35,7 +37,7 @@ the explicit forms “Function 1 (front face)” and “Function 2 (top edge).�
 
 - Treat the USB connector as charge-only. ADB is not shown in the menus.
 - HDMI output is currently unsupported.
-- Nintendo 3DS and Java ME are not supported Bubble systems.
+- Nintendo 3DS and Java ME are not supported mini PLUS systems.
 - The image contains no ROMs, user-supplied BIOS files or commercial games.
 
 ## Language

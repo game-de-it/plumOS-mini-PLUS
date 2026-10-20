@@ -1,4 +1,6 @@
-# plumOS Bubble Documentation
+# plumOS mini PLUS Documentation
+
+> This port is currently at the device-unverified bring-up stage. Features described in the user documentation are Bubble-derived migration targets, not mini-PLUS acceptance evidence. See the [top-level README](../README.md) for the verified scope.
 
 Documentation is separated by audience. Files ending in `.ja.md` are Japanese;
 the corresponding `.md` files are English.

@@ -1,0 +1,40 @@
+#!/bin/sh
+set -eu
+
+PLUMOS_ROOT=${PLUMOS_ROOT:-/storage/plumos}
+RUNTIME_ROOT=${PLUMOS_RUNTIME_ROOT:-/run/plumos}
+BB=${PLUMOS_BUSYBOX:-/bin/busybox}
+controller=${PLUMOS_INPUT_EVENT:-}
+power=${PLUMOS_POWER_INPUT_EVENT:-}
+[ -n "$controller" ] || controller=$($BB sh "$PLUMOS_ROOT/bin/plumos-mini-plus-find-input" controller)
+[ -n "$power" ] || power=$($BB sh "$PLUMOS_ROOT/bin/plumos-mini-plus-find-input" power 2>/dev/null || true)
+
+export PLUMOS_ROOT PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" PLUMOS_BUSYBOX="$BB"
+if [ -x "$PLUMOS_ROOT/bin/plumos-mini-plus-mount-sd2" ]; then
+    "$BB" sh "$PLUMOS_ROOT/bin/plumos-mini-plus-mount-sd2" start || true
+fi
+PLUMOS_SDCARD_ROOT=${PLUMOS_SDCARD_ROOT:-/storage}
+PLUMOS_ROM_ROOT=${PLUMOS_ROM_ROOT:-/storage/Roms}
+PLUMOS_BIOS_ROOT=${PLUMOS_BIOS_ROOT:-/storage/BIOS}
+PLUMOS_IMAGE_ROOT=${PLUMOS_IMAGE_ROOT:-/storage/Images}
+export PLUMOS_SDCARD_ROOT PLUMOS_ROM_ROOT
+export PLUMOS_BIOS_ROOT PLUMOS_IMAGE_ROOT
+export PLUMOS_DEVICE_ID=mini-plus PLUMOS_RENDERER=fbdev
+export PLUMOS_DEVICE_NAME='GKD mini PLUS'
+export PLUMOS_FB=${PLUMOS_FB:-/dev/fb0}
+export PLUMOS_DRM_DEVICE=${PLUMOS_DRM_DEVICE:-/dev/dri/card0}
+export PLUMOS_FBDEV_ROTATION=${PLUMOS_FBDEV_ROTATION:-none}
+export PLUMOS_FE_ANALOG_NAVIGATION=${PLUMOS_FE_ANALOG_NAVIGATION:-0}
+export PLUMOS_FRONTEND_LIB_DIR=${PLUMOS_FRONTEND_LIB_DIR:-$PLUMOS_ROOT/frontend/lib}
+export LD_LIBRARY_PATH="$PLUMOS_FRONTEND_LIB_DIR"
+export PLUMOS_INPUT_TRACE_PATH=${PLUMOS_INPUT_TRACE_PATH:-$PLUMOS_ROOT/logs/input-events.log}
+export PLUMOS_ACTION_TRACE_PATH=${PLUMOS_ACTION_TRACE_PATH:-$PLUMOS_ROOT/logs/frontend-actions.log}
+export PLUMOS_FRAME_STATS_PATH=${PLUMOS_FRAME_STATS_PATH:-$PLUMOS_ROOT/logs/frontend-frame-stats.log}
+display_trace_enable=${PLUMOS_DISPLAY_TRACE_ENABLE:-$RUNTIME_ROOT/validation/frontend-display-trace}
+if [ -e "$display_trace_enable" ]; then
+    export PLUMOS_DISPLAY_TRACE_PATH=${PLUMOS_DISPLAY_TRACE_PATH:-$RUNTIME_ROOT/frontend-display-trace.log}
+fi
+
+set -- --renderer fbdev --fb "$PLUMOS_FB" --event "$controller" "$@"
+[ -z "$power" ] || set -- "$@" --power-event "$power"
+exec "$PLUMOS_ROOT/bin/plumos-controller-ui-fbdev" "$@"

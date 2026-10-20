@@ -1,4 +1,4 @@
-plumOS Bubble minimal System notice
+plumOS mini PLUS minimal System notice
 
 The diagnostic read-only System contains plumOS-authored init and display
 marker files, the statically linked BusyBox binary, and the Dropbear and
@@ -10,8 +10,12 @@ wpa_supplicant, and their runtime libraries retain their upstream terms. The
 System image packages the corresponding Debian copyright documents under
 /usr/share/licenses.
 
-The generated image also contains captured GKD Bubble stockOS boot artifacts
-and the hash-pinned bcmdhd module/firmware/NVRAM hardware substrate. These
-files remain outside the plumOS MIT License and are distributed under the GKD
-vendor permission recorded in GKD-stockOS-PERMISSION-NOTICE.txt, subject to
-any applicable third-party terms.
+The generated image also contains hash-pinned GKD mini PLUS stockOS boot
+artifacts: the Rockchip boot prefix, Linux kernel, device trees, overlays and
+fixup script. These files remain outside the plumOS MIT License and are
+distributed under the GKD vendor permission recorded in
+GKD-stockOS-PERMISSION-NOTICE.txt, subject to applicable third-party terms.
+
+The current minimal host candidate does not include the captured RTL8821CS
+module. Its vermagic does not match the selected mini PLUS stock kernel, so it
+is retained as an analysis input only until a compatible driver is proven.

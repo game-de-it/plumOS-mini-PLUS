@@ -1,5 +1,5 @@
 [Unit]
-Description=plumOS Bubble persistent boot milestone probe
+Description=plumOS mini PLUS persistent boot milestone probe
 ConditionPathExists=/storage/plumos/boot-probe/enabled
 After=local-fs.target
 Before=emustation.service miniplus.target

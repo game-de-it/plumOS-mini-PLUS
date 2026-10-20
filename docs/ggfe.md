@@ -1,6 +1,6 @@
 # GGFE - the Game Gear frontend
 
-GGFE is a system-specific frontend for plumOS Bubble. It presents a Game Gear
+GGFE is a system-specific frontend for plumOS mini PLUS. It presents a Game Gear
 library as a carousel of cartridges drawn with CPU software 3D, and hands a
 selected game to the normal plumOS launch path.
 
@@ -16,7 +16,7 @@ touches `/dev/mali0`, so it never competes with RetroArch for the GPU or for
 DRM master, and the handoff to a game is the release the stock frontend
 already performs.
 
-The build gate enforces this: `scripts/build-bubble-frontend.sh` fails if
+The build gate enforces this: `scripts/build-mini-plus-frontend.sh` fails if
 `plumos-ggfe` links `libEGL`, `libGLESv2`, `libgbm` or `libmali`.
 
 A worst-case frame is roughly 3,500 triangles at 640x480. See
@@ -31,8 +31,8 @@ That entry runs `bin/plumos-ggfe-launch`. The stock frontend shuts its
 renderer down before running any `shell:` app, so DRM master is already free
 when GGFE starts. On exit the stock frontend reacquires it.
 
-GGFE is a Bubble-only entry and is recorded as such in
-`config/frontend/start-menu-coverage.json` under `bubble_only_apps_entries`.
+GGFE is a mini PLUS-only entry and is recorded as such in
+`config/frontend/start-menu-coverage.json` under `miniplus_only_apps_entries`.
 
 ## Controls
 
@@ -76,7 +76,7 @@ The core and animation choices are remembered across launches.
 Notes:
 
 * Physical A is `BTN_EAST` and physical B is `BTN_SOUTH` on this device, per
-  `configs/input/bubble-controller-map.json`. GGFE uses those codes, not
+  `configs/input/mini-plus-controller-map.json`. GGFE uses those codes, not
   positions.
 * Input is ignored while the launch sequence is playing, so a second A press
   cannot start a second game.
@@ -85,7 +85,7 @@ Notes:
   `ggfe_launch=unavailable rom=... reason=...` to `logs/ggfe.log`. See
   *Launch resolution* below for why a core may be unavailable.
 * The joypad node comes from `PLUMOS_INPUT_EVENT`, which the launcher fills
-  from `plumos-bubble-find-input`. If that is empty GGFE scans
+  from `plumos-mini-plus-find-input`. If that is empty GGFE scans
   `/dev/input/event0..15` for a device reporting both `BTN_SOUTH` and
   `BTN_DPAD_LEFT`. The controller map names `event2`, but nothing guarantees
   enumeration order, so the node is never hardcoded.
@@ -319,7 +319,7 @@ None of these need a device:
 | `plumos_ggfe.c -DPLUMOS_GGFE_HOST` | renders six keyframes to PNG, prints the scan, the profile catalogue and the resolved launch for every ROM |
 | `scripts/ggfe-render-test.c` | four views of the cartridge, for the 3D maths |
 | `scripts/ggfe-art-test.c` | which artwork rule matched each ROM |
-| `tests/test-bubble-ggfe-launch-resolution.sh` | the launch chain, availability, and that plumOS's file is untouched |
+| `tests/test-mini-plus-ggfe-launch-resolution.sh` | the launch chain, availability, and that plumOS's file is untouched |
 
 Run the tests in the container, not on macOS. bash 3.2 does not honour `set -e`
 for a failing `[[ ]]` compound command, so bare assertions in `tests/` are

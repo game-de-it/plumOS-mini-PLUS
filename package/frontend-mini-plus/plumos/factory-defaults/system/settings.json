@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "device": "mini-plus",
+  "model": "GKD mini PLUS",
+  "language": "en.lang",
+  "timezone": "Asia/Tokyo",
+  "brightness": 10,
+  "volume": 8,
+  "automatic_time": true,
+  "wifi_enabled": true
+}

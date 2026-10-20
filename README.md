@@ -1,58 +1,47 @@
-<p align="center">
-  <img src="package/frontend-bubble/plumos/config/frontend/boot-splash.png" alt="plumOS" width="640">
-</p>
+# plumOS mini PLUS
 
-# plumOS Bubble
+This tree ports the plumOS-Bubble userspace assets to the GKD mini PLUS (RK3566 / ARM64).
 
-plumOS Bubble is a Linux-based custom firmware for the GKD Bubble
-(RK3566 / ARM64). It brings the game frontend, RetroArch, PicoArch, standalone
-emulators, the dedicated Game Gear frontend, PortMaster, Pyxel, and network
-transfer tools into one consistent interface.
+The current output is a **host-verified, device-unverified bring-up candidate**. It combines the mini-PLUS-specific Rockchip boot prefix, kernel, DTB and overlays read from the stockOS card with a dedicated external initramfs and plumOS SYSTEM. The source stockOS card is never written.
 
-## Screenshots
+Alongside the minimal boot candidate, a UI bring-up candidate packages the Bubble-derived frontend, Japanese fonts, themes, settings and helper tools on p2. It does not yet contain emulator runtimes and is not a complete release.
 
-| Text mode | Graphics mode |
-| :---: | :---: |
-| ![Game list in text mode](docs/images/frontend-text.png) | ![Game list in graphics mode](docs/images/frontend-graphics.png) |
+## Current layout
 
-| Gallery mode | Game Gear Frontend (GGFE) |
-| :---: | :---: |
-| ![Box artwork in gallery mode](docs/images/frontend-gallery.png) | ![Cartridge carousel in GGFE](docs/images/ggfe.png) |
+- p1: 512 MiB FAT32 with the stock kernel, `rk3566-gkdmini-pro.dtb`, overlays, plumOS initramfs and SquashFS SYSTEM
+- p2: 2 GiB ext4 for configuration, logs and user data
+- existing data from stock p2 is not copied into the plumOS candidate
+- Wi-Fi is disabled in this candidate because the RTL8821CS module found in stock `SYSTEM` has a vermagic mismatch with the running stock kernel
 
-## Documentation
-
-User documentation and developer documentation are kept separate, with both
-English and Japanese entry points.
-
-- [Documentation index](docs/README.md)
-- [User manual](docs/user/README.md)
-- [Supported systems, ROM directories, extensions, and emulators](docs/user/supported-systems.md)
-- [Emulators and hotkeys](docs/user/emulators.md)
-- [Developer guide](docs/developer/README.md)
-- [日本語の概要](README.ja.md)
-
-## Developer quick start
-
-With the approved vendor inputs available, build the full release-candidate SD
-image with:
+Build the image with:
 
 ```sh
-PLUMOS_BUBBLE_VERSION=<version> \
-PLUMOS_BUBBLE_INCLUDE_CAPTURED_VENDOR_GPU=1 \
-./scripts/build-bubble-frontend-probe-image.sh
+./scripts/build-mini-plus-image.sh
 ```
 
-Generated artifacts are written below `output/` and are not tracked by Git.
-ROMs, user-supplied BIOS files, saves, network credentials, and private keys
-must not be included in the repository or public artifacts.
+Output:
 
-## License
+```text
+output/image/mini-plus/plumOS-mini-PLUS-0.1.0-dev-host-candidate.img
+```
 
-plumOS-authored material is licensed under the [MIT License](LICENSE).
-Distributed material derived from stockOS remains the property of GKD, and
-vendor and third-party components retain their own terms. DraStic follows the
-same project-approved inclusion policy as plumOS MF.
+Build the UI bring-up candidate with:
 
-- [Third-party notices](THIRD_PARTY_NOTICES.md)
-- [GKD stockOS permission notice](docs/licenses/GKD-stockOS-PERMISSION-NOTICE.txt)
-- [Bubble vendor runtime notice](docs/licenses/bubble-vendor-runtime-NOTICE.txt)
+```sh
+./scripts/build-mini-plus-frontend-image.sh
+```
+
+Output:
+
+```text
+output/image/mini-plus-frontend/plumOS-mini-PLUS-0.1.0-dev-frontend-host-candidate.img
+```
+
+The host builds verify the complete image checksums, partition filesystems, raw boot prefix, kernel, DTB and overlays. The UI candidate also verifies every packaged frontend component. LCD, controls, audio, shutdown, suspend and Wi-Fi still require a blank test SD and physical-device validation.
+
+- [Bring-up status](TODO.md)
+- [Read-only stock inventory](docs/validation/2026-10-20-mini-plus-read-only-inventory.md)
+- [Host candidate build record](docs/validation/2026-10-20-mini-plus-host-candidate.md)
+- [Preserved Bubble reference evidence](docs/reference/bubble/validation/)
+
+plumOS-authored material is covered by the [MIT License](LICENSE). StockOS-derived boot/runtime inputs and third-party components retain their own terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

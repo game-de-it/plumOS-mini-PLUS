@@ -1,7 +1,9 @@
 # 0001: V90S由来の4 partition ownershipを採用する
 
 Date: 2026-09-01  
-Status: Accepted direction; exact geometry and p2 format are pending boot-probe validation
+Status: Superseded for bring-up; retained as a possible future update-layout study
+
+2026-10-20のmini-PLUS bring-upはstock-compatibleなraw 16 MiB + p1 FAT32 + p2 ext4へ戻した。4 partition、System A/B、first-boot resizeはmini-PLUS実機で未検証のため、現候補には含めない。
 
 ## 2026-09-02 boundary clarification
 
@@ -10,7 +12,7 @@ diagnostic-only artifactである。空きSD容量の拡張、System A/B、manag
 partitionを実装しておらず、最終imageやupdate ABIへ昇格させない。manifestで
 `final_partition_contract=no`と`first_boot_provisioning=not-included`を必須記録し、公開しない。
 
-正式Bubble imageではV90Sの実証済みroleとstate machineを維持する。
+正式mini PLUS imageではV90Sの実証済みroleとstate machineを維持する。
 
 - seedはp1〜p3だけを持ち、p4は初回bootで未使用末尾領域へ作成する。
 - p3は実使用量から算出したseed sizeから8 GiB候補へ、exact geometry check後に拡張する。
@@ -20,7 +22,7 @@ partitionを実装しておらず、最終imageやupdate ABIへ昇格させな�
 - p1 System A/B、p3 active/pending/attempted/healthy metadata、inactive-slot readbackを
   通常System updateの契約にする。
 
-Bubbleで変更してよいのはRockchip prefix、p2 boot形式、block device解決、実測容量などの
+mini PLUSで変更してよいのはRockchip prefix、p2 boot形式、block device解決、実測容量などの
 hardware substrateだけであり、plumOSのstorage ownership、update transaction、共通visual
 designは機種独自化しない。
 
@@ -31,7 +33,7 @@ external initramfsを組み合わせる。kernel、DTB、module ABIは交換し�
 
 ## Context
 
-BubbleのstockOSベースCFWは、16 MiBのraw Rockchip boot prefix、FAT32 boot partition、
+mini PLUSのstockOSベースCFWは、16 MiBのraw Rockchip boot prefix、FAT32 boot partition、
 ext4 storage partitionというMBR layoutで起動する。FAT32上の約1.90 GiB `SYSTEM`を
 SquashFS rootとして使用し、2枚目のSDをROM領域として利用できる。
 
@@ -44,23 +46,23 @@ V90Sの現行plumOSは次の境界を実機で検証済みである。
 - p4 `PLUMOS` FAT32をmacOS/Windowsから見えるuser/update領域にする。
 - update archiveはp4へ置き、p3 transactionまたはp1 inactive System slotへ適用する。
 
-BubbleもSD2を利用できるため、portable contentをboot/update stateから分離する考え方と
+mini PLUSもSD2を利用できるため、portable contentをboot/update stateから分離する考え方と
 相性がよい。一方、V90SはAllwinner boot0/boot-packageとAndroid boot partitionを使い、
-BubbleはRockchip U-Bootが現在p1上の`Image`、DTB、boot scriptを読む。この物理boot形式は
+mini PLUSはRockchip U-Bootが現在p1上の`Image`、DTB、boot scriptを読む。この物理boot形式は
 同一ではない。
 
 ## Decision
 
-BubbleはV90Sの4 partition ownershipとupdate/rollback契約を採用する。Allwinner固有の
-offset、boot0、boot-package、partition imageはコピーせず、Bubbleで採取したexact Rockchip
+mini PLUSはV90Sの4 partition ownershipとupdate/rollback契約を採用する。Allwinner固有の
+offset、boot0、boot-package、partition imageはコピーせず、mini PLUSで採取したexact Rockchip
 artifactから実装する。
 
 候補layoutは次のとおりとする。
 
 ```text
-raw sectors 0..32767       16 MiB exact Bubble Rockchip prefix, immutable input
+raw sectors 0..32767       16 MiB exact mini PLUS Rockchip prefix, immutable input
 p1 PLUMBOOT    FAT32       boot resources + signed System A/B
-p2 BOOT        raw         matching Bubble kernel + DTB + initramfs/recovery bundle
+p2 BOOT        raw         matching mini PLUS kernel + DTB + initramfs/recovery bundle
 p3 PLUMOS_SYS  ext4        managed runtime/state; seed then expand to 8192 MiB candidate
 p4 PLUMOS      FAT32       remaining SD1 capacity; user content + update inbox + logs
 SD2                         optional ROM/BIOS/media source; not required for boot/update
@@ -69,7 +71,7 @@ SD2                         optional ROM/BIOS/media source; not required for boo
 役割と番号は採用するが、次の値はまだ固定しない。
 
 - p1 size: 2つのsigned System slot、manifest、readback余裕からbuild時に算出する。
-- p2 size/format: Bubble U-Bootがraw partitionから安全にloadでき、recoveryが成立した後に固定する。
+- p2 size/format: mini PLUS U-Bootがraw partitionから安全にloadでき、recoveryが成立した後に固定する。
 - p3 seed size: strict app-layerの実使用量と最低free-spaceから決める。first-boot targetは
   V90S/Pixel2実績の8192 MiBを第一候補とする。
 - partition table: 現CFWはMBRだが、4 partitionとraw prefixを維持できるため、GPTへ変更する
@@ -117,7 +119,7 @@ SD2はROM、BIOS、mediaの追加sourceとして利用するが、次を守る�
 
 ## Consequences
 
-V90Sの更新実績をBubbleへ持ち込める一方、初期bring-upでpartitionを先に作り込むことは
+V90Sの更新実績をmini PLUSへ持ち込める一方、初期bring-upでpartitionを先に作り込むことは
 しない。最初は現CFWと同じp1 file bootを維持し、one-shot probeでboot ownershipを証明する。
 p2 raw bootを成立させてから最終4 partition seedへ進む。
 

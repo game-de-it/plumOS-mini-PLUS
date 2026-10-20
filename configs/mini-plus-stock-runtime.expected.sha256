@@ -1,0 +1,10 @@
+# 2026-10-20 GKD mini PLUS stock SYSTEM runtime ABI inputs.
+# The complete stock SYSTEM is analysis-only and is not copied into release output.
+873392f49ce6f1ca8acc501fb7d80367ef7cc54dbfebe9b0c8c531ac06f81037  modules/8821cs.ko
+2ce80fcf865795f6f64c37558b39745bcb7c1994a5883160ae509366f08bee80  modules/dwc3.ko
+5a1c482cf9576675b272a915786b9437cec3129fbd6c8b8fdd3f000490be5e83  modules/udc-core.ko
+cb8da0bfc163e076d566c6281937efc296b3eb3dab7d226a0ddc47777a1ad1e7  modules/dwc3-of-simple.ko
+6ddeb15f23588053e00cb08d25588bd7cf98d60fa93d9478efcef4ae8064a7ac  firmware/rtl_bt/rtl8821cs_config.bin
+3baa2eeaa43c959054687a67771e7435e73b2ff3e79dfb765121d8b7dc719391  firmware/rtl_bt/rtl8821cs_fw.bin
+56e37253ef3c217932aa947734399203614dfa6046a077444d4c76fd29ea5be2  gpu/libmali-aarch64.so.1.9.0
+bbe45b17ec872897a0039a685ba25e87ea8fa2244f3a36648c37acf9fdb55d34  gpu/libmali-armhf.so.1.9.0

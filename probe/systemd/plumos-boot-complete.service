@@ -1,5 +1,5 @@
 [Unit]
-Description=plumOS Bubble boot-complete milestone
+Description=plumOS mini PLUS boot-complete milestone
 ConditionPathExists=/storage/plumos/boot-probe/enabled
 Requires=plumos-boot-probe.service
 After=plumos-boot-probe.service emustation.service

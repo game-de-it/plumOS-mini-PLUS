@@ -1,9 +1,9 @@
 # Shared plumOS boot asset
 
 `plumos-640x480.bmp` is the existing repository-owned plumOS 640x480 boot
-design reused by the V90S, A30, and MF ports. Bubble must not add device
+design reused by the V90S, A30, and MF ports. mini PLUS must not add device
 branding to this image. Its device-specific code only converts the validated
-24-bit BMP pixels to the XRGB8888 layout exposed by Bubble `fb0`.
+24-bit BMP pixels to the XRGB8888 layout exposed by mini PLUS `fb0`.
 
 ```text
 format=Windows 3.x BMP, uncompressed 24-bit, 640x480

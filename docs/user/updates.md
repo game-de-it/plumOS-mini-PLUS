@@ -1,9 +1,9 @@
 # Updates
 
-Bubble update packages are checked for signature, device and version. The
+mini PLUS update packages are checked for signature, device and version. The
 updater rejects the same version and older-version downgrades.
 
-1. Download the correct Bubble package and its published checksum.
+1. Download the correct mini PLUS package and its published checksum.
 2. Verify the checksum.
 3. With SYS attached to a computer, copy it to `updates/` on the `PLUMOS`
    volume. Over the network share use `user/updates/`; the device path is

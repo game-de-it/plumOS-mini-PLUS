@@ -1,8 +1,10 @@
 # SDカードへの書き込みと初回起動
 
+> 現在のmini-PLUS imageは実機未検証のbring-up候補です。stockOS SDには書き込まず、別の空SDだけを対象にしてください。
+
 ## 必要なもの
 
-- GKD Bubble
+- GKD mini PLUS
 - 16GB以上のmicroSDカード（SYS用）
 - releaseの圧縮SDイメージと`SHA256SUMS`
 - Raspberry Pi Imager、balenaEtcherなどraw imageを書けるソフト
@@ -13,7 +15,7 @@
 2. SHA-256が一致することを確認します。
 3. 書き込みソフトで、ファイルコピーではなく**raw imageとして**microSDへ書き込みます。
 4. 書き込みをverifyし、OSの取り出し操作をしてカードを外します。
-5. 電源OFFのBubbleで、カードを**本体上部のSYSスロット**へ挿入します。
+5. 電源OFFのmini PLUSで、カードを**本体上部のSYSスロット**へ挿入します。
 6. 電源を入れ、初回セットアップが終わってフロントエンドが表示されるまで待ちます。
 
 初回起動ではパーティションの拡張と利用者領域の作成が行われます。途中で電源を

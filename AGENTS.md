@@ -8,7 +8,7 @@
 
 ## プロジェクト方針
 
-このプロジェクトではGKD Bubbleというハンドヘルドで動作するLinuxを構築することが目的になります。
+このプロジェクトではGKD mini PLUSというハンドヘルドで動作するLinuxを構築することが目的になります。
 作業履歴、ログはgitを使って進めましょう。
 
 ## 実装およびトラブルシューティング
@@ -18,7 +18,7 @@ plumOS_gitlog_problem_solution_guide.ja.md
 
 ## フロントエンド互換性
 
-- 他のplumOSシリーズに存在する共通メニュー項目を、Bubble側で未実装であることを理由に
+- 他のplumOSシリーズに存在する共通メニュー項目を、mini PLUS側で未実装であることを理由に
   削除してはならない。共通の並びと項目を表示したまま、未実装の機能は選択時に
   `未実装`または`未対応`を明示し、対応TODOへ追跡可能にする。
 - 共通runtime catalogに含まれるsystem、emulator、core、launch profileを、個別移植が

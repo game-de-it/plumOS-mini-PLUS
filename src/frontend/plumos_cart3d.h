@@ -4,7 +4,7 @@
 /*
  * Software 3D for the Game Gear frontend (GGFE).
  *
- * The Bubble frontend already owns a CPU renderer that composes into a RAM
+ * The mini PLUS frontend already owns a CPU renderer that composes into a RAM
  * shadow buffer and memcpy's it into a DRM dumb buffer.  This adds the small
  * amount of 3D needed to draw cartridges into that same surface, so GGFE
  * needs no GL, no EGL and no /dev/mali0, and never competes with RetroArch

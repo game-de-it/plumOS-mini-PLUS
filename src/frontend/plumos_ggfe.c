@@ -1,5 +1,5 @@
 /*
- * plumos-ggfe - the Game Gear frontend for plumOS Bubble.
+ * plumos-ggfe - the Game Gear frontend for plumOS mini PLUS.
  *
  * A cartridge carousel drawn with CPU software 3D.  GGFE owns no GL context
  * and never opens /dev/mali0, so launching RetroArch is the same DRM handoff
@@ -1549,7 +1549,7 @@ static struct cart3d_tex *ggfe_label_tex(struct ggfe_app *app, int entry) {
 /* Decode every label that can enter the visible carousel before motion starts.
  * PNG decode and resize are intentionally kept out of the transition frames:
  * advancing by wall time across that one-off stall made a one-slot move look
- * like a jump on Bubble. */
+ * like a jump on mini PLUS. */
 static void ggfe_warm_labels(struct ggfe_app *app, int center) {
   int offset;
 
@@ -2659,7 +2659,7 @@ int main(int argc, char **argv) {
           ggfe_repeat_release(&repeat, (unsigned int)ev.code);
           continue;
         }
-        /* Kernel repeat events are not available on every Bubble input
+        /* Kernel repeat events are not available on every mini PLUS input
          * bridge.  GGFE generates its own repeat from press/release state. */
         if (ev.value != 1) {
           continue;
@@ -2686,14 +2686,14 @@ int main(int argc, char **argv) {
             case BTN_DPAD_RIGHT:
               adjust = 1;
               break;
-            case BTN_EAST: /* physical A on Bubble */
+            case BTN_EAST: /* physical A on mini PLUS */
               adjust = 1;
               if (menu.cursor == GGFE_MENU_EXIT) {
                 ggfe_log(&app, "ggfe_input=exit source=menu\n");
                 running = 0;
               }
               break;
-            case BTN_SOUTH: /* physical B on Bubble: closes the menu only */
+            case BTN_SOUTH: /* physical B on mini PLUS: closes the menu only */
             case BTN_SELECT:
               menu.open = 0;
               ggfe_log(&app, "ggfe_menu=close\n");
@@ -2754,7 +2754,7 @@ int main(int argc, char **argv) {
             ggfe_repeat_cancel(&repeat);
             ggfe_scroll_request(&app, &scroll, GGFE_PAGE_JUMP);
             break;
-          case BTN_EAST: /* physical A on Bubble */
+          case BTN_EAST: /* physical A on mini PLUS */
           {
             char why[96];
             ggfe_repeat_cancel(&repeat);
@@ -2769,13 +2769,13 @@ int main(int argc, char **argv) {
             }
             break;
           }
-          case BTN_NORTH: /* physical X on Bubble */
+          case BTN_NORTH: /* physical X on mini PLUS */
             show_cases = !show_cases;
             ggfe_log(&app, "ggfe_input=case-toggle code=%u visible=%d\n",
                      (unsigned int)ev.code, show_cases);
             ggfe_state_save(&app, show_cases, motion_pref);
             break;
-          case BTN_SOUTH: /* physical B on Bubble */
+          case BTN_SOUTH: /* physical B on mini PLUS */
           case BTN_START:
             /* Deliberately inert.  Leaving by a face button was too easy to
              * do by accident; SELECT opens the menu and its exit item is the
@@ -2884,7 +2884,7 @@ int main(int argc, char **argv) {
     }
 
     if (launch_t > GGFE_LAUNCH_END) {
-      /* RetroArch exits with SELECT+START on Bubble.  Do not keep GGFE's
+      /* RetroArch exits with SELECT+START on mini PLUS.  Do not keep GGFE's
        * evdev queue open while the child owns the controls, or that START
        * key-down is delivered after return and immediately exits GGFE too. */
       if (input_fd >= 0) {
@@ -2972,7 +2972,7 @@ int main(int argc, char **argv) {
   struct ggfe_app app;
   struct ggfe_frame frame;
   unsigned char *background;
-  const char *plumos_root = argc > 1 ? argv[1] : "package/frontend-bubble/plumos";
+  const char *plumos_root = argc > 1 ? argv[1] : "package/frontend-mini-plus/plumos";
   const char *sdcard_root = argc > 2 ? argv[2] : "demo";
   const char *out_dir = argc > 3 ? argv[3] : "/tmp";
   char path[PATH_MAX];

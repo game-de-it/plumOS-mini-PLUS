@@ -1,0 +1,145 @@
+#!/bin/sh
+set -u
+
+PLUMOS_ROOT=${PLUMOS_ROOT:-/storage/plumos}
+RUNTIME_ROOT=${PLUMOS_RUNTIME_ROOT:-/run/plumos}
+BB=${PLUMOS_BUSYBOX:-/bin/busybox}
+LOG_DIR=$PLUMOS_ROOT/logs
+LOG_FILE=${PLUMOS_POWER_MENU_OVERLAY_LOG:-$LOG_DIR/power-menu-overlay.log}
+MENU=${PLUMOS_POWER_MENU_OVERLAY_UI:-$PLUMOS_ROOT/bin/plumos-controller-ui-mini-plus}
+SAFE_SHUTDOWN=${PLUMOS_POWER_MENU_SAFE_SHUTDOWN:-$PLUMOS_ROOT/bin/plumos-safe-shutdown}
+QUIESCE=${PLUMOS_POWER_MENU_QUIESCE:-$PLUMOS_ROOT/bin/plumos-runtime-quiesce}
+LOCK_DIR=${PLUMOS_POWER_MENU_LOCK_DIR:-$RUNTIME_ROOT/power-menu-overlay.lock}
+SELECTION_FILE=${PLUMOS_POWER_MENU_SELECTION_FILE:-$RUNTIME_ROOT/power-menu-overlay.$$.selection}
+QUIESCE_STATE=$RUNTIME_ROOT/power-menu-overlay.$$.quiesce
+FOREGROUND_MARKER=$RUNTIME_ROOT/frontend/foreground.pgid
+FRONTEND_READY=${PLUMOS_FRONTEND_READY:-/tmp/plumos-fe-ready}
+TERMINAL_ACTION=0
+
+$BB mkdir -p "$LOG_DIR" "$RUNTIME_ROOT" 2>/dev/null || true
+
+log() {
+    printf '%s %s\n' "$($BB date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || printf unknown-time)" "$*" \
+        >>"$LOG_FILE" 2>/dev/null || true
+}
+
+read_selection() {
+    $BB sed -n 's/^action=//p' "$SELECTION_FILE" 2>/dev/null | $BB head -n 1
+}
+
+release_runtime() {
+    [ -x "$QUIESCE" ] || return 0
+    PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+        PLUMOS_BUSYBOX="$BB" "$BB" sh "$QUIESCE" release "$QUIESCE_STATE" \
+        >>"$LOG_FILE" 2>&1 || true
+}
+
+cleanup() {
+    if [ "$TERMINAL_ACTION" = 0 ]; then
+        release_runtime
+    fi
+    $BB rm -f "$SELECTION_FILE" "$QUIESCE_STATE" 2>/dev/null || true
+    $BB rmdir "$LOCK_DIR" 2>/dev/null || true
+}
+
+run_power_action() {
+    case $1 in
+        sleep)
+            "$BB" sh "$SAFE_SHUTDOWN" --sleep --sleep-backend mem \
+                --no-poweroff --no-hold-resume \
+                >>"$LOG_DIR/frontend-power-action.log" 2>&1
+            ;;
+        reboot)
+            "$BB" sh "$SAFE_SHUTDOWN" --reboot --no-hold-resume \
+                >>"$LOG_DIR/frontend-power-action.log" 2>&1
+            ;;
+        shutdown)
+            "$BB" sh "$SAFE_SHUTDOWN" --shutdown --poweroff \
+                --power-backend auto --no-hold-resume \
+                >>"$LOG_DIR/frontend-power-action.log" 2>&1
+            ;;
+        *) return 2 ;;
+    esac
+}
+
+if ! "$BB" mkdir "$LOCK_DIR" 2>/dev/null; then
+    log 'skip reason=already-open'
+    exit 0
+fi
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap cleanup EXIT
+
+[ -x "$MENU" ] || { log "error menu-missing path=$MENU"; exit 127; }
+[ -x "$SAFE_SHUTDOWN" ] || { log "error safe-shutdown-missing path=$SAFE_SHUTDOWN"; exit 127; }
+[ -x "$QUIESCE" ] || { log "error quiesce-missing path=$QUIESCE"; exit 127; }
+
+$BB rm -f "$SELECTION_FILE" "$QUIESCE_STATE" 2>/dev/null || true
+PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+    PLUMOS_BUSYBOX="$BB" "$BB" sh "$QUIESCE" hold "$QUIESCE_STATE" 1 \
+    >>"$LOG_FILE" 2>&1 || {
+        log 'error quiesce-failed'
+        exit 1
+    }
+log "menu begin backend=$MENU"
+PLUMOS_ROOT="$PLUMOS_ROOT" \
+PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+PLUMOS_BUSYBOX="$BB" \
+PLUMOS_FRONTEND_MODE=manual \
+PLUMOS_POWER_MENU_SELECTION="$SELECTION_FILE" \
+LD_LIBRARY_PATH="$PLUMOS_ROOT/frontend/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+    "$BB" sh "$MENU" --power-overlay >>"$LOG_FILE" 2>&1
+menu_rc=$?
+selection=$(read_selection)
+log "menu end rc=$menu_rc selection=${selection:-cancel}"
+
+case $selection in
+    sleep)
+        run_power_action sleep
+        action_rc=$?
+        release_runtime
+        exit "$action_rc"
+        ;;
+    reboot|shutdown)
+        # A terminal action intentionally discards the running game/app. Kill
+        # its dedicated FE process group (TERM, then bounded KILL) and every
+        # recorded display owner before storage is unmounted. Cancel is the
+        # only path that resumes the recorded owners.
+        if ! PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            PLUMOS_BUSYBOX="$BB" "$BB" sh "$QUIESCE" terminate \
+            "$QUIESCE_STATE" "$FOREGROUND_MARKER" >>"$LOG_FILE" 2>&1; then
+            log 'terminal quiesce failed; safe power action refused'
+            exit 1
+        fi
+        TERMINAL_ACTION=1
+        if run_power_action "$selection"; then
+            # PID 1 consumes the committed request only after its supervised
+            # frontend returns.  The overlay is owned by the volume-key
+            # service, so a successful request must explicitly end the FE.
+            # Otherwise it resumes after the game is killed and the request
+            # remains pending forever.
+            if ! PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+                PLUMOS_BUSYBOX="$BB" "$BB" sh "$QUIESCE" terminate-state \
+                "$FRONTEND_READY" >>"$LOG_FILE" 2>&1; then
+                log 'frontend termination failed; pid1 handoff incomplete'
+                action_rc=1
+            else
+                log "terminal request committed action=$selection owner=pid1 frontend=terminated"
+                action_rc=0
+            fi
+        else
+            action_rc=$?
+        fi
+        TERMINAL_ACTION=0
+        exit "$action_rc"
+        ;;
+    cancel|'')
+        release_runtime
+        exit "$menu_rc"
+        ;;
+    *)
+        log "selection ignored value=$selection"
+        release_runtime
+        exit "$menu_rc"
+        ;;
+esac

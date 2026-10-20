@@ -1,0 +1,37 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+builder=$repo_root/scripts/build-pyxel-mini-plus.sh
+dockerfile=$repo_root/docker/mini-plus-tools/Dockerfile
+
+grep -Eq 'python3-pip([[:space:]\\]|$)' "$dockerfile"
+grep -Eq '([[:space:]\\])file([[:space:]\\]|$)' "$dockerfile"
+grep -Fq 'find_target_lib libdl.so.2' "$builder"
+grep -Fq 'install -m 0644 "$compat_path" "$PYXEL_LIB/libdl.so.2"' "$builder"
+grep -Fq 'test -f "$PYXEL_LIB/libdl.so.2"' "$builder"
+grep -Fq '"source_ref": "$source_ref"' "$builder"
+grep -Fq 'PLUMOS_MINI_PLUS_PYTHON_LD_PRELOAD' "$builder"
+grep -Fq 'PLUMOS_PYXEL_MALI_LIBRARY' "$builder"
+grep -Fq 'PLUMOS_PYXEL_GLES_LIBRARY' "$builder"
+grep -Fq 'Use the exact same DSO' "$builder"
+grep -Fq 'software_fallback": false' "$builder"
+grep -Fq 'mini PLUS Mali hardware runtime is unavailable' "$builder"
+grep -Fq 'PLUMOS_PYXEL_FRAME_STATS' "$repo_root/package/pyxel-mini-plus/plumos_pyxel_fit.c"
+if grep -Eq 'kms_swrast|LIBGL_ALWAYS_SOFTWARE=.*1' "$builder"; then
+    printf 'mini PLUS Pyxel must not package or select a software GL fallback\n' >&2
+    exit 1
+fi
+if grep -Fq 'export LD_LIBRARY_PATH="$PYXEL_ROOT/lib:$PYTHON_ROOT/lib:/usr/lib"' "$builder"; then
+    printf 'mini PLUS Pyxel launcher must not expose the glibc runtime to stock BusyBox\n' >&2
+    exit 1
+fi
+if [ -d "$repo_root/output/pyxel/mini-plus/plumos" ]; then
+    test -f "$repo_root/output/pyxel/mini-plus/plumos/apps/pyxel/lib/libdl.so.2"
+    for library in \
+        libbz2.so.1.0 libcrypto.so.3 liblzma.so.5 libreadline.so.8 \
+        libsqlite3.so.0 libssl.so.3; do
+        test -f "$repo_root/output/pyxel/mini-plus/plumos/apps/python/lib/$library"
+    done
+fi
+printf 'miniplus_pyxel_runtime=result-ok libdl=component-scoped\n'

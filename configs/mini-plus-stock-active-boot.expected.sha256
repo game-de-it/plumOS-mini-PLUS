@@ -1,0 +1,18 @@
+# 2026-10-20 GKD mini PLUS stockOS active boot inputs.
+# SYSTEM is analysis-only and must not be copied into a plumOS release.
+aa8bd95d5d75aaab1977c5e58732d67545221649a08e6b7afda36aee208e26e9  rockchip-boot-prefix.bin
+670c32a86cf006a574d5ec498df6c14e3ac61af6ed6b109f458b5711c228da56  Image
+8db4355a4df5224cc314e1c6554d73df48dc707968180286ff402a65fd3f4818  initrd.img-4.19.193-51-rockchip-gb2c01b3d79f2
+abe0bb60006a6c54f3995c1190cee47907d34636ed9f61fb020db30add333147  SYSTEM.analysis-only
+c745d2469aa1a25617c49bb2b8bde9b8788efcc4f4bd2300f88a38bd12df2697  boot.cmd
+8340ebed0e02b025f830cb12dba24d0a847657664312f69798273e5b721a80a6  boot.scr
+af131a5217ddeeec96698b5ff3b3e26bbd73c5cafbc397b69be55340ccd071bb  uEnv.txt
+8e864607d2188d98fdcbc4f3ee961628585c7f7d5c2b10d77a45fee795407781  rk3566-gkdmini-pro.dtb
+868475785ac169aa4285547de84d4a0b2e9414d61f5c721bf1334e45dbfe1b96  rk3566-gkdmini-pro-not-gsensor.dtb
+f31d44f9a7493d3f5db038b71da3993a60ce6f0c85545f2f7256cbf3bc4981b4  rk3566-gkdmini-pro-gsensor-hat.dtb
+a864bf55af3df37e90eee6d9b8054047c16fa37cd6f314e781951de8ebc04b3a  rk3566-gkdmini-pro-gsensor-js.dtb
+3bc14efc86f7c89628b07f8f9dea30b15f96c0653fdc7c2f7d90ab6823755754  rk3568-fiq-debugger-uart2m0.dtbo
+ad4566498a89ca15f9aab3b4dc3652be29a4c409db64eaef113ae888092ed09b  rk3568-disable-npu.dtbo
+deba580fbff3bc97017f1c15c3f16615825b85231c80060d91bf43ffd18d78e9  rockchip-fixup.scr
+# Hash of the ignored complete DTB/DTBO inventory (SHA-256, size, stock-relative path).
+3b43ba93b6ea69895f74e232ecc66c839973a8236ee4acbd4cbebef242595573  dtb-all.tsv

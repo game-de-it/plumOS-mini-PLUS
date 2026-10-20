@@ -1,4 +1,6 @@
-# plumOS Bubble ドキュメント
+# plumOS mini PLUS ドキュメント
+
+> 現在は実機未検証のbring-up段階です。利用者向け文書の機能一覧はBubble由来の移植目標であり、mini-PLUSでの合格記録ではありません。現在の確認済み範囲は[ルートREADME](../README.ja.md)を参照してください。
 
 文書は利用対象ごとに分けています。日本語版は`.ja.md`、英語版は`.md`です。
 

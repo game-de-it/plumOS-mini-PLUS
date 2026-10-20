@@ -1,6 +1,6 @@
 # Supported Systems, ROM Directories, Extensions, and Emulators
 
-This table lists every system currently enabled in plumOS for GKD Bubble.
+This table lists every system currently enabled in plumOS for GKD mini PLUS.
 Place ROMs below `Roms/` on SD1 (the top SYS slot) or SD2 (the bottom SD2
 slot). The first directory is recommended. Other names are recognized aliases,
 but using multiple aliases for one system can create duplicate entries.
@@ -68,7 +68,7 @@ on a game to choose another launch method listed in its row.
 | Game & Watch | `Roms/GW/`<br>`Roms/GAMEANDWATCH/`<br>`Roms/gameandwatch/`<br>`Roms/_etc/gameandwatch/` | `.mgw`, `.zip`, `.7z` | **Default:** RA `gw` |
 | Pokemon Mini | `Roms/POKEMINI/`<br>`Roms/pokemini/`<br>`Roms/_etc/pokemini/` | `.min`, `.zip`, `.7z` | **Default:** RA `pokemini` |
 | Doom | `Roms/DOOM/`<br>`Roms/doom/`<br>`Roms/_etc/doom/` | `.wad`, `.iwad`, `.pwad`, `.zip` | **Default:** RA `prboom` |
-| Pyxel | `Roms/pyxel/`<br>`Roms/PYXEL/` | `.pyxapp`, `.py` | **Default:** Pyxel `bubble` |
+| Pyxel | `Roms/pyxel/`<br>`Roms/PYXEL/` | `.pyxapp`, `.py` | **Default:** Pyxel `mini-plus` |
 | 3DO | `Roms/PANASONIC/`<br>`Roms/3do/`<br>`Roms/_etc/3do/` | `.iso`, `.chd`, `.bin`, `.cue` | **Default:** RA `opera` |
 | Amiga | `Roms/AMIGA/`<br>`Roms/amiga/`<br>`Roms/_etc/amiga/` | `.adf`, `.adz`, `.dms`, `.fdi`, `.ipf`, `.hdf`, `.hdz`, `.lha`, `.slave`, `.info`, `.cue`, `.ccd`, `.nrg`, `.mds`, `.iso`, `.chd`, `.uae`, `.m3u`, `.zip`, `.7z`, `.rp9` | **Default:** RA `puae`<br>RA: `puae2021`, `uae4arm`, `km_puae_xtreme_amped` |
 | Atari 5200 | `Roms/FIFTYTWOHUNDRED/`<br>`Roms/atari5200/`<br>`Roms/ATARI/5200/` | `.a52`, `.bin`, `.rom`, `.xfd`, `.atr`, `.atx`, `.cas`, `.car`, `.xex`, `.zip`, `.7z` | **Default:** RA `atari800`<br>RA: `a5200` |
@@ -108,7 +108,7 @@ on a game to choose another launch method listed in its row.
 ## Currently disabled systems
 
 These entries remain in the internal catalog but are not exposed as supported on
-Bubble. Nintendo 3DS is excluded from the catalog because it is outside the RK3566
+mini PLUS. Nintendo 3DS is excluded from the catalog because it is outside the RK3566
 performance target. Java ME is disabled because device testing found no usable game.
 
 | System | Internal ID |
@@ -130,5 +130,5 @@ performance target. Java ME is disabled because device testing found no usable g
 - [BIOS, saves, and screenshots](save-data.md)
 
 This file is generated from
-`package/frontend-bubble/plumos/config/frontend/systems.json` by
-`scripts/generate-bubble-supported-systems-doc.py`.
+`package/frontend-mini-plus/plumos/config/frontend/systems.json` by
+`scripts/generate-mini-plus-supported-systems-doc.py`.

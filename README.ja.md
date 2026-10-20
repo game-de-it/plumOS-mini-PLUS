@@ -1,54 +1,63 @@
 <p align="center">
-  <img src="package/frontend-bubble/plumos/config/frontend/boot-splash.png" alt="plumOS" width="640">
+  <img src="package/frontend-mini-plus/plumos/config/frontend/boot-splash.png" alt="plumOS" width="640">
 </p>
 
-# plumOS Bubble
+# plumOS mini PLUS
 
-plumOS Bubbleは、GKD Bubble（RK3566 / ARM64）向けのLinuxベースCFWです。
-ゲーム一覧、RetroArch、PicoArch、Standaloneエミュレータ、Game Gear専用FE、
-PortMaster、Pyxel、ネットワーク転送などを1つの操作体系にまとめています。
+GKD mini PLUS（RK3566 / ARM64）向けに、plumOS-Bubbleのユーザーランド資産を移植する作業ツリーです。
 
-## 画面
+現在の成果物は**ホスト検証済み・実機未検証のbring-up候補**です。stockOS SDから読み取ったmini-PLUS固有のRockchipブート先頭領域、kernel、DTB、overlayを使用し、mini-PLUS専用の外部initramfsからplumOS SYSTEMを起動します。元のstockOS SDには書き込んでいません。
 
-| テキストモード | グラフィックモード |
-| :---: | :---: |
-| ![テキストモードのゲーム一覧](docs/images/frontend-text.png) | ![グラフィックモードのゲーム一覧](docs/images/frontend-graphics.png) |
+最小ブート候補に加え、Bubble由来のフロントエンド、日本語フォント、テーマ、設定、補助ツールをp2へ収録したUI確認用候補も生成できます。後者はエミュレータruntimeをまだ収録していないため、完成版ではありません。
 
-| ギャラリーモード | Game Gear専用フロントエンド（GGFE） |
-| :---: | :---: |
-| ![ギャラリーモードのボックスアート表示](docs/images/frontend-gallery.png) | ![GGFEのカートリッジ表示](docs/images/ggfe.png) |
+## 現在の構成
 
-## ドキュメント
+- p1（FAT32、512 MiB）: stock kernel、`rk3566-gkdmini-pro.dtb`、overlay、plumOS initramfs、SquashFS SYSTEM
+- p2（ext4、2 GiB）: 設定、ログ、ユーザーデータ
+- stock p2の既存データ: plumOS候補へコピーしない
+- Wi‑Fi: stock `SYSTEM`内のRTL8821CS moduleと実行kernelのvermagic不一致があるため、現候補では無効
 
-利用者向けと開発者向けを分離し、日本語版と英語版を用意しています。
+## ビルド
 
-- [ドキュメント索引](docs/README.ja.md)
-- [ユーザー向け取扱説明書](docs/user/README.ja.md)
-- [対応システム・ROMフォルダ・拡張子・エミュレータ一覧](docs/user/supported-systems.ja.md)
-- [エミュレータとホットキー](docs/user/emulators.ja.md)
-- [開発者向けガイド](docs/developer/README.ja.md)
-- [English project overview](README.md)
-
-## 開発クイックスタート
-
-リリース候補のfull SD imageは、承認済みvendor入力を用意した上で次の経路から
-生成します。
+SDイメージ候補を再生成します。
 
 ```sh
-PLUMOS_BUBBLE_VERSION=<version> \
-PLUMOS_BUBBLE_INCLUDE_CAPTURED_VENDOR_GPU=1 \
-./scripts/build-bubble-frontend-probe-image.sh
+./scripts/build-mini-plus-image.sh
 ```
 
-成果物は`output/`へ生成され、Git管理されません。ROM、利用者用BIOS、save、
-network credential、秘密鍵はリポジトリや公開成果物へ含めません。
+成果物:
+
+```text
+output/image/mini-plus/plumOS-mini-PLUS-0.1.0-dev-host-candidate.img
+```
+
+UI確認用候補を再生成します。
+
+```sh
+./scripts/build-mini-plus-frontend-image.sh
+```
+
+成果物:
+
+```text
+output/image/mini-plus-frontend/plumOS-mini-PLUS-0.1.0-dev-frontend-host-candidate.img
+```
+
+ブート資産はGit管理外の`artifacts/vendor/mini-plus-stock-source/`に置き、各ファイルを固定ハッシュで検証します。stock `SYSTEM`本体は解析専用で、生成イメージへコピーしません。
+
+## 重要な状態表示
+
+ホスト側では、両候補のイメージ全体SHA-256、MBRレイアウト、FAT/ext4、raw boot prefix、kernel/DTB/overlayを検証済みです。UI候補ではフロントエンドcomponentの全ファイルもチェックサム検証済みです。LCD、入力、音声、shutdown、suspend、実機Wi‑Fiは未確認です。空のテスト用SDへ書き込み、実機で確認するまではリリース扱いにしません。
+
+- [作業状況](TODO.md)
+- [stockOS読み取り記録](docs/validation/2026-10-20-mini-plus-read-only-inventory.md)
+- [ホスト候補ビルド記録](docs/validation/2026-10-20-mini-plus-host-candidate.md)
+- [Bubble由来の参考検証](docs/reference/bubble/validation/)
 
 ## ライセンス
 
-plumOS独自部分は[MIT License](LICENSE)です。stockOS由来の配布物はGKDの所有物で、
-vendorおよび第三者componentにはそれぞれの条件が適用されます。DraSticの扱いは
-plumOS MFと同じproject-approved inclusionです。
+plumOS独自部分には[MIT License](LICENSE)が適用されます。GKD stockOS由来のboot/runtimeファイルや第三者componentはMITには含まれず、各権利者の条件が継続します。
 
 - [第三者表記](THIRD_PARTY_NOTICES.md)
 - [GKD stockOS permission notice](docs/licenses/GKD-stockOS-PERMISSION-NOTICE.txt)
-- [Bubble vendor runtime notice](docs/licenses/bubble-vendor-runtime-NOTICE.txt)
+- [mini PLUS vendor runtime notice](docs/licenses/mini-plus-vendor-runtime-NOTICE.txt)

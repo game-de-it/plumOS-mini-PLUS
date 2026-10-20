@@ -17,7 +17,7 @@
  * card, pass that exact open file description to the broker with SCM_RIGHTS.
  * The external power overlay can then drop and restore DRM master while the
  * emulator itself is stopped.  Opening /proc/PID/fd/N is not equivalent for a
- * DRM character device on the Bubble 4.19 kernel: it creates a new drm_file
+ * DRM character device on the mini PLUS 4.19 kernel: it creates a new drm_file
  * and DRM_IOCTL_DROP_MASTER fails.
  */
 

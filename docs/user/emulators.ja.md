@@ -49,6 +49,11 @@ DraSticではFunction 2（本体上部）+`START`でも簡易メニューを表�
 Portsには共通の`SELECT`+`START`終了契約はありません。各ゲーム自身の終了メニューを
 利用してください。ゲームごとに操作体系が異なります。
 
+mini PLUSでは、既知のApotris v4.2.0実行ファイルを検出した場合に限り、音声と安定動作を
+実機確認したv4.1.0互換ファイルを起動中だけ使用します。PortMasterが将来の別versionへ
+更新した場合は、その新しい実行ファイルを妨げません。診断結果はSD1の
+`plumos/logs/apps/portmaster-ports.log`へ記録されます。
+
 ## Pyxel
 
 Pyxel applicationにはRetroArchのような共通quick menuはありません。終了方法と操作は

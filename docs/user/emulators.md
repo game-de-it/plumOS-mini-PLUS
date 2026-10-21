@@ -48,6 +48,11 @@ the normal Function 1 menu for settings, saves and exit.
 Ports do not share a universal `SELECT` + `START` exit contract. Exit through
 each game's own menu; controls vary by title.
 
+On mini PLUS, only the known incompatible Apotris v4.2.0 executable is replaced
+for the duration of a launch by the device-validated v4.1.0 compatibility copy.
+A future PortMaster build with a different executable hash is left untouched.
+Diagnostics are written to `plumos/logs/apps/portmaster-ports.log` on SD1.
+
 ## Pyxel
 
 Pyxel applications have no RetroArch-style universal quick menu. Controls and

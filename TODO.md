@@ -22,6 +22,7 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 - [x] `MPLUS-P2-02` frontend、114 libretro core、RetroArch、PicoArch、単体emulator、Pyxel、PortMaster、NextCommander、Music Player、network servicesをfull app layerへ統合した。
 - [x] `MPLUS-P2-03` 512 MiB FAT32 p1 + 4 GiB ext4 p2のfull **bring-up** artifactを生成し、partition、filesystem、boot payload、app layerをimageから読み戻して検証した。4 GiB固定layoutは撤回済み（`docs/validation/2026-10-20-mini-plus-full-host-candidate.md`）。
 - [x] `MPLUS-P2-04` live stockOSで確認した`bcmdhd`、BCM43438A1 firmware、AP6212A NVRAMによる通常load、Wi-Fi初回接続UI、DHCP、Dropbear SSH自動待受を実装し、host contract testを通過した。
+- [x] `MPLUS-PORTS-01` Apotris v4.2.0の無音とSIGSEGVを実機再現し、v4.1.0とのA/BでPCM進行、可聴音、継続動作、通常終了を確認した。既知のv4.2.0 SHAだけを検証済みv4.1.0へbindするPortMaster互換ガード、raw PWM no-op、厳密なmount cleanupを実装・配備した（`docs/validation/2026-10-21-mini-plus-apotris-portmaster.md`）。
 
 ## plumOS contract修正完了
 

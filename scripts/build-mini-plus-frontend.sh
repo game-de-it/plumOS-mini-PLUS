@@ -224,6 +224,15 @@ cat >"$component/manifest.json" <<EOF
     "codes": [114, 115],
     "policy": "single-persistent-owner"
   },
+  "brightness_hotkey": {
+    "modifier_input_name": "retrogame_joypad",
+    "modifier_code": 314,
+    "keys_input_name": "gpio-keys",
+    "key_codes": [114, 115],
+    "binding": "select-plus-volume",
+    "range": [1, 20],
+    "policy": "press-latched-long-repeat-deferred-persist"
+  },
   "power_menu": {
     "input_name": "rk805 pwrkey",
     "code": 116,

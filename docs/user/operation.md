@@ -29,8 +29,10 @@ speaker/headphone route.
 ## Volume and display
 
 The physical volume down/up buttons change system volume, including during a
-game. The same value is available as `Volume` under `START` → `System Settings`.
-Brightness, contrast, hue and saturation are also available there.
+game. Hold `SELECT` while pressing volume down/up to change screen brightness in
+20 steps; hold-repeat is supported. The same volume and brightness values are
+available under `START` → `System Settings`. Contrast, hue and saturation are
+also available there.
 
 ## Connectors
 

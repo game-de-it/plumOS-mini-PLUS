@@ -217,7 +217,7 @@ static int open_power_menu(void) {
   return result;
 }
 
-static int run_volume_helper(const char *action) {
+static int run_control_helper(const char *helper_name, const char *action) {
   const char *root = getenv("PLUMOS_ROOT");
   char helper[512];
   pid_t child;
@@ -226,7 +226,7 @@ static int run_volume_helper(const char *action) {
   if (!root || !root[0]) {
     root = "/storage/plumos";
   }
-  if (snprintf(helper, sizeof(helper), "%s/bin/plumos-volume-control", root) >=
+  if (snprintf(helper, sizeof(helper), "%s/bin/%s", root, helper_name) >=
       (int)sizeof(helper)) {
     return -ENAMETOOLONG;
   }
@@ -249,37 +249,67 @@ static int run_volume_helper(const char *action) {
   return 0;
 }
 
-static int apply_direction(int direction) {
+static int apply_direction(int direction, int display_action) {
   const char *action = direction > 0 ? "runtime-up" : "runtime-down";
-  int result = run_volume_helper(action);
+  const char *helper_name =
+      display_action ? "plumos-display-control" : "plumos-volume-control";
+  int result = run_control_helper(helper_name, action);
 
-  fprintf(stderr, "volume-keys: action=volume direction=%s rc=%d\n",
+  fprintf(stderr, "volume-keys: action=%s direction=%s rc=%d\n",
+          display_action ? "display-brightness" : "volume",
           direction > 0 ? "up" : "down", result);
   return result;
 }
 
+static void persist_pending(int *volume_pending, int *display_pending) {
+  if (*volume_pending) {
+    int result =
+        run_control_helper("plumos-volume-control", "persist-runtime");
+    fprintf(stderr, "volume-keys: persist=volume rc=%d\n", result);
+    if (result == 0) {
+      *volume_pending = 0;
+    }
+  }
+  if (*display_pending) {
+    int result =
+        run_control_helper("plumos-display-control", "persist-runtime");
+    fprintf(stderr, "volume-keys: persist=display-brightness rc=%d\n", result);
+    if (result == 0) {
+      *display_pending = 0;
+    }
+  }
+}
+
 static void usage(const char *argv0) {
   fprintf(stderr,
-          "usage: %s [--event PATH] [--power-event PATH] [--once]\n",
+          "usage: %s [--event PATH] [--gamepad-event PATH] "
+          "[--power-event PATH] [--once]\n",
           argv0);
 }
 
 int main(int argc, char **argv) {
   const char *runtime_root = getenv("PLUMOS_RUNTIME_ROOT");
   const char *configured_event = getenv("PLUMOS_VOLUME_INPUT_EVENT");
+  const char *configured_gamepad_event = getenv("PLUMOS_GAMEPAD_INPUT_EVENT");
   const char *configured_power_event = getenv("PLUMOS_POWER_INPUT_EVENT");
   char run_dir[512];
   char lock_path[512];
   long long next_volume_reopen = 0;
+  long long next_gamepad_reopen = 0;
   long long next_power_reopen = 0;
   long long repeat_due = 0;
   long long persist_due = 0;
   long long power_debounce_until = 0;
+  int select_down = 0;
   int held_direction = 0;
-  int persist_pending = 0;
+  int held_is_display = 0;
+  int volume_pending = 0;
+  int display_pending = 0;
   int event_fd = -1;
+  int gamepad_event_fd = -1;
   int power_event_fd = -1;
   int volume_done = 0;
+  int gamepad_done = 0;
   int power_done = 0;
   int once = 0;
   int lock_fd;
@@ -288,6 +318,9 @@ int main(int argc, char **argv) {
   for (index = 1; index < argc; ++index) {
     if (strcmp(argv[index], "--event") == 0 && index + 1 < argc) {
       configured_event = argv[++index];
+    } else if (strcmp(argv[index], "--gamepad-event") == 0 &&
+               index + 1 < argc) {
+      configured_gamepad_event = argv[++index];
     } else if (strcmp(argv[index], "--power-event") == 0 &&
                index + 1 < argc) {
       configured_power_event = argv[++index];
@@ -326,15 +359,17 @@ int main(int argc, char **argv) {
   signal(SIGTERM, stop_running);
   setvbuf(stderr, NULL, _IOLBF, 0);
   fprintf(stderr, "volume-keys: start owner=plumos device=mini-plus\n");
-  (void)run_volume_helper("apply");
+  (void)run_control_helper("plumos-volume-control", "apply");
+  (void)run_control_helper("plumos-display-control", "apply");
 
   if (once) {
     volume_done = !configured_event || !configured_event[0];
+    gamepad_done = !configured_gamepad_event || !configured_gamepad_event[0];
     power_done = !configured_power_event || !configured_power_event[0];
   }
 
   while (running) {
-    struct pollfd poll_fds[2];
+    struct pollfd poll_fds[3];
     long long now = monotonic_ms();
     int ready;
 
@@ -345,6 +380,15 @@ int main(int argc, char **argv) {
         volume_done = 1;
       }
     }
+    if (!gamepad_done && gamepad_event_fd < 0 &&
+        now >= next_gamepad_reopen) {
+      gamepad_event_fd = open_input_event(configured_gamepad_event,
+                                           "retrogame_joypad", "gamepad");
+      next_gamepad_reopen = now + REOPEN_INTERVAL_MS;
+      if (once && gamepad_event_fd < 0) {
+        gamepad_done = 1;
+      }
+    }
     if (!power_done && power_event_fd < 0 && now >= next_power_reopen) {
       power_event_fd = open_input_event(configured_power_event,
                                         "rk805 pwrkey", "power-key");
@@ -353,22 +397,53 @@ int main(int argc, char **argv) {
         power_done = 1;
       }
     }
-    if (once && volume_done && power_done) {
+    if (once && volume_done && gamepad_done && power_done) {
       break;
     }
-    poll_fds[0].fd = event_fd;
+    poll_fds[0].fd = gamepad_event_fd;
     poll_fds[0].events = POLLIN;
     poll_fds[0].revents = 0;
-    poll_fds[1].fd = power_event_fd;
+    poll_fds[1].fd = event_fd;
     poll_fds[1].events = POLLIN;
     poll_fds[1].revents = 0;
-    ready = poll(poll_fds, 2, 100);
+    poll_fds[2].fd = power_event_fd;
+    poll_fds[2].events = POLLIN;
+    poll_fds[2].revents = 0;
+    ready = poll(poll_fds, 3, 100);
     now = monotonic_ms();
     if (ready < 0 && errno != EINTR) {
       fprintf(stderr, "volume-keys: poll failed errno=%d\n", errno);
     }
-    if (ready > 0 && event_fd >= 0 &&
+    if (ready > 0 && gamepad_event_fd >= 0 &&
         (poll_fds[0].revents & (POLLIN | POLLERR | POLLHUP))) {
+      for (;;) {
+        struct input_event event;
+        ssize_t bytes = read(gamepad_event_fd, &event, sizeof(event));
+
+        if (bytes == (ssize_t)sizeof(event)) {
+          if (event.type == EV_KEY && event.code == BTN_SELECT) {
+            select_down = event.value != 0;
+          }
+          continue;
+        }
+        if (bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+          break;
+        }
+        if (bytes < 0 && errno == EINTR) {
+          continue;
+        }
+        close(gamepad_event_fd);
+        gamepad_event_fd = -1;
+        select_down = 0;
+        next_gamepad_reopen = 0;
+        if (once) {
+          gamepad_done = 1;
+        }
+        break;
+      }
+    }
+    if (ready > 0 && event_fd >= 0 &&
+        (poll_fds[1].revents & (POLLIN | POLLERR | POLLHUP))) {
       for (;;) {
         struct input_event event;
         ssize_t bytes = read(event_fd, &event, sizeof(event));
@@ -380,8 +455,13 @@ int main(int argc, char **argv) {
 
             if (event.value == 1) {
               held_direction = direction;
-              if (apply_direction(direction) == 0) {
-                persist_pending = 1;
+              held_is_display = select_down;
+              if (apply_direction(direction, held_is_display) == 0) {
+                if (held_is_display) {
+                  display_pending = 1;
+                } else {
+                  volume_pending = 1;
+                }
                 persist_due = now + PERSIST_DELAY_MS;
               }
               repeat_due = now + REPEAT_DELAY_MS;
@@ -410,7 +490,7 @@ int main(int argc, char **argv) {
       }
     }
     if (ready > 0 && power_event_fd >= 0 &&
-        (poll_fds[1].revents & (POLLIN | POLLERR | POLLHUP))) {
+        (poll_fds[2].revents & (POLLIN | POLLERR | POLLHUP))) {
       for (;;) {
         struct input_event event;
         ssize_t bytes = read(power_event_fd, &event, sizeof(event));
@@ -441,29 +521,30 @@ int main(int argc, char **argv) {
     }
     now = monotonic_ms();
     if (held_direction && repeat_due > 0 && now >= repeat_due) {
-      if (apply_direction(held_direction) == 0) {
-        persist_pending = 1;
+      if (apply_direction(held_direction, held_is_display) == 0) {
+        if (held_is_display) {
+          display_pending = 1;
+        } else {
+          volume_pending = 1;
+        }
         persist_due = now + PERSIST_DELAY_MS;
       }
       repeat_due = now + REPEAT_INTERVAL_MS;
     }
-    if (persist_pending && persist_due > 0 && now >= persist_due) {
-      int result = run_volume_helper("persist-runtime");
-      fprintf(stderr, "volume-keys: persist=volume rc=%d\n", result);
-      if (result == 0) {
-        persist_pending = 0;
-      } else {
-        persist_due = now + PERSIST_DELAY_MS;
-      }
+    if ((volume_pending || display_pending) && persist_due > 0 &&
+        now >= persist_due) {
+      persist_pending(&volume_pending, &display_pending);
+      persist_due =
+          (volume_pending || display_pending) ? now + PERSIST_DELAY_MS : 0;
     }
   }
 
-  if (persist_pending) {
-    int result = run_volume_helper("persist-runtime");
-    fprintf(stderr, "volume-keys: persist=volume rc=%d shutdown=1\n", result);
-  }
+  persist_pending(&volume_pending, &display_pending);
   if (event_fd >= 0) {
     close(event_fd);
+  }
+  if (gamepad_event_fd >= 0) {
+    close(gamepad_event_fd);
   }
   if (power_event_fd >= 0) {
     close(power_event_fd);

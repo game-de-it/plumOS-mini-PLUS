@@ -27,6 +27,9 @@ grep -q 'plumos-volume-keys-service' "$shutdown"
 grep -q 'gpio-keys' "$repo_root/src/services/plumos_miniplus_volume_keys.c"
 grep -q 'KEY_VOLUMEUP' "$repo_root/src/services/plumos_miniplus_volume_keys.c"
 grep -q 'KEY_VOLUMEDOWN' "$repo_root/src/services/plumos_miniplus_volume_keys.c"
+grep -q 'BTN_SELECT' "$repo_root/src/services/plumos_miniplus_volume_keys.c"
+grep -q 'plumos-display-control' "$repo_root/src/services/plumos_miniplus_volume_keys.c"
+grep -q 'persist=display-brightness' "$repo_root/src/services/plumos_miniplus_volume_keys.c"
 
 for launcher in \
     "$repo_root/package/frontend-mini-plus/plumos/bin/plumos-retroarch-launch" \

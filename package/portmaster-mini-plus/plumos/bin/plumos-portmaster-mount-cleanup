@@ -6,6 +6,7 @@ RUN_ROOT="${PLUMOS_PORTMASTER_RUN_ROOT:-/run/plumos/portmaster}"
 STATE_ROOT="${PLUMOS_ROOT}/state/portmaster"
 DATA_ROOT="${PLUMOS_PORTMASTER_DATA_ROOT:-${STATE_ROOT}/data}"
 PM_DIR="${DATA_ROOT}/upstream/PortMaster"
+ROM_ROOT="${PLUMOS_ROM_ROOT:-/storage/user/Roms}"
 MOUNTINFO="${PLUMOS_PORTMASTER_MOUNTINFO:-/proc/self/mountinfo}"
 UMOUNT_BIN="${PLUMOS_PORTMASTER_UMOUNT_BIN:-umount}"
 SLEEP_BIN="${PLUMOS_PORTMASTER_SLEEP_BIN:-sleep}"
@@ -46,6 +47,7 @@ allowed_target() {
     "${PM_DIR}/utils/patcher/main.lua"|\
     "${PM_DIR}/utils/patcher/talkies.lua") return 0 ;;
     "${STATE_ROOT}/home/"*) return 0 ;;
+    "${ROM_ROOT}"/[Pp][Oo][Rr][Tt][Ss]/apotris/Apotris.aarch64) return 0 ;;
   esac
   return 1
 }

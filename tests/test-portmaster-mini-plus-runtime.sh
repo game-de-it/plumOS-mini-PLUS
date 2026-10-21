@@ -251,5 +251,23 @@ grep -q "target=/usr/lib/compat" "$work/umount.log"
 grep -q "target=$pm_dir/config" "$work/umount.log"
 ! grep -q 'target=/$' "$work/umount.log"
 
+apotris_target="$work/roms/PORTS/apotris/Apotris.aarch64"
+printf '12 1 0:3 / %s rw - tmpfs tmpfs rw\n' "$apotris_target" > "$mountinfo"
+printf '%s\n' "$apotris_target" > "$track"
+FAKE_UMOUNT_LOG="$work/apotris-umount.log" \
+FAKE_BUSY_TARGET=unused \
+FAKE_BUSY_ONCE="$work/apotris-busy-once" \
+FAKE_MOUNTINFO="$mountinfo" \
+PLUMOS_ROOT="$plumos_root" \
+PLUMOS_ROM_ROOT="$work/roms" \
+PLUMOS_PORTMASTER_RUN_ROOT="$run_root" \
+PLUMOS_PORTMASTER_MOUNTINFO="$mountinfo" \
+PLUMOS_PORTMASTER_UMOUNT_BIN="$work/umount" \
+PLUMOS_PORTMASTER_SLEEP_BIN=true \
+    /bin/sh "$MOUNT_CLEANUP" "$track"
+[ ! -s "$mountinfo" ]
+[ ! -e "$track" ]
+grep -Fqx "lazy=0 target=$apotris_target" "$work/apotris-umount.log"
+
 printf 'portmaster_miniplus_runtime=result-ok adapter=%s command_runtime=busybox-all exec_guard=1 session_cleanup=1 gui_session_cleanup=before-frontend-release xz_tar=1 gui_preflight=1 mali_preload=1 pgrep=1 frontend_handoff=1 frontend_restore=1 restart=1 mount_recovery=1\n' \
     "$builder_version"

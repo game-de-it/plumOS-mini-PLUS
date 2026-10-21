@@ -63,9 +63,9 @@ CAIRO_COMPAT_URL="https://cairographics.org/releases/${CAIRO_COMPAT_ARCHIVE}"
 CAIRO_COMPAT_SHA256="445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb"
 PIXMAN_RUNTIME_VERSION="0.42.2-1"
 SQUASHFS_TOOLS_VERSION="1:4.5.1-1"
-ZIP_VERSION="3.0-13"
+ZIP_VERSION="3.0-13+deb12u1"
 BASH_RUNTIME_VERSION="5.2.15-2+b13"
-ADAPTER_VERSION="29"
+ADAPTER_VERSION="30"
 
 usage() {
     cat <<EOF
@@ -626,6 +626,10 @@ cc -O2 -fPIC -Wall -Wextra -Werror -shared \
     -Wl,-z,defs -Wl,-soname,libplumos-portmaster-exec-guard.so \
     -o "$stage_dir/plumos/apps/portmaster/adapter/lib/aarch64/libplumos-portmaster-exec-guard.so" \
     "$PACKAGE_DIR/src/plumos_portmaster_exec_guard.c" -ldl
+cc -O2 -fPIC -Wall -Wextra -Werror -shared \
+    -Wl,-z,defs -Wl,-soname,libplumos-portmaster-hw-compat.so \
+    -o "$stage_dir/plumos/apps/portmaster/adapter/lib/aarch64/libplumos-portmaster-hw-compat.so" \
+    "$PACKAGE_DIR/src/plumos_portmaster_hw_compat.c" -ldl
 find "$stage_dir/plumos/bin" \
     "$stage_dir/plumos/apps/portmaster/adapter/shims" \
     -type f -exec chmod 0755 {} +

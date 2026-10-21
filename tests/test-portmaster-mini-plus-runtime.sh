@@ -18,6 +18,7 @@ COMMAND_RUNTIME="$PACKAGE/bin/plumos-portmaster-command-runtime"
 SESSION_CLEANUP="$PACKAGE/bin/plumos-portmaster-session-cleanup"
 TAR_SHIM="$PACKAGE/apps/portmaster/adapter/shims/tar"
 EXEC_GUARD_SOURCE="$ROOT_DIR/package/portmaster-mini-plus/src/plumos_portmaster_exec_guard.c"
+HW_COMPAT_SOURCE="$ROOT_DIR/package/portmaster-mini-plus/src/plumos_portmaster_hw_compat.c"
 
 for file in "$RUNTIME" "$GUI_LAUNCH" "$PORT_LAUNCH" "$MOUNT_CLEANUP" "$FRONTEND_CONTROL" "$PGREP" "$PKILL" "$PATCH_SHIM" "$COMMAND_RUNTIME" "$SESSION_CLEANUP" "$TAR_SHIM"; do
     /bin/sh -n "$file"
@@ -61,6 +62,10 @@ grep -q 'PLUMOS_PORTMASTER_REQUIRED_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"' "$PORT_L
 grep -q 'PLUMOS_PORTMASTER_REQUIRED_LD_PRELOAD="$required_preload"' "$PORT_LAUNCH"
 grep -q 'PLUMOS_PORTMASTER_REQUIRED_SESSION_ID="$PLUMOS_PORTMASTER_SESSION_ID"' "$PORT_LAUNCH"
 grep -q 'PLUMOS_PORTMASTER_REQUIRED_SESSION_ID' "$EXEC_GUARD_SOURCE"
+grep -q 'libplumos-portmaster-hw-compat.so' "$PORT_LAUNCH" "$BUILDER"
+grep -q 'PLUMOS_PORTMASTER_PWM_COMPAT_ROOT' "$PORT_LAUNCH" "$HW_COMPAT_SOURCE"
+grep -q 'unavailable raw PWM redirected' "$HW_COMPAT_SOURCE"
+grep -q 'port_exit rc=.*pcm_status=' "$PORT_LAUNCH"
 grep -q 'MALI_LIBRARY="${PLUMOS_ROOT}/emulator/lib/libmali.so.1"' "$PORT_LAUNCH"
 grep -q 'DRM_SHARE_LIBRARY="${PLUMOS_DRM_SHARE_LIBRARY:-}"' "$PORT_LAUNCH"
 grep -q 'SDL_VIDEO_EGL_DRIVER="$MALI_LIBRARY"' "$PORT_LAUNCH"

@@ -29,6 +29,7 @@ MOUNT_CLEANUP="${PLUMOS_ROOT}/bin/plumos-portmaster-mount-cleanup"
 FRONTEND_CONTROL="${PLUMOS_ROOT}/bin/plumos-portmaster-frontend-control"
 PORT_BASH="${APP_ROOT}/adapter/bin/aarch64/bash"
 EXEC_GUARD_LIB="${APP_ROOT}/adapter/lib/aarch64/libplumos-portmaster-exec-guard.so"
+HW_COMPAT_LIB="${APP_ROOT}/adapter/lib/aarch64/libplumos-portmaster-hw-compat.so"
 MALI_LIBRARY="${PLUMOS_ROOT}/emulator/lib/libmali.so.1"
 DRM_SHARE_LIBRARY="${PLUMOS_DRM_SHARE_LIBRARY:-}"
 SESSION_CLEANUP="${PLUMOS_ROOT}/bin/plumos-portmaster-session-cleanup"
@@ -314,6 +315,11 @@ unset LIBGL_ALWAYS_SOFTWARE MESA_LOADER_DRIVER_OVERRIDE \
   printf 'PortMaster mini PLUS execution guard is missing: %s\n' "$EXEC_GUARD_LIB" >&2
   exit 127
 }
+[ -r "$HW_COMPAT_LIB" ] || {
+  printf 'PortMaster mini PLUS hardware compatibility library is missing: %s\n' \
+    "$HW_COMPAT_LIB" >&2
+  exit 127
+}
 [ -r "$MALI_LIBRARY" ] || {
   printf 'PortMaster mini PLUS Mali runtime is missing: %s\n' "$MALI_LIBRARY" >&2
   exit 127
@@ -335,7 +341,12 @@ case "$DRM_SHARE_LIBRARY" in
     exit 64
     ;;
 esac
-required_preload="${DRM_SHARE_LIBRARY:+${DRM_SHARE_LIBRARY}:}${EXEC_GUARD_LIB}:${MALI_LIBRARY}"
+PWM_COMPAT_ROOT="${RUN_ROOT}/compat/pwm"
+mkdir -p "$PWM_COMPAT_ROOT"
+printf '0\n' > "${PWM_COMPAT_ROOT}/pwmchip0-duty_cycle"
+printf '0\n' > "${PWM_COMPAT_ROOT}/pwmchip1-duty_cycle"
+export PLUMOS_PORTMASTER_PWM_COMPAT_ROOT="$PWM_COMPAT_ROOT"
+required_preload="${DRM_SHARE_LIBRARY:+${DRM_SHARE_LIBRARY}:}${EXEC_GUARD_LIB}:${HW_COMPAT_LIB}:${MALI_LIBRARY}"
 mkdir -p "$XDG_CACHE_HOME" "$HM_PORTS_DIR"
 
 if ! frontend_is_ancestor && frontend_running; then
@@ -362,4 +373,6 @@ sed 's/.*) //' "/proc/${child}/stat" | awk '{print $20}' > "$START_FILE"
 printf '%s\n' "$script" > "$SCRIPT_FILE"
 wait "$child"
 rc=$?
+pcm_status="$(tr '\n' ' ' </proc/asound/card0/pcm0p/sub0/status 2>/dev/null || true)"
+printf 'port_exit rc=%s pcm_status=%s\n' "$rc" "${pcm_status:-unavailable}" >> "$LOG_FILE"
 exit "$rc"

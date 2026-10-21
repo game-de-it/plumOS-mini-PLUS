@@ -49,7 +49,7 @@ EXECUTABLE_FILES = (
 EXECUTABLE_GLOBS = (
     "PortMaster/runtimes/love_*/love.aarch64",
 )
-ADAPTER_VERSION = 29
+ADAPTER_VERSION = 30
 STALE_UPDATE_PREFIXES = (
     "portmaster-download-",
     "upstream.next.",

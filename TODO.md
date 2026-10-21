@@ -25,6 +25,11 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 - [x] `MPLUS-PORTS-01` Apotris v4.2.0の無音とSIGSEGVを実機再現し、v4.1.0とのA/BでPCM進行、可聴音、継続動作、通常終了を確認した。既知のv4.2.0 SHAだけを検証済みv4.1.0へbindするPortMaster互換ガード、raw PWM no-op、厳密なmount cleanupを実装・配備した（`docs/validation/2026-10-21-mini-plus-apotris-portmaster.md`）。
 - [x] `MPLUS-INPUT-01` plumOS共通の`SELECT`＋音量－／＋による20段階輝度hotkeyを常駐hardware-key serviceへ移植した。音量単独、長押し中の操作種別固定、遅延設定保存、ゲーム中の非grab入力を維持する。
 - [x] `MPLUS-INPUT-02` mini PLUS実機でBubble由来のPWMカーブはレベル1〜12（raw 1〜52）の変化がほぼ見えず、13（raw 68）から急増することを確認した。暗い側のraw 52を維持しつつ、応答境界を含むraw 52〜255を20段階へ再配分し、ホットキー操作で自然に明るさが変化することをユーザー確認した。
+- [x] `MPLUS-HW-03` mini PLUSにはstickが存在しないことを機種契約へ反映し、全物理入力をユーザー確認した。4個のFnキーのうち1個からRetroArch/PicoArchの各メニューへ到達することも確認した。
+- [x] `MPLUS-HW-04` speaker/headphone、左右、音量/mute、jack切替を含む音声操作をユーザー総合確認した。既存のRK817 `SPK_HP`補正と各runtimeのPCM/可聴試験を合わせ、mini PLUS音声acceptanceを完了した。
+- [x] `MPLUS-APP-01` 標準アプリの起動・操作をユーザー確認した。
+- [x] `MPLUS-PERF-01` SDR104/148.5 MHz候補について、起動高速化、SD整合性および継続利用時の安定性をユーザー確認し、既定採用可と判定した。
+- [x] `MPLUS-NET-02` 保存済みnetworkへのWi-Fi再接続をユーザー確認した。shutdown/reboot中の表示・入力競合はnetwork項目から分離し、`MPLUS-HW-05`で追跡する。
 
 ## plumOS contract修正完了
 
@@ -36,15 +41,12 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 - [ ] `MPLUS-HW-01` 空のテスト用SDへ候補を書き、cold bootとU-Boot stage `S10`〜`S19`を確認する。
 - [x] `MPLUS-HW-02` full-stack候補でinitramfs `S21`〜`S29`の成功、SYSTEM `S40_FRONTEND_SUPERVISOR_READY`、frontend/LCD到達を実機確認した。
-- [ ] `MPLUS-HW-03` frontendの基本操作はユーザー報告で確認済み。`retrogame_joypad`の全ボタン、両stick、Fnキーを確認する。
-- [ ] `MPLUS-HW-04` RK817 ALSA/softvol、直接PCM write、32 emulator routeのPCM進行は確認済み。NES実行中の無音を調査し、`Playback Path=OFF`、続いてmini PLUSで発音しない`SPK`単独経路を確認した。`SPK_HP`へ切り替えると実機で可聴音を確認し、OFF/SPKだけをSPK_HPへ補正するmanaged初期化を追加した。headphone単独、左右、全音量段、mute、jack自動切替は引き続き確認する。
-- [ ] `MPLUS-HW-05` clean shutdown、reboot、suspend/resume、SD readbackを確認する。
+- [ ] `MPLUS-HW-05` SD整合性はユーザー確認済み。ゲーム中のReboot/Shutdownで電源動作前に操作可能なFEが再表示される競合を修正し、source `4b5b8cd`を実機へ配備した。自動rebootではreplacement FEを表示せずPID 1へ引き渡すログを確認した。残る実ゲームからのReboot/Shutdown物理再試験と、kernelが`/sys/power/state`をEBUSYで拒否するsuspend/resumeを解決する。
 
 ## 未解決
 
-- [ ] `MPLUS-PERF-01` mini PLUS SD1をSDR50/50 MHzからSDR104/148.5 MHzへ切り替える可逆overlayを作成した。128 GB検証カードのcold boot 1/5、tuning成功、64 MiB p3→p4 readback、起動前半3.4秒短縮を確認した。残るcold boot、長時間I/O、macOS readback、物理音声と代表ゲーム回帰を確認してから既定採用を判断する。
+- [ ] `MPLUS-PERF-02` 合格した`mini-plus-sd1-sdr104` overlayを通常image builderへ統合し、生成imageの`uEnv.txt`、overlay hash、SDR104 bootをrelease gateで検証する。現在の128 GB検証カードには適用済みだが、未再生成imageへ既定値が遡及するとは扱わない。
 - [x] `MPLUS-NET-01` live stockOSでSDIO `02D0:A9A6`、`bcmsdh_sdmmc`/`bcmdhd`、matching kernel ABI、実使用firmware/NVRAMを確認し、RTL8821CS force-load経路を廃止した。
-- [ ] `MPLUS-NET-02` Wi-Fi association、DHCP、SSH/FTP/SMB待受は実機確認済み。保存済みnetworkのreconnectとpower-off競合を確認する。
-- [ ] `MPLUS-FE-01` 実SD2をBubble互換の`roms/<system>` + `bios`へ修正し、FEで10,247 files/534 ROMsを索引化した。ROM2全196 routeを実機走査し、補正再試験込みで170 route起動、PSP/PSX/OpenBORを含む166 routeのPCM進行、全観測経路のDRM/Mali表示契約を確認した。残る2 routeはROM2の親archive不足、24 routeは互換content/BIOS不足で未合格。全routeの物理コントローラー操作とspeaker可聴playtestを行う。
+- [ ] `MPLUS-FE-01` 実SD2をBubble互換の`roms/<system>` + `bios`へ修正し、FEで10,247 files/534 ROMsを索引化した。ROM2全196 routeを実機走査し、補正再試験込みで170 route起動、PSP/PSX/OpenBORを含む166 routeのPCM進行、全観測経路のDRM/Mali表示契約を確認した。ユーザーがこれまで実行したゲームには不具合がなく概ね正常と評価した。残る2 routeはROM2の親archive不足、24 routeは互換content/BIOS不足で未合格であり、未確認routeを全合格とは扱わない。
 - [x] `MPLUS-GPU-01` hash一致するMali AArch64/ARMhf pairを組み込み、N64、DraStic、YabasanshiroでDRM/KMS/EGLとMali-G52描画を実機確認した。
 - [ ] `MPLUS-REL-01` live `runtime-coverage.json`とflat-root SD2の不整合は解消し、ROM2監査を記録した。残る物理操作/可聴/電源項目と、書き戻し後のpartition/hashを記録してrelease可否を判定する。

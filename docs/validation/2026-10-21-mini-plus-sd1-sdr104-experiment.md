@@ -92,3 +92,12 @@ boot ID `823e9c75-7dd0-4c99-b53e-e970a88fbb0d`でfrontendまで到達した。
 起動前半は約3.4秒短縮した。Bubbleとの差はfrontend起動開始時点で約0.59秒まで縮小した。
 ただしcold boot 5回、長時間I/O、macOS readback、物理音声と代表ゲーム起動は未完了なので、
 既定imageへの統合判定は保留する。
+
+## 継続利用後のユーザーacceptance
+
+同日、ユーザーはSD整合性、SDR104安定性、音声、標準アプリ、Wi-Fi再接続、およびこれまで
+実行したゲームが正常であることを報告した。この継続利用結果によりSDR104候補を既定採用可とした。
+
+この報告は運用上の安定性acceptanceであり、上記の個別cold-boot回数を遡って採取したものではない。
+また現在の128 GB検証カードにはuser overlayとして適用済みだが、通常image builderへの統合は
+`MPLUS-PERF-02`として別に追跡する。

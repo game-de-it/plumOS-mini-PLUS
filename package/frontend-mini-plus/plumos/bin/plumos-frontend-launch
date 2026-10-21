@@ -8,8 +8,33 @@ LOG=$PLUMOS_ROOT/logs/frontend.log
 VALIDATION_HOLD=${PLUMOS_FRONTEND_VALIDATION_HOLD:-$RUNTIME_ROOT/validation/frontend-hold}
 UPDATE=$PLUMOS_ROOT/bin/plumos-system-update
 UPDATE_LOG=$PLUMOS_ROOT/logs/system-update.log
+POWER_TRANSITION=${PLUMOS_POWER_TRANSITION:-$RUNTIME_ROOT/power-action/in-progress}
+POWER_REQUEST=${PLUMOS_POWER_REQUEST:-$RUNTIME_ROOT/power-action/request}
 
 $BB mkdir -p "$PLUMOS_ROOT/logs" "$RUNTIME_ROOT/frontend"
+
+# The game-owned power overlay is not supervised by PID 1.  It has to stop
+# the current frontend before doing fallible storage work, otherwise the FE
+# becomes visible and accepts input again between game termination and the
+# final reboot/poweroff request.  A replacement launcher waits here without
+# opening DRM/input.  Once the request is committed it exits immediately so
+# PID 1 can consume it; a failed transaction removes the marker and lets the
+# ordinary startup continue.
+if [ -e "$POWER_TRANSITION" ]; then
+    printf 'frontend_power_transition=wait marker=%s\n' "$POWER_TRANSITION" >>"$LOG"
+    while [ -e "$POWER_TRANSITION" ]; do
+        power_request=$($BB sed -n '1p' "$POWER_REQUEST" 2>/dev/null || true)
+        case $power_request in
+            reboot|shutdown)
+                printf 'frontend_power_transition=handoff action=%s owner=pid1\n' \
+                    "$power_request" >>"$LOG"
+                exit 0
+                ;;
+        esac
+        "$BB" usleep 100000
+    done
+    printf 'frontend_power_transition=cancelled startup=continue\n' >>"$LOG"
+fi
 if [ -x "$UPDATE" ] &&
     { [ -s "$PLUMOS_ROOT/update-state/request.json" ] ||
       [ -s "$PLUMOS_ROOT/update-state/runtime-transaction.json" ] ||

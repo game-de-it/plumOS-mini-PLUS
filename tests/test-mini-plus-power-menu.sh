@@ -10,6 +10,7 @@ if [ "${1:-}" != --inside ]; then
 fi
 overlay=$repo_root/package/frontend-mini-plus/plumos/bin/plumos-power-menu-overlay
 quiesce=$repo_root/package/frontend-mini-plus/plumos/bin/plumos-runtime-quiesce
+frontend_launch=$repo_root/package/frontend-mini-plus/plumos/bin/plumos-frontend-launch
 build=$repo_root/scripts/build-mini-plus-frontend.sh
 frontend=$repo_root/src/frontend/plumos_controller_ui.c
 drm_master=$repo_root/src/services/plumos_drm_master.c
@@ -71,9 +72,22 @@ PLUMOS_POWER_MENU_QUIESCE=$root/bin/fake-quiesce \
     "$root/bin/plumos-power-menu-overlay" open
 sed -n '1p' "$tmp/terminal.trace" | grep -q '^quiesce:hold '
 sed -n '2p' "$tmp/terminal.trace" | grep -q '^menu:shutdown$'
-sed -n '3p' "$tmp/terminal.trace" | grep -q '^quiesce:terminate '
-sed -n '4p' "$tmp/terminal.trace" | grep -q '^safe:--shutdown '
-sed -n '5p' "$tmp/terminal.trace" | grep -q '^quiesce:terminate-state '
+sed -n '3p' "$tmp/terminal.trace" | grep -q '^quiesce:terminate-state '
+sed -n '4p' "$tmp/terminal.trace" | grep -q '^quiesce:terminate '
+sed -n '5p' "$tmp/terminal.trace" | grep -q '^safe:--shutdown '
+test -s "$runtime/power-action/in-progress"
+grep -qx 'action=shutdown' "$runtime/power-action/in-progress"
+
+# A PID 1 replacement launch must never reopen DRM/input while a terminal
+# transaction is active. Once the request exists, the launcher hands it back
+# to PID 1 by exiting before mount, scan, network, or renderer startup.
+cp "$frontend_launch" "$root/bin/plumos-frontend-launch"
+printf 'shutdown\n' >"$runtime/power-action/request"
+PLUMOS_ROOT=$root PLUMOS_RUNTIME_ROOT=$runtime \
+    "$root/bin/plumos-frontend-launch"
+grep -q '^frontend_power_transition=wait ' "$root/logs/frontend.log"
+grep -q '^frontend_power_transition=handoff action=shutdown owner=pid1$' \
+    "$root/logs/frontend.log"
 
 # The real quiesce helper must terminate a dedicated process group, escalating
 # as needed, and separately catch storage users with no display descriptor.
@@ -130,6 +144,8 @@ grep -Fq '"$DRM_MASTER" drop "$pid"' "$quiesce"
 grep -Fq '"$DRM_MASTER" set "$pid"' "$quiesce"
 grep -q 'src/services/plumos_drm_master.c' "$build"
 grep -q 'plumos-power-menu-overlay' "$build"
+grep -q 'terminal_transition_policy.*block-replacement-frontend-until-pid1-handoff' \
+    "$build"
 grep -q 'frontend/foreground.pgid' \
     "$repo_root/src/frontend/plumos_controller_ui.c"
 grep -q 'plumos-drm-broker-run' "$frontend"
@@ -156,5 +172,7 @@ grep -q 'terminate-storage.*"$USER_MOUNT"' \
     "$repo_root/package/frontend-mini-plus/plumos/bin/plumos-safe-shutdown"
 grep -q 'terminate-state' "$overlay"
 grep -q '"$FRONTEND_READY"' "$overlay"
+grep -q 'frontend_power_transition=wait' \
+    "$repo_root/package/frontend-mini-plus/plumos/bin/plumos-frontend-launch"
 
 printf 'miniplus_power_menu=result-ok policy=frontend-delegate,foreground-drm-handoff\n'

@@ -14,6 +14,7 @@ SELECTION_FILE=${PLUMOS_POWER_MENU_SELECTION_FILE:-$RUNTIME_ROOT/power-menu-over
 QUIESCE_STATE=$RUNTIME_ROOT/power-menu-overlay.$$.quiesce
 FOREGROUND_MARKER=$RUNTIME_ROOT/frontend/foreground.pgid
 FRONTEND_READY=${PLUMOS_FRONTEND_READY:-/tmp/plumos-fe-ready}
+POWER_TRANSITION=${PLUMOS_POWER_TRANSITION:-$RUNTIME_ROOT/power-action/in-progress}
 TERMINAL_ACTION=0
 
 $BB mkdir -p "$LOG_DIR" "$RUNTIME_ROOT" 2>/dev/null || true
@@ -36,6 +37,7 @@ release_runtime() {
 
 cleanup() {
     if [ "$TERMINAL_ACTION" = 0 ]; then
+        $BB rm -f "$POWER_TRANSITION" 2>/dev/null || true
         release_runtime
     fi
     $BB rm -f "$SELECTION_FILE" "$QUIESCE_STATE" 2>/dev/null || true
@@ -101,10 +103,39 @@ case $selection in
         exit "$action_rc"
         ;;
     reboot|shutdown)
-        # A terminal action intentionally discards the running game/app. Kill
-        # its dedicated FE process group (TERM, then bounded KILL) and every
-        # recorded display owner before storage is unmounted. Cancel is the
-        # only path that resumes the recorded owners.
+        # Block PID 1's replacement launcher before ending the supervised FE.
+        # This keeps the frontend invisible and non-interactive throughout
+        # the fallible storage transaction.  If the action fails, cleanup
+        # removes the marker and the waiting launcher resumes normal startup.
+        $BB mkdir -p "${POWER_TRANSITION%/*}" 2>/dev/null || {
+            log 'terminal transition marker directory failed'
+            exit 1
+        }
+        printf 'action=%s\noverlay_pid=%s\n' "$selection" "$$" \
+            >"$POWER_TRANSITION.next.$$" || {
+                log 'terminal transition marker stage failed'
+                exit 1
+            }
+        $BB mv -f "$POWER_TRANSITION.next.$$" "$POWER_TRANSITION" || {
+            $BB rm -f "$POWER_TRANSITION.next.$$" 2>/dev/null || true
+            log 'terminal transition marker commit failed'
+            exit 1
+        }
+
+        # End the supervised FE first. It owns the foreground process-group
+        # lifecycle, so this also prevents the game from revealing a new FE
+        # frame while the overlay proceeds with the bounded fallback cleanup.
+        if ! PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
+            PLUMOS_BUSYBOX="$BB" "$BB" sh "$QUIESCE" terminate-state \
+            "$FRONTEND_READY" >>"$LOG_FILE" 2>&1; then
+            log 'frontend termination failed; terminal transition cancelled'
+            exit 1
+        fi
+
+        # A terminal action intentionally discards any remaining game/app.
+        # Kill its dedicated FE process group (TERM, then bounded KILL) and
+        # every recorded display owner before storage is unmounted. Cancel is
+        # the only path that resumes the recorded owners.
         if ! PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
             PLUMOS_BUSYBOX="$BB" "$BB" sh "$QUIESCE" terminate \
             "$QUIESCE_STATE" "$FOREGROUND_MARKER" >>"$LOG_FILE" 2>&1; then
@@ -113,24 +144,12 @@ case $selection in
         fi
         TERMINAL_ACTION=1
         if run_power_action "$selection"; then
-            # PID 1 consumes the committed request only after its supervised
-            # frontend returns.  The overlay is owned by the volume-key
-            # service, so a successful request must explicitly end the FE.
-            # Otherwise it resumes after the game is killed and the request
-            # remains pending forever.
-            if ! PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_RUNTIME_ROOT="$RUNTIME_ROOT" \
-                PLUMOS_BUSYBOX="$BB" "$BB" sh "$QUIESCE" terminate-state \
-                "$FRONTEND_READY" >>"$LOG_FILE" 2>&1; then
-                log 'frontend termination failed; pid1 handoff incomplete'
-                action_rc=1
-            else
-                log "terminal request committed action=$selection owner=pid1 frontend=terminated"
-                action_rc=0
-            fi
+            log "terminal request committed action=$selection owner=pid1 frontend=blocked"
+            action_rc=0
         else
             action_rc=$?
+            TERMINAL_ACTION=0
         fi
-        TERMINAL_ACTION=0
         exit "$action_rc"
         ;;
     cancel|'')

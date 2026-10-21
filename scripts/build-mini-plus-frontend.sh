@@ -239,6 +239,7 @@ cat >"$component/manifest.json" <<EOF
     "code": 116,
     "frontend_policy": "delegate-when-frontend-owns-display",
     "foreground_policy": "quiesce-display-owner-and-handoff-drm",
+    "terminal_transition_policy": "block-replacement-frontend-until-pid1-handoff",
     "overlay": "bin/plumos-power-menu-overlay",
     "runtime_quiesce": "bin/plumos-runtime-quiesce",
     "request_finalizer": "bin/plumos-power-request-finalizer",

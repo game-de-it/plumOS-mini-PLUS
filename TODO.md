@@ -39,6 +39,7 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 ## 未解決
 
+- [ ] `MPLUS-PERF-01` mini PLUS SD1をSDR50/50 MHzからSDR104/約150 MHzへ切り替える可逆overlayを作成した。128 GB検証カードでcold boot、tuning/CRC/I/O error、filesystem readback、起動時間、主要機能回帰を確認してから既定採用を判断する。
 - [x] `MPLUS-NET-01` live stockOSでSDIO `02D0:A9A6`、`bcmsdh_sdmmc`/`bcmdhd`、matching kernel ABI、実使用firmware/NVRAMを確認し、RTL8821CS force-load経路を廃止した。
 - [ ] `MPLUS-NET-02` Wi-Fi association、DHCP、SSH/FTP/SMB待受は実機確認済み。保存済みnetworkのreconnectとpower-off競合を確認する。
 - [ ] `MPLUS-FE-01` 実SD2をBubble互換の`roms/<system>` + `bios`へ修正し、FEで10,247 files/534 ROMsを索引化した。ROM2全196 routeを実機走査し、補正再試験込みで170 route起動、PSP/PSX/OpenBORを含む166 routeのPCM進行、全観測経路のDRM/Mali表示契約を確認した。残る2 routeはROM2の親archive不足、24 routeは互換content/BIOS不足で未合格。全routeの物理コントローラー操作とspeaker可聴playtestを行う。

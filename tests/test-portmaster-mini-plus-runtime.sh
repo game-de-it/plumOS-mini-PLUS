@@ -16,11 +16,12 @@ PATCH_SHIM="$PACKAGE/apps/portmaster/adapter/shims/run-patchscript"
 PATCHER_OVERRIDE="$PACKAGE/apps/portmaster/adapter/overrides/patcher.txt"
 COMMAND_RUNTIME="$PACKAGE/bin/plumos-portmaster-command-runtime"
 SESSION_CLEANUP="$PACKAGE/bin/plumos-portmaster-session-cleanup"
+KNOWN_PORT_COMPAT="$PACKAGE/bin/plumos-portmaster-known-port-compat"
 TAR_SHIM="$PACKAGE/apps/portmaster/adapter/shims/tar"
 EXEC_GUARD_SOURCE="$ROOT_DIR/package/portmaster-mini-plus/src/plumos_portmaster_exec_guard.c"
 HW_COMPAT_SOURCE="$ROOT_DIR/package/portmaster-mini-plus/src/plumos_portmaster_hw_compat.c"
 
-for file in "$RUNTIME" "$GUI_LAUNCH" "$PORT_LAUNCH" "$MOUNT_CLEANUP" "$FRONTEND_CONTROL" "$PGREP" "$PKILL" "$PATCH_SHIM" "$COMMAND_RUNTIME" "$SESSION_CLEANUP" "$TAR_SHIM"; do
+for file in "$RUNTIME" "$GUI_LAUNCH" "$PORT_LAUNCH" "$MOUNT_CLEANUP" "$FRONTEND_CONTROL" "$PGREP" "$PKILL" "$PATCH_SHIM" "$COMMAND_RUNTIME" "$SESSION_CLEANUP" "$KNOWN_PORT_COMPAT" "$TAR_SHIM"; do
     /bin/sh -n "$file"
 done
 
@@ -66,6 +67,9 @@ grep -q 'libplumos-portmaster-hw-compat.so' "$PORT_LAUNCH" "$BUILDER"
 grep -q 'PLUMOS_PORTMASTER_PWM_COMPAT_ROOT' "$PORT_LAUNCH" "$HW_COMPAT_SOURCE"
 grep -q 'unavailable raw PWM redirected' "$HW_COMPAT_SOURCE"
 grep -q 'port_exit rc=.*pcm_status=' "$PORT_LAUNCH"
+grep -q 'plumos-portmaster-known-port-compat' "$PORT_LAUNCH"
+grep -q '3fe5e66ed7c184f7cda3ae6161f5004f4937a16dd4a19b51b5f463ffc42fc7ec' "$KNOWN_PORT_COMPAT"
+grep -q '86ba76c37c45ba56271a51c01688a90c37bf27d067d302b994fbb0e8216d0c06' "$KNOWN_PORT_COMPAT"
 grep -q 'MALI_LIBRARY="${PLUMOS_ROOT}/emulator/lib/libmali.so.1"' "$PORT_LAUNCH"
 grep -q 'DRM_SHARE_LIBRARY="${PLUMOS_DRM_SHARE_LIBRARY:-}"' "$PORT_LAUNCH"
 grep -q 'SDL_VIDEO_EGL_DRIVER="$MALI_LIBRARY"' "$PORT_LAUNCH"

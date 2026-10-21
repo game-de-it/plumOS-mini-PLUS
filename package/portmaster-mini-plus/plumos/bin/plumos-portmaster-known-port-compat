@@ -1,0 +1,55 @@
+#!/bin/sh
+set -eu
+
+PLUMOS_ROOT="${PLUMOS_ROOT:-/storage/plumos}"
+STATE_ROOT="${PLUMOS_PORTMASTER_STATE_ROOT:-${PLUMOS_ROOT}/state/portmaster}"
+MOUNT_BIN="${PLUMOS_PORTMASTER_MOUNT_BIN:-mount}"
+BAD_APOTRIS_SHA256="${PLUMOS_PORTMASTER_APOTRIS_BAD_SHA256:-3fe5e66ed7c184f7cda3ae6161f5004f4937a16dd4a19b51b5f463ffc42fc7ec}"
+GOOD_APOTRIS_SHA256="${PLUMOS_PORTMASTER_APOTRIS_FALLBACK_SHA256:-86ba76c37c45ba56271a51c01688a90c37bf27d067d302b994fbb0e8216d0c06}"
+script="${1:-}"
+mounts_file="${2:-}"
+
+[ -n "$script" ] && [ -n "$mounts_file" ] || {
+  printf 'usage: plumos-portmaster-known-port-compat SCRIPT MOUNTS_FILE\n' >&2
+  exit 64
+}
+
+case "$(basename "$script" | tr '[:upper:]' '[:lower:]')" in
+  apotris.sh)
+    port_dir="$(dirname "$script")/apotris"
+    target="${port_dir}/Apotris.aarch64"
+    fallback="${STATE_ROOT}/compat/apotris/Apotris-v4.1.0.aarch64"
+    [ -f "$target" ] || {
+      printf 'PortMaster Apotris executable is missing: %s\n' "$target" >&2
+      exit 127
+    }
+    current_sha256="$(sha256sum "$target" | awk '{print $1}')"
+    case "$current_sha256" in
+      "$GOOD_APOTRIS_SHA256")
+        printf 'port_compat=apotris action=direct version=4.1.0 sha256=%s\n' \
+          "$current_sha256"
+        ;;
+      "$BAD_APOTRIS_SHA256")
+        [ -f "$fallback" ] || {
+          printf 'PortMaster Apotris v4.2.0 is incompatible with mini PLUS and the verified fallback is missing: %s\n' \
+            "$fallback" >&2
+          exit 78
+        }
+        fallback_sha256="$(sha256sum "$fallback" | awk '{print $1}')"
+        [ "$fallback_sha256" = "$GOOD_APOTRIS_SHA256" ] || {
+          printf 'PortMaster Apotris fallback checksum mismatch: %s\n' \
+            "$fallback" >&2
+          exit 1
+        }
+        "$MOUNT_BIN" --bind "$fallback" "$target" || exit 1
+        printf '%s\n' "$target" >> "$mounts_file"
+        printf 'port_compat=apotris action=bind-fallback from=4.2.0 to=4.1.0 sha256=%s\n' \
+          "$fallback_sha256"
+        ;;
+      *)
+        printf 'port_compat=apotris action=unmanaged sha256=%s\n' \
+          "$current_sha256"
+        ;;
+    esac
+    ;;
+esac

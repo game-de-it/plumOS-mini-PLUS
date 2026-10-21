@@ -33,6 +33,7 @@ HW_COMPAT_LIB="${APP_ROOT}/adapter/lib/aarch64/libplumos-portmaster-hw-compat.so
 MALI_LIBRARY="${PLUMOS_ROOT}/emulator/lib/libmali.so.1"
 DRM_SHARE_LIBRARY="${PLUMOS_DRM_SHARE_LIBRARY:-}"
 SESSION_CLEANUP="${PLUMOS_ROOT}/bin/plumos-portmaster-session-cleanup"
+KNOWN_PORT_COMPAT="${PLUMOS_ROOT}/bin/plumos-portmaster-known-port-compat"
 child=""
 restore_frontend=0
 cleanup_done=0
@@ -286,6 +287,13 @@ for name in config libs themes; do
   mount --bind "$source_dir" "$target_dir" || exit 1
   printf '%s\n' "$target_dir" >> "$MOUNTS_FILE"
 done
+[ -x "$KNOWN_PORT_COMPAT" ] || {
+  printf 'PortMaster known-port compatibility helper is missing: %s\n' \
+    "$KNOWN_PORT_COMPAT" >&2
+  exit 127
+}
+"$BB" sh "$KNOWN_PORT_COMPAT" "$script" "$MOUNTS_FILE" \
+  >> "$LOG_FILE" 2>&1 || exit $?
 export PLUMOS_ROOT PLUMOS_RUNTIME_ROOT="/run/plumos"
 export PLUMOS_PORTMASTER_APP_ROOT="$APP_ROOT"
 export PLUMOS_PORTMASTER_DATA_ROOT="$DATA_ROOT"

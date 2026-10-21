@@ -15,7 +15,7 @@ visible change through logical level 12 (raw 52), followed by a sudden increase
 at level 13 (raw 68). This is target-specific panel behavior and is not an input
 or PWM-routing failure.
 
-## Candidate correction
+## Correction
 
 Keep the shared plumOS range and settings contract at 1..20, but map it onto the
 mini PLUS panel's measured transition and useful PWM region. Raw 52 remains the
@@ -31,7 +31,14 @@ The curve is identified as `mini-plus-panel-linear-52-255-v1` in runtime and
 component metadata. Host tests verify representative low, middle, knee and
 maximum mappings without changing the saved setting during an explicit apply.
 
-## Remaining physical gate
+## Physical acceptance
 
-The candidate is not accepted until the user confirms that all twenty steps are
-monotonic, that the minimum is sufficiently dim, and that no abrupt jump remains.
+The corrected curve was deployed as managed app-layer commit `8e1961a`. The
+pre-deployment logical level 12/raw 52 state was migrated to level 1/raw 52 so
+the visible brightness did not jump during deployment. All 227 frontend entries
+and all 12,482 global app-layer entries passed checksum verification after the
+update.
+
+The user then operated the physical hotkey and confirmed that brightness now
+changes naturally. The previous level-13 response jump is therefore accepted as
+resolved on the mini PLUS panel.

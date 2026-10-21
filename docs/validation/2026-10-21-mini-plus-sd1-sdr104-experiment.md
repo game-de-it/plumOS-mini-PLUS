@@ -71,3 +71,24 @@ ROM/BIOS/設定/セーブを含むp4 `PLUMOS`は変更していない。
 - p4 FAT32 read-only fsck: exit 0
 
 これはホスト側適用合格であり、SDR104での実機起動や長期安定性の合格ではない。
+
+## 実機cold boot 1回目
+
+boot ID `823e9c75-7dd0-4c99-b53e-e970a88fbb0d`でfrontendまで到達した。
+
+- runtime DT: `sd-uhs-sdr50`と`sd-uhs-sdr104`が存在
+- SD1: `SF128`、SDR104、148.5 MHz
+- tuning: phase 188で成功
+- matching検証: 1.17秒（変更前3.11秒）
+- System A/B検証: 0.50秒（変更前1.42秒）
+- frontend起動開始: 5.19秒（変更前8.59秒、Bubble 4.60秒）
+- frontend ready marker: 起動約10秒（Bubbleと同水準、秒単位marker）
+- Wi-Fi: `192.168.10.141`でassociation、DHCP、SSH正常
+- frontend: PID 377、`plumos-controller-ui-fbdev`が正規fbdev経路で稼働
+- audio: RK817 playback/capture PCM列挙正常。物理可聴音はこのbootでは未確認
+- storage: p3 ext4で64 MiB random fileを生成し、p4 FATへコピー。SHA-256とbyte比較一致
+- error scan: SD1 `mmc1`のtuning failure、CRC、timeout、I/O errorは0件
+
+起動前半は約3.4秒短縮した。Bubbleとの差はfrontend起動開始時点で約0.59秒まで縮小した。
+ただしcold boot 5回、長時間I/O、macOS readback、物理音声と代表ゲーム起動は未完了なので、
+既定imageへの統合判定は保留する。

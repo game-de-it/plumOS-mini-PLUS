@@ -24,6 +24,7 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 - [x] `MPLUS-P2-04` live stockOSで確認した`bcmdhd`、BCM43438A1 firmware、AP6212A NVRAMによる通常load、Wi-Fi初回接続UI、DHCP、Dropbear SSH自動待受を実装し、host contract testを通過した。
 - [x] `MPLUS-PORTS-01` Apotris v4.2.0の無音とSIGSEGVを実機再現し、v4.1.0とのA/BでPCM進行、可聴音、継続動作、通常終了を確認した。既知のv4.2.0 SHAだけを検証済みv4.1.0へbindするPortMaster互換ガード、raw PWM no-op、厳密なmount cleanupを実装・配備した（`docs/validation/2026-10-21-mini-plus-apotris-portmaster.md`）。
 - [x] `MPLUS-INPUT-01` plumOS共通の`SELECT`＋音量－／＋による20段階輝度hotkeyを常駐hardware-key serviceへ移植した。音量単独、長押し中の操作種別固定、遅延設定保存、ゲーム中の非grab入力を維持する。
+- [ ] `MPLUS-INPUT-02` mini PLUS実機でBubble由来のPWMカーブはレベル1〜12（raw 1〜52）の変化がほぼ見えず、13（raw 68）から急増することを確認した。暗い側のraw 52を維持しつつ、応答境界を含むraw 52〜255を20段階へ再配分した候補を実機で全段階確認する。
 
 ## plumOS contract修正完了
 

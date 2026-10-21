@@ -70,13 +70,17 @@ write_saved() {
 
 raw_for_level() {
     case "$(normalize "$1")" in
-        1) printf '1\n' ;; 2) printf '2\n' ;; 3) printf '3\n' ;;
-        4) printf '4\n' ;; 5) printf '5\n' ;; 6) printf '7\n' ;;
-        7) printf '10\n' ;; 8) printf '14\n' ;; 9) printf '20\n' ;;
-        10) printf '28\n' ;; 11) printf '39\n' ;; 12) printf '52\n' ;;
-        13) printf '68\n' ;; 14) printf '86\n' ;; 15) printf '106\n' ;;
-        16) printf '128\n' ;; 17) printf '151\n' ;; 18) printf '177\n' ;;
-        19) printf '205\n' ;; 20) printf '255\n' ;;
+        # The mini PLUS panel has almost no visible response through raw 52,
+        # followed by a response knee before raw 68. Preserve raw 52 as the
+        # dim floor and spread the other nineteen steps across the transition
+        # and useful range instead of reusing Bubble's low-heavy curve.
+        1) printf '52\n' ;; 2) printf '63\n' ;; 3) printf '73\n' ;;
+        4) printf '84\n' ;; 5) printf '95\n' ;; 6) printf '105\n' ;;
+        7) printf '116\n' ;; 8) printf '127\n' ;; 9) printf '137\n' ;;
+        10) printf '148\n' ;; 11) printf '159\n' ;; 12) printf '169\n' ;;
+        13) printf '180\n' ;; 14) printf '191\n' ;; 15) printf '201\n' ;;
+        16) printf '212\n' ;; 17) printf '223\n' ;; 18) printf '233\n' ;;
+        19) printf '244\n' ;; 20) printf '255\n' ;;
     esac
 }
 
@@ -91,6 +95,7 @@ apply_level() {
     write_runtime "$level" || return 1
     {
         printf 'backend=mini-plus-rk3566-backlight\n'
+        printf 'curve=mini-plus-panel-linear-52-255-v1\n'
         printf 'brightness=%s\n' "$level"
         printf 'backlight_raw=%s\n' "$raw"
         [ ! -r "$MAX_BRIGHTNESS" ] || {

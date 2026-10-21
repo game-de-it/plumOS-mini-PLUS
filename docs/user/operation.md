@@ -34,6 +34,9 @@ game. Hold `SELECT` while pressing volume down/up to change screen brightness in
 available under `START` → `System Settings`. Contrast, hue and saturation are
 also available there.
 
+On mini PLUS, the twenty levels use a device-specific curve over the panel's
+effective PWM range.
+
 ## Connectors
 
 - USB: charge-only

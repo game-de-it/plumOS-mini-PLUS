@@ -152,6 +152,18 @@ PLUMOS_MINI_PLUS_MAX_BRIGHTNESS="$tmp/backlight/max_brightness" \
 if [[ $(cat "$tmp/backlight/brightness") != 255 ]]; then exit 1; fi
 grep -q '"brightness": 10' "$tmp/root/config/system/settings.json"
 
+for level_raw in 1:52 2:63 3:73 10:148 12:169 13:180 19:244 20:255; do
+    level=${level_raw%%:*}
+    expected=${level_raw#*:}
+    PLUMOS_ROOT="$tmp/root" PLUMOS_RUNTIME_ROOT="$tmp/run" \
+    PLUMOS_MINI_PLUS_BACKLIGHT="$tmp/backlight/brightness" \
+    PLUMOS_MINI_PLUS_MAX_BRIGHTNESS="$tmp/backlight/max_brightness" \
+        sh "$package/bin/plumos-display-control" apply "$level"
+    if [[ $(cat "$tmp/backlight/brightness") != "$expected" ]]; then exit 1; fi
+done
+grep -q '^curve=mini-plus-panel-linear-52-255-v1$' \
+    "$tmp/run/display/last-apply.log"
+
 mkdir -p "$tmp/factory/retroarch" "$tmp/factory/picoarch/config/standalone" \
     "$tmp/factory/standalone/ppsspp/PSP/SYSTEM" \
     "$tmp/factory/standalone/yabasanshiro" "$tmp/factory/standalone/pcsx_rearmed"

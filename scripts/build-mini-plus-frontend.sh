@@ -231,6 +231,7 @@ cat >"$component/manifest.json" <<EOF
     "key_codes": [114, 115],
     "binding": "select-plus-volume",
     "range": [1, 20],
+    "pwm_curve": "mini-plus-panel-linear-52-255-v1",
     "policy": "press-latched-long-repeat-deferred-persist"
   },
   "power_menu": {

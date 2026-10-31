@@ -69,6 +69,28 @@ e2fsck -fn "$verify/runtime.ext4" >/dev/null
 (cd "$verify/matching" && /bin/busybox cpio -idm < "$verify/matching.raw" 2>/dev/null)
 (cd "$verify/matching" && sha256sum -c checksums.sha256)
 cmp "$boot_source/Image" "$verify/matching/Image"
+python3 "$repo_root/scripts/patch-mini-plus-usb-sleep-kernel.py" \
+    "$boot_source/Image" "$verify/expected-Image-usb-sleep"
+cmp "$verify/expected-Image-usb-sleep" "$verify/matching/Image-usb-sleep"
+MTOOLS_SKIP_CHECK=1 mcopy -i "$verify/flash.fat" ::/Image "$verify/stock-Image"
+MTOOLS_SKIP_CHECK=1 mcopy -i "$verify/flash.fat" \
+    ::/Image-usb-sleep "$verify/active-Image"
+cmp "$boot_source/Image" "$verify/stock-Image"
+cmp "$verify/expected-Image-usb-sleep" "$verify/active-Image"
+MTOOLS_SKIP_CHECK=1 mcopy -i "$verify/flash.fat" \
+    ::/overlay-user/mini-plus-sd1-sdr104.dtbo "$verify/sd1-sdr104.dtbo"
+dtc -@ -I dts -O dtb -o "$verify/expected-sd1-sdr104.dtbo" \
+    "$repo_root/configs/device-tree/mini-plus-sd1-sdr104-overlay.dts"
+cmp "$verify/expected-sd1-sdr104.dtbo" "$verify/sd1-sdr104.dtbo"
+cmp "$verify/sd1-sdr104.dtbo" \
+    "$verify/matching/overlay-user/mini-plus-sd1-sdr104.dtbo"
+fdtoverlay -i "$boot_source/dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip/rk3566-gkdmini-pro.dtb" \
+    -o "$verify/sdr104-merged.dtb" "$verify/sd1-sdr104.dtbo"
+fdtget -p "$verify/sdr104-merged.dtb" /dwmmc@fe2b0000 | grep -qx sd-uhs-sdr104
+test "$(sha256sum "$verify/active-Image" | cut -d' ' -f1)" = \
+    "$(awk -F= '$1 == "active_kernel_sha256" {print $2}' "$base_manifest")"
+test "$(sha256sum "$verify/sd1-sdr104.dtbo" | cut -d' ' -f1)" = \
+    "$(awk -F= '$1 == "sd1_overlay_sha256" {print $2}' "$base_manifest")"
 cmp "$initramfs" "$verify/matching/initramfs-plumos-mini-plus-external-probe.cpio.gz"
 dtb_root=dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip
 for relative in \
@@ -106,6 +128,8 @@ done
 MTOOLS_SKIP_CHECK=1 mtype -i "$verify/flash.fat" ::/System/active-slot | grep -qx a
 MTOOLS_SKIP_CHECK=1 mtype -i "$verify/flash.fat" ::/uEnv.txt > "$verify/uEnv.txt"
 grep -q '^rootuuid=42554242-4c45-5359-5300-000000000003$' "$verify/uEnv.txt"
+grep -qx 'kernelimg=Image-usb-sleep' "$verify/uEnv.txt"
+grep -qx 'user_overlays=mini-plus-sd1-sdr104' "$verify/uEnv.txt"
 grep -q '^initrdimg=initramfs-plumos-mini-plus-external-probe.cpio.gz$' "$verify/uEnv.txt"
 grep -q "plumos_probe_p2_sha256=$expected_p2_sha" "$verify/uEnv.txt"
 MTOOLS_SKIP_CHECK=1 mcopy -i "$verify/flash.fat" ::/boot.cmd "$verify/boot.cmd"

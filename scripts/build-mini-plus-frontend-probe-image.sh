@@ -85,6 +85,12 @@ for tree in "$work/flash" "$work/matching"; do
     mkdir -p "$dtb_root/overlay" "$dtb_root/not_gsensor" \
         "$dtb_root/with_gsensorHAT" "$dtb_root/with_gsensorJS"
     install -m 0644 "$boot/Image" "$tree/Image"
+    python3 "$repo_root/scripts/patch-mini-plus-usb-sleep-kernel.py" \
+        "$boot/Image" "$tree/Image-usb-sleep"
+    mkdir -p "$tree/overlay-user"
+    dtc -@ -I dts -O dtb \
+        -o "$tree/overlay-user/mini-plus-sd1-sdr104.dtbo" \
+        "$repo_root/configs/device-tree/mini-plus-sd1-sdr104-overlay.dts"
     install -m 0644 "$dtb_source/rockchip/rk3566-gkdmini-pro.dtb" "$dtb_root/"
     install -m 0644 "$dtb_source/rockchip/not_gsensor/rk3566-gkdmini-pro.dtb" \
         "$dtb_root/not_gsensor/"
@@ -120,6 +126,9 @@ container=newc-padded-to-partition
 boot_source_in_this_gate=p1-file
 p2_boot_source=p1-file
 p2_integrity_role=full-matching-set-readback
+active_kernel=Image-usb-sleep
+active_kernel_sha256=$(sha256sum "$work/matching/Image-usb-sleep" | cut -d' ' -f1)
+sd1_overlay=overlay-user/mini-plus-sd1-sdr104.dtbo
 final_p2_format=raw-newc-padded-to-64MiB
 publishable=no
 EOF
@@ -166,11 +175,14 @@ initramfs_size=$(stat -c '%s' "$initramfs")
 initramfs_size_hex=$(printf '0x%x' "$initramfs_size")
 sed \
     -e 's/^rootuuid=.*/rootuuid=42554242-4c45-5359-5300-000000000003/' \
+    -e 's/^kernelimg=.*/kernelimg=Image-usb-sleep/' \
+    -e '/^user_overlays=/d' \
     "$boot/uEnv.txt" > "$work/flash/uEnv.txt"
 cat >> "$work/flash/uEnv.txt" <<EOF
 initrdimg=$initramfs_name
 initrdsize=$initramfs_size_hex
 extraboardargs=plumos_external_initramfs_probe=1 plumos_probe_p2_sha256=$matching_sha
+user_overlays=mini-plus-sd1-sdr104
 EOF
 
 cat > "$work/runtime/plumos/external-initramfs-probe.manifest" <<EOF
@@ -197,6 +209,11 @@ source_ref=$source_ref
 source_date_epoch=$source_epoch
 boot_prefix_sha256=$expected_prefix
 stock_image_sha256=$(sha256sum "$boot/Image" | cut -d' ' -f1)
+active_kernel=Image-usb-sleep
+active_kernel_sha256=$(sha256sum "$work/flash/Image-usb-sleep" | cut -d' ' -f1)
+kernel_patch=usb-charge-suspend-veto-single-instruction
+sd1_overlay_sha256=$(sha256sum "$work/flash/overlay-user/mini-plus-sd1-sdr104.dtbo" | cut -d' ' -f1)
+sd1_mode=SDR104
 external_initramfs_sha256=$(sha256sum "$initramfs" | cut -d' ' -f1)
 system_a_sha256=$system_sha
 system_b_sha256=$system_sha
@@ -271,6 +288,9 @@ source_ref=$source_ref
 source_date_epoch=$source_epoch
 boot_prefix_sha256=$expected_prefix
 p1_filesystem_sha256=$(sha256sum "$boot_fat" | cut -d' ' -f1)
+active_kernel=Image-usb-sleep
+active_kernel_sha256=$(sha256sum "$work/flash/Image-usb-sleep" | cut -d' ' -f1)
+sd1_overlay_sha256=$(sha256sum "$work/flash/overlay-user/mini-plus-sd1-sdr104.dtbo" | cut -d' ' -f1)
 p2_raw_partition_sha256=$matching_sha
 p3_filesystem_sha256=$(sha256sum "$runtime_ext4" | cut -d' ' -f1)
 app_layer_bytes=$app_bytes

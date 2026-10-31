@@ -45,7 +45,8 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 ## 未解決
 
-- [ ] `MPLUS-BOOT-UI-01` 2026-10-31新規SDで領域拡張・p4作成・FE到達は実機logで成功したが、ユーザーは初回進捗画面が見えなかった。全画面進捗、初回だけ開始/完了各2秒、表示結果logを追加。実機の独占fbdev preview/readbackは一致したが、新規SDの初回起動での目視確認は未完了。
+- [x] `MPLUS-BOOT-UI-01` `ee3a984`の全画面進捗・初回開始/完了各2秒・描画logを含む修正版で、ユーザーが新規SDの進捗表示を確認した。実機logでも開始〜完了の全7工程の書込み、p3拡張、p4作成、FE到達を確認した。複数回cold boot等は引き続き`MPLUS-REL-01`で追跡する。
+- [ ] `MPLUS-META-02` 新SDへのコミット反映監査で、PicoArch component manifest/build scriptとinput mapの説明にdual analog/stickの古い記載が残っていた。ユーザー確認済みの物理stick無しとの整合を取る。新SDへの配備漏れではなく、元ソース側の説明・機種契約の残存であり、正常動作中の入力mappingを無検証で削除しない。
 - [x] `MPLUS-POWER-01` `427c28a`で実機合格した`Image-usb-sleep`を通常image builderのp1/p2へ追加し、元stock Imageを保持した。生成imageからのreadback、4-byte限定patch、uEnvのkernel選択、稼働カードとのhash一致を検証した。新規SDへの物理bootは`MPLUS-REL-01`へ残す。
 - [x] `MPLUS-PERF-02` 通常image builderのp1/p2へSDR104 overlayを収録し、uEnv選択、overlay hash、稼働カードとのhash一致、展開後runtime DTBに対する単一property追加を検証した。新規SDの物理cold bootは`MPLUS-REL-01`へ残す。
 - [x] `MPLUS-META-01` live global checksumの5,224件の切れたpathを、元packageのdigestと完全pathの対応で復元した。記録済みhashは変更せず、実機12,482/12,482件の一致後にatomic適用した。新規生成imageのglobal checksumも全件readback合格した。

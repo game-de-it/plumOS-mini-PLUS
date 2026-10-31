@@ -112,6 +112,21 @@ def main() -> None:
                 assert archive.read("licenses/runtime/core-LICENSE") == b"core fixture\n"
             subprocess.run(["shasum", "-a", "256", "-c", "SHA256SUMS"],
                            cwd=bundle, check=True, capture_output=True)
+            publication = root / "docs/validation/0.1.0-mini-plus-device-acceptance.env"
+            publication.parent.mkdir(parents=True)
+            publication.write_text(
+                "format=plumos-mini-plus-publication-with-recorded-limits-v1\n"
+                f"image_sha256={digest}\nrelease_approved=yes\n"
+                "new_image_device_acceptance=no\nphysical_cold_boots=not-recorded\n")
+            subprocess.run(["git", "-C", str(root), "add", "docs"], check=True)
+            subprocess.run(["git", "-C", str(root), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit", "-qm", "limits fixture"], check=True)
+            env.update(PLUMOS_MINI_PLUS_RELEASE_DRAFT="0", PLUMOS_MINI_PLUS_RELEASE_RECORDED_LIMITS="1")
+            subprocess.run(command, env=env, check=True, capture_output=True)
+            published = root / "dist/plumos-mini-plus-release-v0.1.0/manifest.txt"
+            manifest = published.read_text()
+            assert "draft=0" in manifest and "new_image_device_acceptance=no" in manifest
+            assert "physical_cold_boots=3" not in manifest
 
     notes = (ROOT / "docs/releases/0.1.0.md").read_text()
     for label in ("## 日本語", "## English", "MIT", "LGPL-2.1-only",

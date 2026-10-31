@@ -4,6 +4,8 @@ set -euo pipefail
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 draft=${PLUMOS_MINI_PLUS_RELEASE_DRAFT:-0}
 case "$draft" in 0|1) ;; *) echo 'draft must be 0 or 1' >&2; exit 2;; esac
+recorded_limits=${PLUMOS_MINI_PLUS_RELEASE_RECORDED_LIMITS:-0}
+case "$recorded_limits" in 0|1) ;; *) echo 'recorded limits must be 0 or 1' >&2; exit 2;; esac
 version=${1:-$(cat "$repo_root/VERSION")}
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
     echo 'formal release version must be MAJOR.MINOR.PATCH' >&2; exit 2;
@@ -52,6 +54,13 @@ image_source_ref=$(awk -F= '$1 == "source_ref" {print $2}' "$source_manifest")
 [ -n "$image_source_ref" ] || { echo 'image manifest has no source_ref' >&2; exit 1; }
 grep -q '^publishable=no$' "$source_manifest"
 if [ "$draft" = 0 ]; then
+if [ "$recorded_limits" = 1 ]; then
+    grep -q '^format=plumos-mini-plus-publication-with-recorded-limits-v1$' "$acceptance_manifest"
+    grep -q "^image_sha256=$actual_image_sha$" "$acceptance_manifest"
+    grep -q '^release_approved=yes$' "$acceptance_manifest"
+    grep -q '^new_image_device_acceptance=no$' "$acceptance_manifest"
+    grep -q '^physical_cold_boots=not-recorded$' "$acceptance_manifest"
+else
 grep -q '^format=plumos-mini-plus-device-acceptance-v1$' "$acceptance_manifest"
 grep -q "^image_sha256=$actual_image_sha$" "$acceptance_manifest"
 grep -q '^full_image_boot=yes$' "$acceptance_manifest"
@@ -59,6 +68,7 @@ grep -q '^block_readback=yes$' "$acceptance_manifest"
 grep -q '^physical_cold_boots=3$' "$acceptance_manifest"
 grep -q '^maintainer_accepted=yes$' "$acceptance_manifest"
 grep -q '^release_approved=yes$' "$acceptance_manifest"
+fi
 fi
 
 mkdir -p "$repo_root/dist" "$stage_dir"
@@ -127,7 +137,13 @@ release_source_ref=$(git -C "$repo_root" rev-parse HEAD)
     printf 'archive_sha256=%s\n' "$archive_sha"
     printf 'license_archive=%s\n' "$license_archive"
     printf 'image_internal_publishable=no\n'
-    if [ "$draft" = 0 ]; then
+    if [ "$draft" = 0 ] && [ "$recorded_limits" = 1 ]; then
+        printf 'promotion=user-requested-publication-with-recorded-validation-limits\n'
+        printf 'physical_cold_boots=not-recorded\n'
+        printf 'new_image_device_acceptance=no\n'
+        printf 'acceptance_manifest_sha256=%s\n' \
+            "$(shasum -a 256 "$acceptance_manifest" | awk '{print $1}')"
+    elif [ "$draft" = 0 ]; then
         printf 'promotion=maintainer-accepted-exact-byte-image\n'
         printf 'physical_cold_boots=3\n'
         printf 'acceptance_manifest_sha256=%s\n' \

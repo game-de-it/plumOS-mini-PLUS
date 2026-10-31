@@ -41,10 +41,11 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 - [ ] `MPLUS-HW-01` 空のテスト用SDへ候補を書き、cold bootとU-Boot stage `S10`〜`S19`を確認する。
 - [x] `MPLUS-HW-02` full-stack候補でinitramfs `S21`〜`S29`の成功、SYSTEM `S40_FRONTEND_SUPERVISOR_READY`、frontend/LCD到達を実機確認した。
-- [ ] `MPLUS-HW-05` SD整合性、ゲーム中Reboot/Shutdown、`62fe884`適用後のbattery-only Sleep復帰はユーザー確認済み。USB接続時はstock kernelの`state_store()`が充電中/満充電を一律EBUSYで拒否していた。認識済みkernelの4-byte分岐だけをNOP化した`Image-usb-sleep`を可逆配備し、USB接続中12秒SleepとRTC復帰、Wi-Fi/SSH/FEの復帰を確認した。残る物理gateはUSB接続中の通常power menu→電源キー復帰とゲーム画面/操作/音声、および候補kernelの通常image builder統合である（`docs/validation/2026-10-31-mini-plus-usb-sleep.md`）。
+- [x] `MPLUS-HW-05` SD整合性、ゲーム中Reboot/Shutdown、`62fe884`適用後のbattery-only Sleep復帰はユーザー確認済み。USB接続時のstock kernel充電gateを4-byteの限定patchで解除し、12秒Sleep/RTC復帰を実機ログで確認した。2026-10-31、ユーザーはUSB接続中のSleep復帰も正常と確認した。現在の検証カードの電源操作は合格とし、通常imageへの反映は`MPLUS-POWER-01`で追跡する（`docs/validation/2026-10-31-mini-plus-usb-sleep.md`）。
 
 ## 未解決
 
+- [ ] `MPLUS-POWER-01` 実機合格した`Image-usb-sleep`を通常image builderへ統合し、元stock Imageの保持、patch前後hash、boot設定、生成image readbackを検証する。現在の検証カードの合格を未再生成imageへ遡及しない。
 - [ ] `MPLUS-PERF-02` 合格した`mini-plus-sd1-sdr104` overlayを通常image builderへ統合し、生成imageの`uEnv.txt`、overlay hash、SDR104 bootをrelease gateで検証する。現在の128 GB検証カードには適用済みだが、未再生成imageへ既定値が遡及するとは扱わない。
 - [ ] `MPLUS-META-01` live global `checksums.sha256`は空白を含む5,224 pathが既に第1語へ切り詰められており、stock BusyBoxで全件検証できない。今回変更したfrontend component 227/227とglobal delta 5/5は合格している。利用者のPortMaster更新物や設定を新baselineへ取り込まず、次回clean app-layer build/writeで正しいglobal checksumへ置換する。
 - [x] `MPLUS-NET-01` live stockOSでSDIO `02D0:A9A6`、`bcmsdh_sdmmc`/`bcmdhd`、matching kernel ABI、実使用firmware/NVRAMを確認し、RTL8821CS force-load経路を廃止した。

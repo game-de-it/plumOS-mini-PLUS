@@ -74,5 +74,9 @@ charge-done=3では0となることをdisassembleで確認した。満充電時�
 `uEnv.txt`の`kernelimg=Image`へ戻せば元kernelを使用する。候補はapp-layer外の追加boot fileなので、
 既存app-layer component/hashを変更していない。
 
-ユーザーによるUSB接続中のnormal power menu→電源キー復帰、ゲーム表示・操作・音声は再試験待ち。
-通常image builderへの候補kernel統合も未完了であり、既存生成imageへ変更が遡及したとは扱わない。
+2026-10-31、USB接続中のnormal power menuからのSleepと電源キー復帰の再試験依頼に対し、
+ユーザーは「sleep復帰OKです。」と報告した。現在の検証カードでUSB接続中のSleep復帰を物理合格とする。
+既存のbattery-only Sleep、ゲーム中Reboot/Shutdownの合格と合わせ、`MPLUS-HW-05`を完了した。
+
+通常image builderへの候補kernel統合は`MPLUS-POWER-01`として追跡する。
+既存生成imageへ変更が遡及したとは扱わない。

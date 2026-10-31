@@ -13,3 +13,5 @@ Final release preparation is still pending. Documentation updates do not promote
 7. Obtain explicit publication approval, publish unchanged assets, then download anonymously and verify public hashes.
 
 Development images may remain uncompressed at the user's request. A writer's completed status, passing host checks or success on another image does not replace physical acceptance. See [the checklist](../plumos-implementation-checklist.md) and [validation](validation.md).
+
+The formal version is 0.1.0 (VERSION); [release notes](../releases/0.1.0.md) contain Japanese and English. scripts/prepare-mini-plus-release.sh uses that default and Bubble-style distribution names. It requires exact-image acceptance and matching image/Runtime versions. License originals are exported from verified image readback to licenses/ with a bilingual index. LICENSE (plumOS MIT), THIRD_PARTY_NOTICES.md and individual notices are included in bundle checksums.

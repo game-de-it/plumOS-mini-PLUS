@@ -2,6 +2,9 @@
 
 日本語 | [English](README.md)
 
+正式バージョン：**0.1.0**。[日英リリースノート](docs/releases/0.1.0.md)。
+配布名はBubble形式の`plumos-mini-plus-v0.1.0-sd-image.img`／`.7z`です。最終imageの受入・公開は未完了です。
+
 plumOS-Bubbleをベースにした、**GKD mini PLUS（RK3566 / ARM64、640×480）**向けplumOSです。本体には4個のFNキーがあり、アナログスティックはありません。
 
 <p align="center"><img src="docs/images/gkd-mini-plus.jpg" alt="plumOSを起動したGKD mini PLUS本体" width="640"></p>
@@ -65,7 +68,7 @@ ROM、利用者BIOS、商用ゲームは同梱しません。この移植ではU
 ./scripts/build-mini-plus-full-image.sh
 ```
 
-既定のraw出力は`output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-validation.img`です。seedは約2.90 GBで、初回に管理領域を8 GiBへ拡張し、残りに利用者領域を作ります。16 GB以上のSDを使用してください。前提条件・version指定・検証は[ビルドガイド](docs/developer/build.ja.md)へ。圧縮は別のリリース工程です。
+既定のraw出力は`output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-full-stack-validation.img`です。seedは約2.90 GBで、初回に管理領域を8 GiBへ拡張し、残りに利用者領域を作ります。16 GB以上のSDを使用してください。前提条件・version指定・検証は[ビルドガイド](docs/developer/build.ja.md)へ。圧縮は別のリリース工程です。
 
 ## ライセンス
 

@@ -13,3 +13,5 @@
 7. 明示的な公開承認後、byteを変えず公開し、匿名downloadで公開hashを再確認する。
 
 利用者の指示により開発imageは非圧縮のままで構いません。writer完了・host test合格・別imageでの成功は実機受入の代わりにはなりません。[チェックリスト](../plumos-implementation-checklist.ja.md)と[検証](validation.ja.md)を参照してください。
+
+正式版はVERSIONの0.1.0です。[リリースノート](../releases/0.1.0.md)は日英併記です。scripts/prepare-mini-plus-release.shも同版を既定にし、Bubble形式の配布名を使います。同一imageの受入とimage/Runtime版の一致を要求します。検証済みimage読戻しからライセンス原文をlicenses/へ取り出し、日英索引を付けます。plumOS MITのLICENSE・THIRD_PARTY_NOTICES.md・個別原文をbundle checksumに含めます。

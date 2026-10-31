@@ -2,8 +2,11 @@
 set -euo pipefail
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-version=${1:-0.1.0-rc1}
-image=${2:-$repo_root/output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-rc1-full-stack-validation.img}
+version=${1:-$(cat "$repo_root/VERSION")}
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+    echo 'formal release version must be MAJOR.MINOR.PATCH' >&2; exit 2;
+}
+image=${2:-$repo_root/output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-$version-full-stack-validation.img}
 source_notes=$repo_root/docs/releases/$version.md
 source_manifest=${image%/*}/image.manifest
 acceptance_manifest=${3:-$repo_root/docs/validation/$version-mini-plus-device-acceptance.env}
@@ -44,6 +47,7 @@ actual_image_sha=$(shasum -a 256 "$image" | awk '{print $1}')
 image_source_ref=$(awk -F= '$1 == "source_ref" {print $2}' "$source_manifest")
 [ -n "$image_source_ref" ] || { echo 'image manifest has no source_ref' >&2; exit 1; }
 grep -q '^publishable=no$' "$source_manifest"
+grep -Fxq "version=$version" "$source_manifest"
 grep -q '^format=plumos-mini-plus-device-acceptance-v1$' "$acceptance_manifest"
 grep -q "^image_sha256=$actual_image_sha$" "$acceptance_manifest"
 grep -q '^full_image_boot=yes$' "$acceptance_manifest"
@@ -67,6 +71,18 @@ ln "$image" "$stage_dir/$raw_name"
 
 "$repo_root/scripts/verify-mini-plus-frontend-probe-image.sh" "$image" \
     >"$stage_dir/plumos-mini-plus-v$version-image-verify.txt" 2>&1
+
+# Export originals from the verifier's image readback, not a possibly newer
+# host Runtime cache. These directories were checked against the exact image.
+verified=$repo_root/work/mini-plus-frontend-probe-verify
+grep -Fxq "$version" "$verified/app-layer/plumos/VERSION"
+grep -Fxq "VERSION_ID=\"$version\"" "$verified/system-root/etc/os-release"
+python3 "$repo_root/scripts/export-mini-plus-release-licenses.py" \
+    --runtime-licenses "$verified/app-layer/plumos/licenses" \
+    --system-licenses "$verified/system-root/usr/share/licenses" \
+    --output "$stage_dir/licenses"
+cp "$repo_root/LICENSE" "$stage_dir/LICENSE"
+cp "$repo_root/THIRD_PARTY_NOTICES.md" "$stage_dir/THIRD_PARTY_NOTICES.md"
 
 (cd "$stage_dir" && "$seven_zip" a -t7z -mx=9 -mmt=on "$archive_name" "$raw_name")
 rm -f "$stage_dir/$raw_name"
@@ -103,11 +119,15 @@ printf '%s  %s\n' "$archive_sha" "$archive_name" \
     >"$stage_dir/$archive_name.sha256"
 (cd "$stage_dir" && shasum -a 256 \
     RELEASE_NOTES.md \
+    LICENSE \
+    THIRD_PARTY_NOTICES.md \
     manifest.txt \
     "plumos-mini-plus-v$version-image-build-manifest.txt" \
     "plumos-mini-plus-v$version-image-verify.txt" \
     "$archive_name" \
     "$archive_name.sha256" >SHA256SUMS)
+(cd "$stage_dir" && find licenses -type f -print | LC_ALL=C sort | \
+    while IFS= read -r notice; do shasum -a 256 "$notice"; done >>SHA256SUMS)
 (cd "$stage_dir" && shasum -a 256 -c SHA256SUMS >/dev/null)
 
 mv "$stage_dir" "$release_dir"

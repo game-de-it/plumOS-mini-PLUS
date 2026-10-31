@@ -10,6 +10,8 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 ## 完了
 
+- [x] `MPLUS-REL-META-01` 正式版をVERSIONの0.1.0へ固定し、full-image wrapperから全子buildへ伝播させた。Bubble形式の配布名plumos-mini-plus-v0.1.0-sd-image.img/.7z、日英リリースノート、plumOS MITと第三者別条件の表示を整備。release packagerはexact-image読戻しのSystem/Runtime版を確認し、各ライセンス原文と日英索引を収録・checksum対象化する。版伝播・原文保持testと214原文のpreview exportは合格。最終image生成・実機受入・公開はMPLUS-REL-01で未完了のまま扱う。
+
 - [x] `MPLUS-DOC-01` 他8機種のuser/developer項目を照合し、mini PLUSの利用者12項目・開発者14項目を日英対で整備した。READMEへmetadata除去済み本体写真と実機Text/Graphic/Gallery画像を掲載し、START右上メニューキー・runtime別終了・RA撮影メニュー・輝度操作・SFTP個別有効化・保存先・System A/Bを現行実装へ修正した。言語対・内部リンク・画像寸法/metadata・対応表生成・物理入力contractの検証を通過。最終image生成・公開は含めない（`docs/validation/2026-10-31-mini-plus-documentation-audit.ja.md`）。
 
 - [x] `MPLUS-P0-01` stockOS SDを`/dev/disk5`（Secure Digital、124383133696 bytes）として識別した。

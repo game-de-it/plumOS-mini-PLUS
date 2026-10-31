@@ -2,6 +2,9 @@
 
 [日本語](README.ja.md) | English
 
+Formal version: **0.1.0**. [Bilingual release notes](docs/releases/0.1.0.md).
+Distribution names: `plumos-mini-plus-v0.1.0-sd-image.img` / `.7z`, following Bubble. Final-image acceptance/publication is pending.
+
 plumOS for **GKD mini PLUS (RK3566 / ARM64, 640×480)**, based on plumOS-Bubble. The handheld has four function keys and no analog sticks.
 
 <p align="center"><img src="docs/images/gkd-mini-plus.jpg" alt="GKD mini PLUS running plumOS" width="640"></p>
@@ -65,7 +68,7 @@ With the documented toolchain and approved vendor inputs:
 ./scripts/build-mini-plus-full-image.sh
 ```
 
-The default raw image is `output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-validation.img`. The seed is about 2.90 GB; first boot grows managed storage to 8 GiB and creates the user partition. Use a 16 GB or larger card. See the [build guide](docs/developer/build.md) for versioning, verification and prerequisites. Compression is a separate release step.
+The default raw image is `output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-full-stack-validation.img`. The seed is about 2.90 GB; first boot grows managed storage to 8 GiB and creates the user partition. Use a 16 GB or larger card. See the [build guide](docs/developer/build.md) for versioning, verification and prerequisites. Compression is a separate release step.
 
 ## License
 

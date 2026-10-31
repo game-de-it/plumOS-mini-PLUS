@@ -6,6 +6,8 @@ set -eu
 # bring-up evidence. The canonical full build is the measured three-partition
 # seed with System A/B and first-boot p4 provisioning.
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+PLUMOS_MINI_PLUS_VERSION=${PLUMOS_MINI_PLUS_VERSION:-$(cat "$repo_root/VERSION")}
+export PLUMOS_MINI_PLUS_VERSION
 
 case "${1:-}" in
     '') ;;

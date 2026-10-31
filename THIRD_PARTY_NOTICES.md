@@ -5,6 +5,18 @@ documentation unless a file or component states otherwise. It does not
 relicense vendor firmware, proprietary binaries, third-party libraries,
 emulators, fonts, firmware or other separately authored material.
 
+**plumOS license: MIT.** Bundled components retain their own licenses. Release
+bundles include `LICENSE`, this notice and `licenses/README.md`, a bilingual
+index linking every exported Runtime/System license original. Original texts,
+including per-core notices, are authoritative; GPL/LGPL, BSD, MIT, zlib,
+project-specific and proprietary terms must not be replaced by one umbrella
+MIT label.
+
+**plumOSのライセンスはMITです。** 同梱componentは各自のライセンスに従います。
+配布物には`LICENSE`、本書、Runtime/System別の原文と日英索引
+`licenses/README.md`を含めます。core別の条件を含む原文を参照し、第三者部分まで
+一括してMITとして扱わないでください。
+
 ## GKD stockOS-derived material
 
 plumOS-mini-PLUS was initially developed with reference to the publicly available
@@ -38,4 +50,4 @@ See `docs/licenses/drastic-upstream-NOTICE.txt` for the complete project policy.
 
 Other packaged components retain their upstream licenses. The generated System
 and app-layer place the applicable license and notice material under
-`/usr/share/licenses` and `/mnt/plumos/licenses` respectively.
+`/usr/share/licenses` and `/storage/plumos/licenses` respectively.

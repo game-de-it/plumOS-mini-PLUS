@@ -12,12 +12,12 @@
 #include <unistd.h>
 #include <drm.h>
 
-static int operate_via_broker(pid_t pid, int set_master) {
+static int operate_via_broker(pid_t pid, const char *operation) {
   const char *runtime_root = getenv("PLUMOS_RUNTIME_ROOT");
   char socket_path[sizeof(((struct sockaddr_un *)0)->sun_path)];
   char status_path[64];
   char status[512];
-  char request[8];
+  char request[16];
   struct sockaddr_un address;
   int attempts;
 
@@ -41,8 +41,7 @@ static int operate_via_broker(pid_t pid, int set_master) {
                  socket_path);
         if (connect(socket_fd, (struct sockaddr *)&address,
                     sizeof(address)) == 0) {
-          snprintf(request, sizeof(request), "%s\n",
-                   set_master ? "set" : "drop");
+          snprintf(request, sizeof(request), "%s\n", operation);
           if (write(socket_fd, request, strlen(request)) ==
               (ssize_t)strlen(request)) {
             length = read(socket_fd, status, sizeof(status) - 1);
@@ -135,10 +134,12 @@ int main(int argc, char **argv) {
   char *end;
   long pid_value;
   int set_master;
+  const char *operation;
 
   if (argc != 3 ||
-      (strcmp(argv[1], "drop") != 0 && strcmp(argv[1], "set") != 0)) {
-    fprintf(stderr, "usage: %s drop|set PID\n", argv[0]);
+      (strcmp(argv[1], "save") != 0 && strcmp(argv[1], "drop") != 0 &&
+       strcmp(argv[1], "set") != 0 && strcmp(argv[1], "restore") != 0)) {
+    fprintf(stderr, "usage: %s save|drop|set|restore PID\n", argv[0]);
     return 2;
   }
   errno = 0;
@@ -147,9 +148,13 @@ int main(int argc, char **argv) {
     fprintf(stderr, "invalid PID: %s\n", argv[2]);
     return 2;
   }
-  set_master = strcmp(argv[1], "set") == 0;
-  if (operate_via_broker((pid_t)pid_value, set_master) == 0) {
+  operation = argv[1];
+  set_master = strcmp(operation, "set") == 0;
+  if (operate_via_broker((pid_t)pid_value, operation) == 0) {
     return 0;
+  }
+  if (strcmp(operation, "save") == 0 || strcmp(operation, "restore") == 0) {
+    return 1;
   }
   return operate_on_pid((pid_t)pid_value, set_master);
 }

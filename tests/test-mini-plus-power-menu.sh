@@ -139,9 +139,39 @@ wait "$state_pid" 2>/dev/null || true
 wait "$quiesce_pid"
 grep -q 'label=state-owner.*signal=TERM' "$tmp/state.log"
 
+# Sleep handoff must snapshot scanout before dropping the runtime's master,
+# then restore output/planes before the stopped runtime is continued.
+cat >"$root/bin/fake-drm-master" <<'EOF'
+#!/bin/sh
+printf '%s:%s\n' "$1" "$2" >>"${TEST_DRM_TRACE:?}"
+EOF
+chmod 0755 "$root/bin/fake-drm-master"
+/bin/busybox sleep 30 &
+display_pid=$!
+TEST_DRM_TRACE=$tmp/drm.trace PLUMOS_DISPLAY_OWNER_PIDS=$display_pid \
+PLUMOS_DRM_MASTER_HELPER=$root/bin/fake-drm-master \
+    "$root/bin/plumos-runtime-quiesce" hold "$tmp/display.state" 1
+grep -qx "pid=$display_pid" "$tmp/display.state"
+grep -qx "master=$display_pid" "$tmp/display.state"
+grep -qx "display=$display_pid" "$tmp/display.state"
+TEST_DRM_TRACE=$tmp/drm.trace \
+PLUMOS_DRM_MASTER_HELPER=$root/bin/fake-drm-master \
+    "$root/bin/plumos-runtime-quiesce" release "$tmp/display.state" \
+    >"$tmp/display-release.log"
+kill "$display_pid" 2>/dev/null || true
+wait "$display_pid" 2>/dev/null || true
+printf 'save:%s\ndrop:%s\nset:%s\nrestore:%s\n' \
+    "$display_pid" "$display_pid" "$display_pid" "$display_pid" \
+    >"$tmp/drm.expected"
+cmp "$tmp/drm.expected" "$tmp/drm.trace"
+grep -qx "runtime_quiesce=display-restored pid=$display_pid" \
+    "$tmp/display-release.log"
+
 grep -Fq '/dev/fb0|/dev/dri/*|/dev/mali*|/dev/disp' "$quiesce"
 grep -Fq '"$DRM_MASTER" drop "$pid"' "$quiesce"
 grep -Fq '"$DRM_MASTER" set "$pid"' "$quiesce"
+grep -Fq '"$DRM_MASTER" save "$pid"' "$quiesce"
+grep -Fq '"$DRM_MASTER" restore "$pid"' "$quiesce"
 grep -q 'src/services/plumos_drm_master.c' "$build"
 grep -q 'plumos-power-menu-overlay' "$build"
 grep -q 'terminal_transition_policy.*block-replacement-frontend-until-pid1-handoff' \
@@ -152,6 +182,9 @@ grep -q 'plumos-drm-broker-run' "$frontend"
 grep -q 'libplumos-drm-share.so' "$frontend"
 grep -q 'SCM_RIGHTS' "$drm_share"
 grep -q 'DRM_IOCTL_DROP_MASTER' "$drm_broker"
+grep -q 'snapshot_display' "$drm_broker"
+grep -q 'restore_display' "$drm_broker"
+grep -q 'DRM_MODE_DPMS_ON' "$drm_broker"
 grep -q 'drm-handoff' "$drm_master"
 grep -q 'plumos-drm-brok' "$quiesce"
 grep -q 'drmModeGetPlaneResources' \

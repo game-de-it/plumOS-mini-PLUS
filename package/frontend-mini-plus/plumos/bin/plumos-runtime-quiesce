@@ -44,9 +44,16 @@ hold_runtime() {
         [ "$pid" != "${PPID:-}" ] || continue
         if kill -0 "$pid" 2>/dev/null && kill -STOP "$pid" 2>/dev/null; then
             printf 'pid=%s\n' "$pid" >>"$temporary"
-            if [ "$drop_drm" = 1 ] && [ -x "$DRM_MASTER" ] &&
-               "$DRM_MASTER" drop "$pid" 2>/dev/null; then
-                printf 'master=%s\n' "$pid" >>"$temporary"
+            if [ "$drop_drm" = 1 ] && [ -x "$DRM_MASTER" ]; then
+                display_saved=0
+                if "$DRM_MASTER" save "$pid" 2>/dev/null; then
+                    display_saved=1
+                fi
+                if "$DRM_MASTER" drop "$pid" 2>/dev/null; then
+                    printf 'master=%s\n' "$pid" >>"$temporary"
+                    [ "$display_saved" -eq 0 ] ||
+                        printf 'display=%s\n' "$pid" >>"$temporary"
+                fi
             fi
         fi
     done
@@ -62,6 +69,21 @@ release_runtime() {
                 pid=${line#master=}
                 is_pid "$pid" && [ -x "$DRM_MASTER" ] &&
                     "$DRM_MASTER" set "$pid" 2>/dev/null || true
+                ;;
+        esac
+    done <"$state"
+    while IFS= read -r line; do
+        case $line in
+            display=*)
+                pid=${line#display=}
+                if is_pid "$pid" && [ -x "$DRM_MASTER" ]; then
+                    if "$DRM_MASTER" restore "$pid" 2>/dev/null; then
+                        printf 'runtime_quiesce=display-restored pid=%s\n' "$pid"
+                    else
+                        printf 'runtime_quiesce=display-restore-failed pid=%s\n' \
+                            "$pid" >&2
+                    fi
+                fi
                 ;;
         esac
     done <"$state"

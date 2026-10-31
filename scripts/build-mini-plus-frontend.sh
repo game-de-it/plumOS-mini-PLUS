@@ -70,7 +70,7 @@ gcc "${common[@]}" src/services/plumos_miniplus_volume_keys.c \
 gcc "${common[@]}" $drm_cflags src/services/plumos_drm_master.c \
     -o "$bin/plumos-drm-master"
 gcc "${common[@]}" $drm_cflags src/services/plumos_drm_broker_run.c \
-    -o "$bin/plumos-drm-broker-run"
+    -o "$bin/plumos-drm-broker-run" $drm_libs
 gcc "${common[@]}" -fPIC -shared src/services/plumos_drm_share.c \
     -o "$lib/libplumos-drm-share.so" -ldl
 for name in plumos_library_scan plumos_text_ui plumos_frontend; do
@@ -247,7 +247,8 @@ cat >"$component/manifest.json" <<EOF
     "drm_handoff": "scm-rights-broker",
     "drm_broker": "bin/plumos-drm-broker-run",
     "drm_share": "frontend/lib/libplumos-drm-share.so",
-    "drm_control": "bin/plumos-drm-master"
+    "drm_control": "bin/plumos-drm-master",
+    "drm_resume_restore": "saved-crtc-dpms-and-exact-active-planes-before-sigcont"
   },
   "gamegear_lcd_shader_policy": {
     "launcher": "bin/plumos-retroarch-launch",

@@ -41,7 +41,7 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 - [ ] `MPLUS-HW-01` 空のテスト用SDへ候補を書き、cold bootとU-Boot stage `S10`〜`S19`を確認する。
 - [x] `MPLUS-HW-02` full-stack候補でinitramfs `S21`〜`S29`の成功、SYSTEM `S40_FRONTEND_SUPERVISOR_READY`、frontend/LCD到達を実機確認した。
-- [ ] `MPLUS-HW-05` SD整合性、ゲーム中Reboot、ゲーム中Shutdownはユーザー確認済み。USB給電を外すとdeep suspend/resumeも成立し、音声とゲームprocessは継続したが、復帰後はprimary planeだけとなり画面が黒かった。ゲーム自身のbrokered DRM fdへCRTC/DPMS/全active planeを保存し、DRM master再取得後・SIGCONT前に復元するsource `62fe884`を実機へ配備した。残る物理gateは新規ゲームprocessでのSleep復帰表示・操作・音声と、USB給電中のsleep policyである。
+- [ ] `MPLUS-HW-05` SD整合性、ゲーム中Reboot/Shutdown、`62fe884`適用後のbattery-only Sleep復帰はユーザー確認済み。USB接続時はstock kernelの`state_store()`が充電中/満充電を一律EBUSYで拒否していた。認識済みkernelの4-byte分岐だけをNOP化した`Image-usb-sleep`を可逆配備し、USB接続中12秒SleepとRTC復帰、Wi-Fi/SSH/FEの復帰を確認した。残る物理gateはUSB接続中の通常power menu→電源キー復帰とゲーム画面/操作/音声、および候補kernelの通常image builder統合である（`docs/validation/2026-10-31-mini-plus-usb-sleep.md`）。
 
 ## 未解決
 

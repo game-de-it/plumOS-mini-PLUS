@@ -70,6 +70,17 @@ PicoArch manifest/build scriptとinput mapにはdual analog/stickの古い説明
 - 実際のport22 SFTP接続に成功し、初期directoryは`/storage`。
 - `/storage/user`のRoms/BIOS等のdirectory一覧取得に成功。
 
-SD2なしSFTPの接続・一覧取得は合格。今回upload/downloadのreadback試験や、
-SD2再挿入後の再認識まで確認したという意味ではない。codeや実機managed fileの
+この時点ではSD2なしSFTPの接続・一覧取得を合格とした。codeや実機managed fileの
 変更は不要だった。
+
+## SD1 fallbackとSD2再挿入の実機合格
+
+続いてユーザーが以下を報告した。
+
+1. SFTP接続は正常。
+2. SD2を抜いた状態で、SD1へNES ROMを追加してプレイ可能。
+3. シャットダウン後にSD2を挿入し、起動後にSD2のゲームもプレイ可能。
+
+これによりSD1へのcontent追加・FEからのNES起動、および電源OFFを挟んだ
+SD2再挿入後の通常利用を実機合格とする。通電中のhotplug、転送fileのbyte/hash
+readback、未試験runtimeへの一般化はこの報告の範囲に含めない。

@@ -1,5 +1,7 @@
 # Troubleshooting
 
+[日本語](troubleshooting.ja.md) | [Manual](README.md)
+
 ## A game is missing
 
 1. Check its folder and extension in the [supported systems table](supported-systems.md).
@@ -12,7 +14,7 @@
 - For discs, check BIOS files and every path referenced by `.cue` or `.m3u`.
 - Match arcade ROM-set versions to the selected core.
 - Press `SELECT` on the game and try another available core.
-- Try Function 1 (front face) to open the emulator menu.
+- Try the round key above-right of START to open the emulator menu.
 - Use the power menu to exit or reboot. Never start an FE and emulator together
   from SSH.
 
@@ -35,6 +37,17 @@ repair or hardware failure is suspected, back up important files first.
 
 After reboot, enable Wi-Fi and check the IP and clock. Rescan if the SSID is
 missing, and check router distance and band. Logs are under `plumos/logs/` on SD1.
+
+## File transfer and game controls
+
+If SSH works but SFTP fails, enable SFTP separately in network services settings.
+SD2 is optional. See [network destinations](network.md) for the shared root and
+explicit SD1 paths.
+
+For game exit/screenshots, see [runtime-specific controls](emulators.md).
+RetroArch may ask you to repeat SELECT + START to confirm quitting. Close
+Content does not quit RA. Use Quick Menu → Take Screenshot; the separate
+screenshot FN's physical position is unconfirmed.
 
 ## Forced power-off
 

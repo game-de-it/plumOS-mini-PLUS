@@ -1,65 +1,46 @@
-# plumOS mini PLUS Runtime update contract
+# plumOS mini PLUS Runtime / System update contract
 
-mini PLUS's START > System Settings > System Update route installs signed Runtime
-packages without overwriting user-owned state.
+[日本語](plumos-mini-plus-runtime-update.ja.md) | [Developer guide](developer/README.md)
 
-## Package and request
+The START → System Settings → System Update route supports signed Runtime and System packages. Both verify Ed25519 signatures over canonical META/manifest.json, payload hashes, device, architecture, vendor-runtime and ABI. Comparable SemVer is required; equal/older targets are rejected. Inbox: /storage/user/updates. Target: gkd-mini-plus, aarch64, mini-plus-stockos-r1.
 
-- Package name: `plumos-mini-plus-runtime-<version>.tar.gz`
-- Inbox: `/storage/user/updates`
-- Target: `gkd-mini-plus`, `aarch64`, vendor runtime `mini-plus-stockos-r1`
-- Signature: Ed25519 over canonical `META/manifest.json`
-- Compatibility: installed source version, system ABI and runtime ABI must match
-- Version order: comparable SemVer only; an equal or older target is rejected before a request is recorded
-- The frontend action verifies and records the newest compatible package before
-  invoking the normal safe reboot helper. It does not copy arbitrary files.
+## Building packages
 
-Build a signed package with:
+Runtime input is an assembled plumos directory whose VERSION matches the target. Use the previous Runtime directory for a delta; omit --base-dir for a full Runtime payload.
 
 ```sh
-./scripts/build-mini-plus-update-package.py \
-  --type runtime \
-  --input output/app-layer/mini-plus/plumos \
+python3 scripts/build-mini-plus-update-package.py \
+  --type runtime --input /path/to/new/plumos \
   --base-dir /path/to/previous/plumos \
-  --version <new-version> \
-  --base-version <installed-version> \
-  --signing-key /secure/path/plumos-mini-plus-ed25519-private.pem
+  --version <new-version> --base-version <installed-version> \
+  --signing-key /secure/path/private-key.pem
 ```
 
-The private key is never part of the app layer or update archive. Unsigned
-development archives require an explicit updater environment override and are
-rejected by the normal START route.
+System input is a SquashFS file:
 
-## Transaction and rollback
+```sh
+python3 scripts/build-mini-plus-update-package.py \
+  --type system --input /path/to/SYSTEM \
+  --version <new-version> --base-version <installed-version> \
+  --signing-key /secure/path/private-key.pem
+```
 
-At early frontend startup, before network services and library scanning, the
-updater:
+Output is dist/plumos-mini-plus-{runtime|system}-<version>.tar.gz plus a SHA-256 sidecar. Keep the signing key outside source, images and archives. The normal FE route rejects unsigned development packages.
 
-1. re-verifies package hash, signature, target and compatibility;
-2. extracts and hashes every declared file in a private staging directory;
-3. records the complete operation journal before changing the live Runtime;
-4. moves each old managed file to `/storage/plumos/backups/update-previous` and
-   atomically installs the staged replacement, with metadata installed last;
-5. starts the frontend and waits for its DRM renderer-ready proof;
-6. marks the Runtime healthy only after that proof.
+## Runtime transaction
 
-If power is lost during the transaction, or another boot begins before the
-renderer-ready proof, the journal restores every replaced/deleted file and
-removes every newly added file. A failed request or signature never changes the
-live Runtime.
+Before ordinary frontend startup, reverify the request/package, stage and hash all payload files, journal the complete operation, retain previous managed files under /storage/plumos/backups/update-previous, and atomically install replacements with metadata last. Renderer-ready proof marks startup healthy. An interrupted/unhealthy transaction restores changed/deleted files and removes newly added files on recovery.
 
-## Ownership boundary
+Managed payloads include executables, cores, themes, fonts, static catalogs and factory defaults. Active settings, saves, states, logs, ROMs, BIOS, Wi-Fi credentials, keys, downloaded ports and PortMaster installed-state data remain user-owned.
 
-The updater owns packaged executables, emulator/core payloads, themes, fonts,
-factory defaults, static frontend catalogs and standalone defaults. It does not
-manage active frontend/system/RetroArch settings, saves, states, logs, ROMs,
-BIOS, Wi-Fi credentials, keys, downloaded PortMaster content, or PortMaster's
-installed-state record.
+## System A/B transaction
 
-Bootloader, kernel, DTB, kernel modules and the stock System image are not
-Runtime files. They remain full-image updates until mini PLUS's matching-set A/B
-System layout and recovery acceptance are completed; Runtime packages cannot
-write `/flash`.
+The compatible boot contract is p1-slot-policy-trial-v1. The updater writes the inactive p1 System slot, verifies complete readback, then records a pending trial. The next boot tries it; frontend health commits it. Failed trials roll back on a following boot; a known healthy slot can also recover from active-slot failure.
 
-mini PLUS follows the other plumOS series by shipping those immutable boot files as
-a verified full SD image rather than adding a mini PLUS-only online boot updater.
+System packages replace the read-only SquashFS only. They do not replace bootloader/prefix, kernel, DTB, overlays, external initramfs or p2 matching bundle. Changes to those require a matching full SD image. Older incompatible boot implementations reject System updates.
+
+## Power and evidence
+
+The FE verifies/selects a compatible package and invokes the normal safe-reboot path. Never force reboot after writer-stop or read-only conversion fails. Never overwrite an in-use active System file.
+
+Runtime and System recovery device evidence is recorded in [pre-release work](validation/2026-10-31-mini-plus-pre-release-work.md) (Japanese original). Passing recovery on a development card does not accept a newly generated release image. See [release gates](developer/release-process.md) and [user update steps](user/updates.md).

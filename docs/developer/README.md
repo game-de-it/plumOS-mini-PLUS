@@ -1,129 +1,39 @@
 # plumOS mini PLUS Developer Guide
 
-This guide covers builds, changes, validation and release preparation for the
-GKD mini PLUS port. End-user operation is kept in the [user manual](../user/README.md).
+[日本語](README.ja.md) | [User manual](../user/README.md)
 
-## Repository boundaries
+Implementation, validation and recovery have progressed; final-image generation, exact-hash acceptance and publication remain separate. Check [validation](validation.md) and [TODO](../../TODO.md).
 
-- `rootfs/mini-plus-frontend/`: read-only System rootfs overlay
-- `package/frontend-mini-plus/`: frontend, launchers, services and factory defaults
-- `configs/mini-plus-controller-map.json`: canonical physical input map
-- `configs/mini-plus-runtime-coverage.tsv`: runtime coverage and publication state
-- `scripts/build-mini-plus-frontend-system.sh`: System build
-- `scripts/build-mini-plus-external-initramfs.sh`: external initramfs build
-- `scripts/build-mini-plus-app-layer.sh`: managed app-layer build
-- `scripts/build-mini-plus-frontend-probe-image.sh`: full raw image and integration gates
-- `tests/`: contract, content, runtime and image verification
-- `docs/validation/`: host/device evidence; never rewrite inference as observation
-- `docs/decisions/`: product and release-boundary decisions
+## Topics
 
-`package/frontend-mini-plus/plumos/config/frontend/systems.json` is the source of
-truth for visible systems, ROM aliases, extensions and launch profiles. Regenerate
-the user tables with:
+- [Architecture](architecture.md)
+- [Build and reproducibility](build.md)
+- [Runtime and live deployment](runtime.md)
+- [Frontend and emulator lifecycle](frontend-emulators.md)
+- [Audio routing](audio-routing.md)
+- [Hardware services](hardware-services.md)
+- [Storage and update boundaries](storage-and-updates.md)
+- [Validation and implementation status](validation.md)
+- [Application integration](apps.md)
+- [Libretro cores and catalog](libretro-cores.md)
+- [Network services](network-services.md)
+- [Manual deployment and recovery](manual-updates.md)
+- [Release process](release-process.md)
 
-```sh
-python3 scripts/generate-mini-plus-supported-systems-doc.py
-python3 scripts/generate-mini-plus-supported-systems-doc.py --check
-```
+## Sources and ownership
 
-Do not hide incomplete ports by deleting catalog entries. Provide a route or a
-machine-readable, device-specific unsupported state in coverage and the FE.
+- rootfs/mini-plus-frontend/: read-only System overlay
+- package/frontend-mini-plus/: FE, launchers, services and factory defaults
+- configs/input/mini-plus-controller-map.json: input map
+- package/frontend-mini-plus/plumos/config/frontend/runtime-coverage.json: route coverage
+- configs/mini-plus-runtime-validation.json: device-validation ledger
+- scripts/: build/verification; tests/: contracts
+- docs/validation/: original evidence; docs/decisions/: recorded decisions
 
-## Ownership
+Managed Runtime is /storage/plumos; user media is /storage/user. User settings and saves also live within the managed partition: directory membership alone does not make a file managed. The menu key is the round key above-right of START; the screenshot FN's location is unconfirmed.
 
-| Area | Ownership |
-| --- | --- |
-| Boot, vendor kernel, approved firmware | Vendor-derived; pinned by hash and NOTICE |
-| System | Read-only matching set and A/B update target |
-| `/mnt/plumos` app layer | Managed by manifests and `checksums.sha256` |
-| `/storage` | User-owned ROMs, BIOS, saves and settings |
-| SD2 | Optional ROM/BIOS source; no powered hot-plug support |
+Keep common FE/catalog entries and explicit unsupported reasons. Never render an FE and another renderer concurrently; SIGSTOP alone is not display release.
 
-Never overwrite user settings or PortMaster downloads merely to make them match
-host app-layer metadata.
+Bubble reference evidence is not mini PLUS acceptance. Keep [the Bubble original](../reference/bubble/validation/2026-09-11-bubble-release-final-device-check.md) distinct from mini PLUS evidence.
 
-## Build
-
-With the tool image and approved vendor inputs available, run:
-
-```sh
-PLUMOS_MINI_PLUS_VERSION=<version> \
-PLUMOS_MINI_PLUS_INCLUDE_CAPTURED_VENDOR_GPU=1 \
-./scripts/build-mini-plus-frontend-probe-image.sh
-```
-
-The top-level path rebuilds System, initramfs and app layer before creating the
-raw image under `output/image/mini-plus-frontend-probe/`. Output is not tracked.
-For reproducible builds, record the clean-clone commit, `SOURCE_DATE_EPOCH` and
-artifact SHA-256.
-
-## Frontend and emulator lifecycle
-
-Launch games through the normal frontend route. Launchers make the FE release
-display, input and audio, supervise the child process group, and restore exactly
-one FE after exit.
-
-Never let an FE and emulator or diagnostic renderer draw to `/dev/fb0` or
-`/dev/dri/card*` concurrently. `SIGSTOP` is not display release. This is a hard
-boundary against flicker and LCD image retention.
-
-For live `/mnt/plumos` deployment, update a whole component with its binary,
-manifest and checksum, then verify the on-device SHA-256 and app-layer checksum
-before rebooting.
-
-## Input contract
-
-- Function 1: evdev 704 / js17, front face, emulator menu
-- Function 2: evdev 316 / js10, top edge, RetroArch screenshot
-- SELECT: js8
-- START: js9
-- RetroArch exit: SELECT + START
-
-After input changes, at minimum run:
-
-```sh
-sh tests/test-mini-plus-physical-input-contract.sh
-sh tests/test-mini-plus-start-menu-contract.sh
-```
-
-## Main validation
-
-```sh
-python3 tests/test-mini-plus-supported-systems-doc.py
-python3 tests/test-mini-plus-documentation.py
-sh tests/test-mini-plus-runtime-coverage.sh
-sh tests/test-mini-plus-release-content-audit.sh
-python3 scripts/verify-mini-plus-frontend-probe-image.py \
-  output/image/mini-plus-frontend-probe/<image>.img
-```
-
-A passing component test is not release acceptance. Tie a new-card write/readback,
-cold boots, warm reboot, Wi-Fi, shutdown, sleep, audio, SD2, representative
-runtimes and rollback to the exact commit and image hash.
-
-## Updates
-
-See the [runtime update design](../plumos-mini-plus-runtime-update.md). Signature,
-device, base version and payload checks fail closed; same-version installs and
-downgrades are rejected. Never force reboot/shutdown after writer-stop or
-read-only conversion fails.
-
-## Licensing and publication
-
-plumOS-owned work is MIT. StockOS-derived material remains GKD property, while
-vendor runtimes and DraStic follow the repository NOTICE and allowlist policy.
-Keep legal notices, provenance, binary inventory and ROM/BIOS/credential/private
-key scans with every release artifact.
-
-Artifact generation and publication are separate. Do not create a GitHub release
-until the user has accepted the candidate and explicitly approved publication.
-After publishing, anonymously download the assets and verify the public hashes.
-
-## Bubble reference evidence (not mini-PLUS acceptance)
-
-The Bubble RC passed a fresh write, readback, first-boot provisioning, Saturn,
-Wi-Fi, managed checksums and three cold boots. None of that physical evidence
-is inherited by the mini-PLUS port.
-
-See the preserved [Bubble final device check](../reference/bubble/validation/2026-09-11-bubble-release-final-device-check.md)
-and [Bubble release-candidate verification](../reference/bubble/validation/2026-09-11-bubble-release-candidate-image.md).
+Before implementation/troubleshooting, read the [series port/problem guide (Japanese original)](../../plumOS_gitlog_problem_solution_guide.ja.md). Respect the [third-party notices](../../THIRD_PARTY_NOTICES.md).

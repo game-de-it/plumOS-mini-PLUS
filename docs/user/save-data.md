@@ -1,26 +1,20 @@
-# BIOS, saves, states and screenshots
+# BIOS, saves and screenshots
 
-Put BIOS files you are legally entitled to use in `BIOS/`. SD2's root `BIOS/`
-is active when SD2 is present; otherwise SD1's `BIOS/` is used.
+[日本語](save-data.ja.md) | [Manual](README.md)
 
-Disc systems such as Sega CD, Saturn, PlayStation, PC Engine CD, Neo Geo CD and
-PC-FX, plus some computer and arcade systems, require the correct BIOS or ROM
-set. A recognized extension does not imply BIOS-free or universal compatibility.
+Supply BIOS files you are entitled to use in the active card's BIOS directory: SD2 `bios/` when present, otherwise SD1 `BIOS/`. Disc/computer/arcade systems may need specific BIOS and content versions. A recognized extension does not guarantee compatibility.
 
 | Data | Device path |
 | --- | --- |
-| RetroArch saves | `/storage/plumos/saves/` |
-| RetroArch save states | `/storage/plumos/states/` |
-| Screenshots | `/storage/Images/` (`Images/` on the FAT32 volume) |
-| Settings | `/storage/plumos/config/` |
-| Logs | `/storage/plumos/logs/` |
+| RetroArch saves / states | /storage/plumos/saves/ · /storage/plumos/states/ |
+| Settings / logs | /storage/plumos/config/ · /storage/plumos/logs/ |
+| RetroArch screenshots | /storage/Images/ |
+| Frontend screenshots | /storage/Screenshots/ |
+| Standalone settings | /storage/plumos/config/standalone/ |
+| PPSSPP state directory | /storage/plumos/state/standalone/ppsspp/ |
 
-Standalone emulators and ports may use runtime-specific locations. Saves,
-states, settings and logs live on the device-managed partition, not the FAT32
-volume shown when SYS is inserted in a computer. Back them up over SFTP or
-Samba. Updates are designed to preserve them.
+The screenshot folders are on the FAT user volume. Saves/settings are on SD1's managed partition; back up over [SFTP/Samba](network.md), preserving directory structure. Other standalone emulators and ports use their own locations: include the relevant runtime and downloaded-port directories in backups.
 
-The factory Game Gear shader is
-`/storage/plumos/config/shaders/gamegear-lcd.glslp`.
-The B3 profile models the SEGA STN panel's colour, non-square pixels, vertical
-RGB structure, horizontal CCFL and asymmetric response. Back it up before edits.
+Save normally in-game and quit cleanly before copying files. Save states are often core/version-specific: keep the same core and version when restoring, and retain normal in-game saves too. A successful Gambatte test does not establish state compatibility for every core.
+
+The Game Gear shader is `/storage/plumos/config/shaders/gamegear-lcd.glslp`. Back up custom changes. For menu-based screenshots, state shortcuts and exit methods, use the [emulator reference](emulators.md).

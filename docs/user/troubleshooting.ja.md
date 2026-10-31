@@ -1,5 +1,7 @@
 # 問題が起きたとき
 
+[English](troubleshooting.md) | [マニュアル](README.ja.md)
+
 ## ゲームが一覧にない
 
 1. [対応システム一覧](supported-systems.ja.md)でフォルダ名と拡張子を確認します。
@@ -12,7 +14,7 @@
 - disc systemはBIOS、`.cue`のtrack参照、`.m3u`のpathを確認します。
 - arcadeはcoreとROM setのversionを合わせます。
 - ゲーム選択中の`SELECT`から別coreを試します。
-- Function 1（本体前面）でエミュレータメニューが出るか確認します。
+- STARTの右上の丸いキーでエミュレータメニューが出るか確認します。
 - 電源メニューで終了／再起動します。FEとエミュレータをSSHから同時起動しないでください。
 
 複数の描画processが同時に画面を所有すると点滅やimage retentionの原因になります。
@@ -34,6 +36,15 @@ mechanical failureが疑われる場合は、先にimageまたは重要fileをba
 
 再起動後にWi-FiをONにし、IPと時刻を確認します。SSIDが見えなければscanをやり直し、
 routerとの距離とbandを確認します。診断ログはSD1の`plumos/logs/`にあります。
+
+## 転送・ゲーム操作の確認
+
+SSHは接続できるのにSFTPが失敗する場合は、ネットワークのサービス設定でSFTPを個別にONにします。
+SD2は不要です。[共有ルートとSD1明示パス](network.ja.md)も確認してください。
+
+ゲーム終了・撮影には[runtime別操作](emulators.ja.md)を参照してください。RAは終了確認に
+SELECT + STARTの繰り返しが必要な場合があります。Close ContentではRA自体は終了しません。
+撮影はQuick Menu → Take Screenshotを使います。撮影専用FNの物理位置は未確認です。
 
 ## 強制電源断
 

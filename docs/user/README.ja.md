@@ -1,44 +1,43 @@
 # plumOS mini PLUS 取扱説明書
 
-> 移植中の草案です。現在のhost candidateは実機未検証で、以下の全機能を提供するreleaseではありません。stockOS SDへ上書きせず、実機検証には別の空SDを使用してください。
+[English](README.md) | [トップページ](../../README.ja.md)
 
-この章はGKD mini PLUSでplumOSを使う方向けです。開発・ビルド情報は
-[開発者向けガイド](../developer/README.ja.md)へ分離しています。
+公開前の開発版向けガイドです。実機確認済みの操作と、最終配布イメージの受入は区別しています。[現在の状態](../../README.ja.md#現在の状態)を確認してください。
 
 ## 最初に覚える位置
 
-| 名称 | 本体上の位置 | 用途 |
-| --- | --- | --- |
-| SYSスロット | **本体上部** | plumOSを起動するSDカード（SD1） |
-| SD2スロット | **本体下部** | ROMとBIOSを追加する任意のSDカード |
-| Function 1（F1） | **本体前面** | エミュレータのメニューを開く |
-| Function 2（F2） | **本体上部** | RetroArchのスクリーンショットなど |
+| 名称 | 位置・用途 |
+| --- | --- |
+| SYSスロット（SD1） | 本体上部。起動用SD |
+| SD2スロット | 本体下部。任意のROM／BIOS用SD |
+| メニューキー（内部名F1） | **STARTの右上の丸いキー**。RA/Pico/対応単体エミュのメニュー。FEではスクリーンショット |
 
-Function 1とFunction 2は位置が異なります。本書では必ず
-「Function 1（本体前面）」と「Function 2（本体上部）」のように表記します。
+FNキーは4個あります。F1/F2という内部名を、写真の左右順や肩ボタン名と混同しないでください。位置未確認のスクショ用FNには頼らず、RetroArchではメニューから撮影できます。
 
 > SD2は電源を切ってから抜き差ししてください。電源中のhot plugは対応外です。
 
 ## 目的別ガイド
 
-- [SDカードへの書き込みと初回起動](install.ja.md)
-- [基本操作と電源・スリープ](operation.ja.md)
-- [SD1 / SD2の使い分け](storage.ja.md)
-- [対応システム、ROMフォルダ、拡張子、エミュレータ／コア](supported-systems.ja.md)
-- [エミュレータのメニューとホットキー](emulators.ja.md)
-- [BIOS、save、state、スクリーンショット](save-data.ja.md)
-- [スクレイピング](scraping.ja.md)
-- [Wi-Fiとファイル転送](network.ja.md)
-- [更新](updates.ja.md)
-- [問題が起きたとき](troubleshooting.ja.md)
+1. [SDカードへの書き込みと初回起動](install.ja.md)
+2. [基本操作・3つの表示・電源・スリープ](operation.ja.md)
+3. [SD1 / SD2の使い分け](storage.ja.md)
+4. [対応システム・ROMフォルダ・拡張子・core一覧](supported-systems.ja.md)
+5. **[エミュレーターの終了・メニュー・ホットキー早見表](emulators.ja.md)**
+6. [アプリの入口と終了方法](apps.ja.md)
+7. [BIOS・セーブ・ステート・スクリーンショット](save-data.ja.md)
+8. [画像スクレイピング](scraping.ja.md)
+9. [Wi-Fi・SFTP等の有効化と転送先](network.ja.md)
+10. [Runtime / System更新](updates.ja.md)
+11. [困ったとき](troubleshooting.ja.md)
 
-## ハードウェア上の制限
+## 最短のゲーム起動
 
-- USB端子は充電専用として扱います。ADBはメニューに表示しません。
-- HDMI出力は現在未対応です。
-- Nintendo 3DSとJava MEはmini PLUSの対応システムには含みません。
-- ROM、利用者用BIOS、市販ゲームは配布イメージに含まれません。
+SD1へOSを書き、初回の領域作成を待ちます。ROMを`Roms/<system>/`へ追加し、FEでシステム → ゲーム → `A`。SD2を使う場合はそのルートの`roms/<system>/`と`bios/`が優先されます。追加後は一覧を更新するか、システムへ入り直します。
 
-## 言語
+RAとPICO等の選択は`SELECT`から行えます。システム一覧での選択はシステムの既定、ゲーム一覧での選択はそのゲーム向けです。終了方法は[早見表](emulators.ja.md)で確認してください。
 
-出荷時の表示言語は英語です。`START`メニューのUI設定から日本語へ変更できます。
+## 言語と制限
+
+工場設定のUIは英語です。`START → System Settings → Language`から日本語を選べます。アナログスティックはありません。USBデータ転送・ADB・HDMIは未対応です。3DS/Java ME等は[対応表](supported-systems.ja.md)の状態を確認してください。
+
+ROM、利用者BIOS、商用ゲームは同梱しません。[既知の検証制限](../validation/2026-10-31-mini-plus-runtime-limitations.ja.md)も参照してください。

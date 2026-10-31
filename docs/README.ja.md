@@ -1,34 +1,17 @@
 # plumOS mini PLUS ドキュメント
 
-> Bubble互換full-stack imageはhost統合検証とarchive検証まで合格しました。実機ではfrontend到達と基本controller操作だけが確認済みで、full-stackのhardware／Wi-Fi acceptanceは未完了です。現在の確認済み範囲は[ルートREADME](../README.ja.md)を参照してください。
+[English](README.md) | [プロジェクト](../README.ja.md)
 
-文書は利用対象ごとに分けています。日本語版は`.ja.md`、英語版は`.md`です。
+現在はリリース前の開発段階です。実機確認済みの範囲と最終配布imageの受入を区別します。
 
-## 利用者向け
+- [利用者マニュアル](user/README.ja.md)：導入、基本操作、3モード、SD、対応機種、エミュ終了・メニュー・ホットキー、アプリ、保存、画像取得、ネットワーク、更新、困ったとき。
+- [開発者ガイド](developer/README.ja.md)：構成、build、Runtime、FE/core、音声、hardware、storage、network、更新、検証、release。
+- [実装チェックリスト](plumos-implementation-checklist.ja.md)
+- [Runtime/System更新仕様](plumos-mini-plus-runtime-update.ja.md)
+- [現在のruntime検証制限](validation/2026-10-31-mini-plus-runtime-limitations.ja.md)
+- [他機種とのドキュメント項目監査](validation/2026-10-31-mini-plus-documentation-audit.ja.md)
+- [画像の由来とメタデータ処理](images/README.ja.md)
 
-[ユーザー向け取扱説明書](user/README.ja.md)には、SDカードへの書き込み、基本操作、
-ROM・BIOS、エミュレータ、ホットキー、セーブ、スクレイピング、ネットワーク、
-更新、トラブル対応を記載します。Linuxや開発環境の知識は必要ありません。
+利用者・開発者ガイドは日本語と英語の対です。日付付き実験ログ、保存したBubble参考資料、第三者の原文NOTICEは原資料として言語を維持します。英語の現状説明は開発者の検証ガイドにあります。
 
-- [対応システム・ROMフォルダ・拡張子・エミュレータ一覧](user/supported-systems.ja.md)
-- [エミュレータとゲーム中の操作](user/emulators.ja.md)
-
-## 開発者向け
-
-[開発者向けガイド](developer/README.ja.md)には、boot/storage ownership、再現build、
-System/app-layer、frontend・emulator起動経路、hardware service、update、release検査、
-実機validation記録への入口をまとめています。
-
-- [plumOS実装チェックリスト](plumos-implementation-checklist.ja.md)
-- [mini PLUS conformance監査（2026-10-20）](validation/2026-10-20-mini-plus-plumos-conformance-audit.md)
-- [Bubble contract修正後host候補（2026-10-20）](validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
-
-## 法的文書
-
-- [MIT License](../LICENSE)
-- [第三者表記](../THIRD_PARTY_NOTICES.md)
-- [GKD stockOS permission notice](licenses/GKD-stockOS-PERMISSION-NOTICE.txt)
-
-## English
-
-- [English documentation index](README.md)
+権利：[MIT](../LICENSE)・[第三者NOTICE](../THIRD_PARTY_NOTICES.md)・[GKD許諾原文](licenses/GKD-stockOS-PERMISSION-NOTICE.txt)。

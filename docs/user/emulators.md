@@ -1,82 +1,81 @@
-# Emulator menus and hotkeys
+# Emulator exit, menu and hotkey reference
 
-## Button locations
+[日本語](emulators.ja.md) | [User manual](README.md)
 
-- **Function 1 (F1, front face):** primary emulator-menu button
-- **Function 2 (F2, top edge):** RetroArch screenshots and secondary functions
+## Find the menu key first
 
-When opening a menu, remember that the primary key is Function 1 on the
-**front face**, not Function 2 beside the top-edge SYS area.
+The **menu key is the round key above-right of START**. Its driver alias is Function 1 (F1, evdev 704 / js17), not a physical numbering of the four function keys. See the [body photo](../../README.md).
 
-## RetroArch (RA)
+## Exit or resume
+
+| Runtime | Open menu | Return to FE | Resume game |
+| --- | --- | --- | --- |
+| RetroArch (RA) | Menu key | Hold `SELECT`, press `START`; repeat if quit confirmation asks. Alternatively use `Quit RetroArch` in the main menu | Same menu key or `Resume` |
+| PicoArch (PICO) | Menu key | Menu's `Exit` item | `Resume game` or equivalent |
+| PPSSPP (PSP) | Menu key | Pause menu's exit item; this port launches games with pause-menu-exit | `Continue` or equivalent |
+| PCSX-ReARMed standalone (PS) | Menu key | Menu's exit item | Resume item |
+| YabaSanshiro (Saturn) | Menu key | Menu's exit item | Resume item |
+| DraStic (DS) | Menu key opens the normal menu | Normal menu's quit item | Normal menu's resume item |
+| OpenBOR | Menu key / `START`, where supported by the title | Game's quit item; title-specific | Game's resume item |
+| PortMaster / Ports | Game's pause/settings menu | Game's own exit item | Game's resume item |
+| Pyxel | Application-specific | Application's own exit control | Follow the application |
+
+Follow the on-screen confirm/cancel hints inside each emulator. `Back` and `Resume` do not quit. RetroArch's `Close Content` is also different from quitting RetroArch.
+
+Do not assume RA's `SELECT + START` works in every emulator or port. Normal exit restores the FE automatically. Use [power recovery](#if-an-application-stops-responding) for an unresponsive application.
+
+## RetroArch in-game hotkeys
+
+Hold `SELECT` first, then press the other key. User changes to bindings take precedence.
 
 | Control | Action |
 | --- | --- |
-| Function 1 (front face) | Toggle the RetroArch menu |
-| Function 2 (top edge) | Save a screenshot |
-| `SELECT` + `START` | Exit to the frontend |
-| `SELECT` + `L` | Load state |
+| `SELECT` + `START` | Quit to FE; repeat if confirmation asks |
 | `SELECT` + `R` | Save state |
+| `SELECT` + `L` | Load state |
 | `SELECT` + D-pad left/right | Previous/next state slot |
 | `SELECT` + `Y` | Toggle FPS display |
 | `SELECT` + `R2` | Toggle fast-forward |
 | `SELECT` + `L2` | Toggle slow motion |
+| Menu key, without SELECT | Toggle RA menu/game |
 
-Screenshots are saved under `Images/` on SD1. Save-state compatibility varies
-by game and core.
+Loading a state replaces current progress. States are not necessarily compatible between cores or RA/PICO. Also use normal in-game saves; see [save locations and backup](save-data.md).
 
-## PicoArch (PICO)
+## Screenshots
 
-Press Function 1 (front face) to open the PicoArch menu. Use that menu for
-exit, save and load. Not every RetroArch key combination applies to PicoArch.
+- **Frontend:** menu key above-right of START. Saved on SD1 in `Screenshots/` (`/storage/Screenshots/`).
+- **RetroArch game:** menu key → `Quick Menu → Take Screenshot`. Default destination: SD1 `Images/` (`/storage/Images/`).
+- A separate screenshot FN binding (driver F2 / js10) exists, but its physical location is unconfirmed. This guide uses the reliable menu route.
 
-## Standalone emulators (SA)
-
-| Emulator | Menu control |
-| --- | --- |
-| PPSSPP (PSP) | Function 1 (front face) |
-| PCSX-ReARMed standalone (PlayStation) | Function 1 (front face) |
-| YabaSanshiro (Saturn) | Function 1 (front face) |
-| OpenBOR | Function 1 (front face) |
-| DraStic (Nintendo DS) | Function 1 (front face) for the normal menu |
-
-In DraStic, Function 2 (top edge) + `START` opens a simple secondary menu. Use
-the normal Function 1 menu for settings, saves and exit.
-
-## PortMaster / Ports
-
-Ports do not share a universal `SELECT` + `START` exit contract. Exit through
-each game's own menu; controls vary by title.
-
-On mini PLUS, only the known incompatible Apotris v4.2.0 executable is replaced
-for the duration of a launch by the device-validated v4.1.0 compatibility copy.
-A future PortMaster build with a different executable hash is left untouched.
-Diagnostics are written to `plumos/logs/apps/portmaster-ports.log` on SD1.
-
-## Pyxel
-
-Pyxel applications have no RetroArch-style universal quick menu. Controls and
-exit behavior belong to each application. If one stops responding, use the
-device power menu to terminate it or reboot.
-
-## Game Gear frontend (GGFE)
-
-Launch it from `START` → `Apps` → `Game Gear`.
+## System-wide volume and brightness
 
 | Control | Action |
 | --- | --- |
-| D-pad left/right | Previous/next, repeat while held, wrap at either end |
-| D-pad up/down | Jump five entries backward/forward |
-| `A` | Launch |
-| `X` | Toggle cartridge cases |
-| `SELECT` | Open the GGFE menu |
-| `B` / `START` | No action on the browser screen |
+| Volume − / + alone | System volume |
+| `SELECT` + volume − / + | Twenty-level display brightness |
+| Short power press | Power menu |
 
-In the menu, use up/down for rows, left/right to change values, `A` to select,
-and `B` or `SELECT` to close. After launch, the selected RA/PICO controls apply.
+These work in the frontend and games, independently of RA hotkeys.
 
-## Power operations
+## Game Gear frontend (GGFE)
 
-Normally return to the frontend and use its power menu. The power path attempts
-to terminate a stuck emulator first, including when the game display is black.
-Avoid forced power-off whenever the normal route remains available.
+Launch `START → Apps → Game Gear`. This application is separate from the ordinary Gallery view.
+
+| Control | Action |
+| --- | --- |
+| D-pad left/right | Previous/next, hold-repeat and wrap |
+| D-pad up/down | Jump five entries |
+| `A` | Launch with selected RA/PICO route |
+| `X` | Toggle cartridge case |
+| `SELECT` | Settings/exit menu |
+| `B` / `START` while browsing | Not the exit control |
+
+Exit GGFE through its `SELECT` menu. Once a game launches, use that RA/PICO runtime's controls.
+
+## If an application stops responding
+
+Short-press power, then choose `Reboot` or `Shutdown`. The system terminates the foreground application before the power action. Wait for the display and LED to turn off before removing cards. Prefer normal application exit when available.
+
+## Apotris compatibility
+
+Only the known incompatible Apotris v4.2.0 executable is temporarily replaced during launch with the device-validated v4.1.0 compatibility copy. Different future executable hashes are left alone. This does not provide universal controls or compatibility for every port.

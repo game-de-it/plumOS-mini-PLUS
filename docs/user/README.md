@@ -1,46 +1,43 @@
 # plumOS mini PLUS User Manual
 
-> This is a porting draft. The current host candidate is device-unverified and is not a release providing every feature below. Never overwrite the stockOS card; use a separate blank SD for bring-up.
+[日本語](README.ja.md) | [Project home](../../README.md)
 
-This section is for people using plumOS on a GKD mini PLUS. Build and development
-information lives in the [developer guide](../developer/README.md).
+This guide covers the pre-release development port. Device-verified operation and final-image acceptance are separate; check the [current status](../../README.md#current-status).
 
 ## Locations to learn first
 
-| Name | Physical location | Purpose |
-| --- | --- | --- |
-| SYS slot | **Top edge** | Boots plumOS from the system card (SD1) |
-| SD2 slot | **Bottom edge** | Optional ROM and BIOS card |
-| Function 1 (F1) | **Front face** | Opens the emulator menu |
-| Function 2 (F2) | **Top edge** | RetroArch screenshots and secondary functions |
+| Name | Location and purpose |
+| --- | --- |
+| SYS slot (SD1) | Top edge; boot card |
+| SD2 slot | Bottom edge; optional ROM/BIOS card |
+| Menu key (driver alias F1) | **Round key above-right of START**. RA/Pico/supported standalone menus; frontend screenshot in the FE |
 
-Function 1 and Function 2 are in different places. This manual therefore uses
-the explicit forms “Function 1 (front face)” and “Function 2 (top edge).”
+There are four function keys. F1/F2 are driver aliases, not a left-to-right numbering or shoulder-button names. The location of the separate screenshot FN is unconfirmed; use RetroArch's menu to take screenshots.
 
-> Power the mini PLUS off before inserting or removing SD2. Hot-plugging SD2 while
-> the system is running is unsupported.
+> Power off before inserting/removing SD2. Hot-plugging SD2 is unsupported.
 
 ## Guides
 
-- [Writing the system card and first boot](install.md)
-- [Basic controls, power and sleep](operation.md)
-- [Using SD1 and SD2](storage.md)
-- [Supported systems, ROM folders, extensions, emulators and cores](supported-systems.md)
-- [Emulator menus and hotkeys](emulators.md)
-- [BIOS, saves, states and screenshots](save-data.md)
-- [Scraping artwork](scraping.md)
-- [Wi-Fi and file transfer](network.md)
-- [Updates](updates.md)
-- [Troubleshooting](troubleshooting.md)
+1. [Writing SD1 and first boot](install.md)
+2. [Basic controls, three views, power and sleep](operation.md)
+3. [SD1 and SD2](storage.md)
+4. [Supported systems, ROM folders, extensions and cores](supported-systems.md)
+5. **[Emulator exit, menu and hotkey reference](emulators.md)**
+6. [Applications and how to exit them](apps.md)
+7. [BIOS, saves, states and screenshots](save-data.md)
+8. [Artwork scraping](scraping.md)
+9. [Wi-Fi, file-transfer switches and destinations](network.md)
+10. [Runtime / System updates](updates.md)
+11. [Troubleshooting](troubleshooting.md)
 
-## Hardware limits
+## First game
 
-- Treat the USB connector as charge-only. ADB is not shown in the menus.
-- HDMI output is currently unsupported.
-- Nintendo 3DS and Java ME are not supported mini PLUS systems.
-- The image contains no ROMs, user-supplied BIOS files or commercial games.
+Write the OS to SD1 and wait for first-boot storage setup. Add ROMs to `Roms/<system>/`, then choose a system and game in the FE and press `A`. With SD2 inserted, its root `roms/<system>/` and `bios/` take priority. Refresh the list or re-enter the system after adding content.
 
-## Language
+Use `SELECT` to choose RA/PICO/other available routes. On the system list it changes the system default; on a game list it selects a route for that game. Check the [exit reference](emulators.md) before playing.
 
-The factory UI language is English. Japanese can be selected in the UI settings
-under the `START` menu.
+## Language and limits
+
+The factory UI language is English. Select Japanese under `START → System Settings → Language`. There are no analog sticks. USB data transfer, ADB and HDMI output are unavailable. Check the [system table](supported-systems.md) for 3DS/Java ME and other unsupported entries.
+
+ROMs, user BIOS files and commercial games are not included. See the [known validation limits](../validation/2026-10-31-mini-plus-runtime-limitations.md).

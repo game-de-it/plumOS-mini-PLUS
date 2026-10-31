@@ -1,70 +1,72 @@
-<p align="center">
-  <img src="package/frontend-mini-plus/plumos/config/frontend/boot-splash.png" alt="plumOS" width="640">
-</p>
-
 # plumOS mini PLUS
 
-GKD mini PLUS（RK3566 / ARM64）向けに、plumOS-Bubbleのユーザーランド資産を移植する作業ツリーです。
+日本語 | [English](README.md)
 
-現在の成果物は**実機bring-up中・公開不可のfull-stack候補**です。stockOS SDから読み取ったmini-PLUS固有のRockchipブート先頭領域、kernel、DTB、overlayへ、Bubbleで成立したstorage／update contractを移植しています。元のstockOS SDには書き込んでいません。
+plumOS-Bubbleをベースにした、**GKD mini PLUS（RK3566 / ARM64、640×480）**向けplumOSです。本体には4個のFNキーがあり、アナログスティックはありません。
 
-Bubble由来frontend、114個のlibretro core、RetroArch、PicoArch、単体emulator、Pyxel、PortMaster、NextCommander、Music Player、network serviceを統合しています。修正版full-stack imageは実機でfrontend、Wi-Fi/SSH、ALSA、代表32 emulator route、Yabasanshiroを確認済みです。一方、実SD2のflat-root ROM配置をfrontendへ公開できない不具合と、assemble-only buildが古いruntime coverageを再利用する不整合が残っています。
+<p align="center"><img src="docs/images/gkd-mini-plus.jpg" alt="plumOSを起動したGKD mini PLUS本体" width="640"></p>
 
-## 現在の構成
+## 3種類の表示
 
-- 先頭16 MiB: hash固定したmini PLUS用Rockchip boot prefix
-- p1（FAT32、512 MiB）: vendor kernel、mini PLUS DTB/overlay、plumOS initramfs、read-only SquashFS System A/B
-- p2（raw、64 MiB）: immutable matching boot bundle
-- p3（ext4、2,176 MiB）: app payload実測値+256 MiBの余裕から算出したmanaged Runtime/state seed
-- 初回起動: 中断再開可能な手順でp3を8 GiBへ拡張し、残領域へp4 `PLUMOS`を作成。最小カード容量14 GiB
-- stock p2の既存データ: plumOS候補へコピーしない
-- Wi‑Fi: live stockOSで確認したSDIO `02D0:A9A6`向けのABI一致`bcmdhd`、BCM43438A1 firmware、AP6212A NVRAMを収録。不一致だったoffline `8821cs.ko`と強制load経路は使用しない
+| テキスト | グラフィック | ギャラリー |
+| --- | --- | --- |
+| [![テキスト表示](docs/images/frontend-text.png)](docs/images/frontend-text.png) | [![グラフィック表示](docs/images/frontend-graphics-list.png)](docs/images/frontend-graphics-list.png) | [![ギャラリー表示](docs/images/frontend-gallery.png)](docs/images/frontend-gallery.png) |
+
+スクリーンショットはmini PLUS実機で撮影しました。提供された本体写真はEXIF・XMP等のカメラ情報を除去し、主画像のデコード後の画素は保持しています。画面内のゲーム画像は利用例で、OSへの同梱物ではありません。
+
+`START → UI設定（UI Settings）→ UI Mode → Text / Graphic`で切り替えます。ゲーム一覧で`X`を押すとギャラリー、もう一度`X`で一覧へ戻ります。[基本操作](docs/user/operation.ja.md)も参照してください。
+
+## 最初にすること
+
+1. [SD1へ書き込み、初回起動](docs/user/install.ja.md)。
+2. [Wi-Fi接続と転送サービスの有効化](docs/user/network.ja.md)。SSHとSFTPは別々にONにします。
+3. [ROMとBIOSを追加](docs/user/storage.ja.md)し、ゲームを選んで`A`で起動。
+4. [エミュレーターの終了・メニュー・ホットキー早見表](docs/user/emulators.ja.md)を確認。
+
+| 覚えておく操作 | 動作 |
+| --- | --- |
+| `A` / `B` | FEで決定・起動 / 戻る |
+| `START` | FEのメインメニュー |
+| **STARTの右上の丸いキー** | エミュメニュー（内部名F1）。FEではスクリーンショット |
+| RetroArch中に`SELECT` + `START` | FEへ戻る。終了確認が出たら同じ操作をもう一度 |
+| `SELECT`を押しながら音量− / ＋ | 画面を暗く / 明るくする |
+| 電源ボタン短押し | Sleep・Reboot・Shutdownを選ぶ電源メニュー |
+
+PicoArch・単体エミュレーターは各メニューから終了します。PortsやPyxelはゲームごとの終了方法を使います。RetroArch用のショートカットが全アプリ共通という意味ではありません。
+
+## 主な機能
+
+- テキスト・グラフィック・ギャラリー表示、画像スクレイピング、Game Gear専用FE（GGFE）。
+- RetroArch、PicoArch、単体エミュレーター、追跡対象114個のlibretro core。
+- PortMaster、Pyxel、File Manager、Music Player、SD2修復。
+- Wi-Fi、SSH・SFTP・FTP・Samba。SD2のROM／BIOSを優先し、不在時はSD1へ切替。
+- 音量・輝度キー、スピーカー／イヤホン切替、安全な電源操作、USB充電中／未接続のSleep。
+- 署名付きRuntime更新と、対応する起動処理でのSystem A/B試行・ロールバック。
+
+ROM、利用者BIOS、商用ゲームは同梱しません。この移植ではUSBは充電用で、ADBとHDMI出力は未対応です。
+
+## 現在の状態
+
+**公開前の開発版**です。新SDの起動、SD1／SD2のプレイ、ハードウェア操作はユーザー確認済みで、Runtime／Systemの復旧も機械・実機試験の記録があります。196起動経路のうち170経路に機械的な起動証拠があり、残る26経路は未検証理由を明示しています。全ゲームの互換性を保証するものではありません。
+
+現在の作業SDは後続のboot／app更新を含み、以前の開発用`.img`にはその全てが入っていません。最終イメージの再生成・exact-image受入・公開は別工程です。[最新の作業記録](docs/validation/2026-10-31-mini-plus-pre-release-work.md)、[既知の検証制限](docs/validation/2026-10-31-mini-plus-runtime-limitations.ja.md)、[TODO](TODO.md)を参照してください。
+
+## ドキュメント
+
+- [取扱説明書](docs/user/README.ja.md)：導入、操作、SD、エミュレーター、アプリ、セーブ、画像取得、通信、更新、問題対処。
+- [開発者ガイド](docs/developer/README.ja.md)：構成、ビルド、Runtime、描画、ハードウェア、通信、更新、検証。
+- [ドキュメント索引](docs/README.ja.md) / [English documentation](docs/README.md)。
 
 ## ビルド
 
-canonical full-stack imageを再生成します。
+記載のツールチェーンと承認済みvendor入力を用意して実行します。
 
 ```sh
 ./scripts/build-mini-plus-full-image.sh
 ```
 
-成果物:
-
-```text
-output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-validation.img
-```
-
-実機検証用7zを作成し、archive testと展開後raw hash一致を確認します。
-
-```sh
-./scripts/prepare-mini-plus-validation-archive.sh
-```
-
-成果物:
-
-```text
-output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-validation.7z
-```
-
-ブート資産はGit管理外の`artifacts/vendor/mini-plus-stock-source/`に置き、各ファイルを固定ハッシュで検証します。stock `SYSTEM`本体は解析専用で、生成イメージへコピーしません。rawは2,902,458,368 bytes、配布用の検証済み7zは485,622,918 bytes（463.13 MiB）で、500 MB未満です。
-
-## 重要な状態表示
-
-ホスト側では、image/partition checksum、MBR、FAT/ext4、raw boot prefix、kernel/DTB/overlay、System A/B、matching p2、first-boot transaction、app-layer全ファイル、114 coreを検証済みです。実機ではfrontend、現在のWi-Fi association/DHCP/SSH、ALSA PCM、SFC/GB/GBA/N64/NDSの代表32 route、SaturnのYabasanshiro 2 routeが動作しました。flat-root SD2表示、全入力、speaker/headphone、shutdown、suspend、reconnect、SD readback、PSP/PSX/OpenBORの実ROM起動は未合格で、release扱いにしません。
-
-- [作業状況](TODO.md)
-- [stockOS読み取り記録](docs/validation/2026-10-20-mini-plus-read-only-inventory.md)
-- [ホスト候補ビルド記録](docs/validation/2026-10-20-mini-plus-host-candidate.md)
-- [frontend実機確認記録](docs/validation/2026-10-20-mini-plus-frontend-user-acceptance.md)
-- [Bubble contract修正後host候補とチェック表](docs/validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
-- [live stock Wi-Fi反映後の再ビルド記録](docs/validation/2026-10-20-mini-plus-live-wifi-rebuild.md)
-- [mini PLUS / Bubble実機移植漏れ監査](docs/validation/2026-10-20-mini-plus-bubble-live-parity-audit.md)
-- [Bubble由来の参考検証](docs/reference/bubble/validation/)
+既定のraw出力は`output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-full-stack-validation.img`です。seedは約2.90 GBで、初回に管理領域を8 GiBへ拡張し、残りに利用者領域を作ります。16 GB以上のSDを使用してください。前提条件・version指定・検証は[ビルドガイド](docs/developer/build.ja.md)へ。圧縮は別のリリース工程です。
 
 ## ライセンス
 
-plumOS独自部分には[MIT License](LICENSE)が適用されます。GKD stockOS由来のboot/runtimeファイルや第三者componentはMITには含まれず、各権利者の条件が継続します。
-
-- [第三者表記](THIRD_PARTY_NOTICES.md)
-- [GKD stockOS permission notice](docs/licenses/GKD-stockOS-PERMISSION-NOTICE.txt)
-- [mini PLUS vendor runtime notice](docs/licenses/mini-plus-vendor-runtime-NOTICE.txt)
+plumOS独自部分は[MIT License](LICENSE)です。vendorのboot／runtime資産と第三者ソフトウェアには各権利者の条件が適用されます。[第三者表記](THIRD_PARTY_NOTICES.md)を確認してください。

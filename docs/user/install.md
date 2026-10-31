@@ -1,34 +1,17 @@
-# Writing the system card and first boot
+# Writing SD1 and first boot
 
-> The current mini-PLUS image is a device-unverified bring-up candidate. Do not write it over the stockOS card; use a separate blank SD only.
+[日本語](install.ja.md) | [Manual](README.md)
 
-## Requirements
+The port is in pre-release development. Use the exact candidate specified for testing; older images may lack later fixes. See [current status](../../README.md#current-status).
 
-- A GKD mini PLUS
-- A 16 GB or larger microSD card for SYS
-- The compressed release image and `SHA256SUMS`
-- A raw-image writer such as Raspberry Pi Imager or balenaEtcher
+1. Prepare a GKD mini PLUS and a 16 GB or larger microSD for the top-edge SYS slot.
+2. Obtain the raw `.img` and its SHA-256. If supplied as an archive, extract it first; development images may be uncompressed.
+3. Verify the hash and select the correct card by name and capacity in Raspberry Pi Imager, balenaEtcher or another raw-image writer.
+4. Write as a disk image, let the writer verify, then safely eject.
+5. Insert SD1 while powered off, power on, and wait for first-boot progress to finish and the FE to appear.
 
-## Procedure
+The progress screen covers storage preparation: the managed partition expands to 8 GiB and the remaining space becomes the PLUMOS FAT32 user volume. Do not interrupt it. Later boots skip this provisioning screen.
 
-1. Download the image and `SHA256SUMS` from the same release.
-2. Verify the SHA-256 digest.
-3. Write the card as a **raw disk image**, not as a copied file.
-4. Let the writer verify it, then safely eject the card.
-5. With the mini PLUS powered off, insert it into the **top-edge SYS slot**.
-6. Power on and wait until first-boot setup finishes and the frontend appears.
+Writing erases the target card, including saves/settings stored there. Back up existing cards first. A writer's success/ejection is not a device boot check.
 
-First boot expands partitions and creates the writable user area. Do not power
-off or remove the card while this is in progress.
-
-## Optional SD2
-
-Format a ROM card as FAT32 and create `Roms` and, when needed, `BIOS` at its
-root. Insert it into the **bottom-edge SD2 slot** while powered off. See
-[Using SD1 and SD2](storage.md).
-
-## Caution
-
-Choosing the wrong target in an image writer can erase another computer drive.
-Check the device name and capacity before writing. Writing a raw system image is
-different from copying an update package to a card.
+For optional SD2, format FAT32 and create `roms/<system>/` plus `bios/` at its root. Insert it in the bottom-edge SD2 slot while powered off. Without SD2, use SD1's PLUMOS `Roms/` and `BIOS/`. See [storage](storage.md), [network transfer](network.md) and [first-game controls](emulators.md).

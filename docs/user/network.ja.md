@@ -1,28 +1,28 @@
-# Wi-Fiとファイル転送
+# Wi-Fi・ファイル転送
 
-## Wi-Fi
+[English](network.md) | [マニュアル](README.ja.md)
 
-`START` → `ネットワーク設定`からWi-FiをONにし、`Wi-Fi に接続`でSSIDとpasswordを
-設定します。接続後は`情報`でIP addressを確認します。Wi-FiをOFFにした直後はservice停止に
-数秒かかることがあります。
+`START → Network Settings`でWi-Fiを有効にし、Connect Wi-FiでSSIDを選んでパスワードを入力します。接続後のIPはINFORMATIONで確認します。保存済みの接続先には自動再接続します。
 
-## 接続方法
+**SSHとSFTPはサービスの有効化設定が別です。** `START → Network Settings → NW Service`で利用するサービスをONにしてください。SSHが接続できてもSFTPが有効とは限りません。SFTP・FTP・Sambaは利用前に有効にします。
 
-初期credentialは次のとおりです。passwordは利用開始後に変更してください。
+| サービス | 接続先・ポート | ユーザー / パスワード |
+| --- | --- | --- |
+| SSH | 本体IP、22 | root / plumos |
+| SFTP | 本体IP、22 | root / plumos |
+| FTP | 本体IP、21 | anonymous / パスワードなし |
+| Samba | `\\\\<IP>\\SDCARD` | plumos / plumos |
 
-| 方法 | 接続先／port | user | password | 用途 |
-| --- | --- | --- | --- | --- |
-| SSH | mini PLUSのIP / 22 | `root` | `plumos` | shell |
-| SFTP | mini PLUSのIP / 22 | `root` | `plumos` | 安全なfile transfer |
-| FTP | mini PLUSのIP / 21 | anonymous | 不要 | 簡易file transfer |
-| Samba | `\\<IP>\SDCARD` | `plumos` | `plumos` | Windows/macOSの共有 |
+信頼できないネットワークで利用する前に初期パスワードを変更してください。USBは充電専用のため、転送にはWi-Fiを使います。
 
-FTP、SFTP、Sambaはいずれも利用者領域を参照します。ROMを追加する場合は
-`Roms/<system>/`、BIOSは`BIOS/`へ置きます。転送完了後は一覧を更新してください。
+## 転送先
 
-## 注意
+SFTPの開始位置は`/storage`です。FTPとSDCARD共有も`/storage`を公開し、利用者領域と本体管理領域の両方が含まれます。
 
-- 公衆LANへ接続する前に初期passwordを変更してください。
-- ADB項目はありません。USBは充電専用です。
-- 接続できない場合は同じLANにいること、IP address、client側firewallを確認します。
-- 途中までの大容量fileが残った場合は、再転送前にsizeまたはhashを確認します。
+- 例：`Roms/nes/`は**現在有効な**ROM領域です。SD2装着時はSD2、それ以外はSD1です。
+- `BIOS/`も有効なカードを参照します。
+- `user/Roms/`・`user/BIOS/`を指定するとSD1へ転送できます。
+- `plumos/saves/`・`plumos/states/`・`plumos/config/`・`plumos/logs/`はSD1の本体管理領域です。
+- 更新パッケージは`user/updates/`へ置きます。
+
+SD2なしでもSFTPとSD1のゲームを利用できます。転送後は一覧を更新してください。大容量転送が中断した場合はサイズやハッシュを確認します。接続できないときはサービスのON/OFF、現在のIP、同一LAN、クライアントのファイアウォールを先に確認してください。SD2の取り外し前に[ストレージ](storage.ja.md)も参照してください。

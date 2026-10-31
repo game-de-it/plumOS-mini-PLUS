@@ -1,5 +1,7 @@
 # Scraping artwork
 
+[日本語](scraping.ja.md) | [Manual](README.md)
+
 Connect to Wi-Fi, then open `START` → `Apps` → `Scraping`. Select the target
 systems and follow the prompts. Results are stored in the SD1 image area used by
 the frontend.

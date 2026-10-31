@@ -1,61 +1,28 @@
-# Basic controls, power and sleep
+# Controls, views and power
 
-## Frontend
+[日本語](operation.ja.md) | [Manual](README.md) | [Emulator controls](emulators.md)
 
-| Control | Action |
+| Control | Frontend action |
 | --- | --- |
-| D-pad | Move through systems, games and settings |
-| `A` | Confirm or launch |
-| `B` | Back |
-| `SELECT` on a game | Choose an available emulator or core |
-| `START` | Open the main menu |
-| Short power-button press | Open the power menu |
+| D-pad / A / B | Move / confirm or launch / back |
+| START | Main menu |
+| SELECT on a system / game | System default emulator / per-game emulator |
+| X in a ROM list | Open Gallery |
+| Y on a game | Toggle favourite |
+| Round key above-right of START | Capture the frontend screen |
 
-Set `SHOW EMPTY SYSTEM` to OFF in UI settings to hide systems with no games.
-Refresh the list or reboot after adding or removing ROMs.
+## Three views
 
-mini PLUS has four function keys and no physical analog sticks. The driver's
-ABS axes and L3/R3 names are compatibility identifiers.
+Choose Text or Graphic under `START → UI Settings → UI Mode`. These affect the system and ROM lists. Gallery opens with `X` in a ROM list; it is not a third UI Mode setting. In Gallery, left/right changes games, up/down jumps five, A launches, X returns to the ROM list, and B returns to the system list.
 
-## Power
+Frontend captures are saved to `/storage/Screenshots/`. Emulator screenshots use a different route and directory; see [emulator controls](emulators.md). Disable SHOW EMPTY SYSTEM in UI Settings to hide empty systems. Refresh or re-enter the list after adding content.
 
-Use `Reboot` or `Shutdown` from the power menu or the `START` menu. The shutdown
-path first terminates a stuck emulator. Do not remove a card until the display
-and LED have turned off.
+## Volume, brightness and power
 
-## Sleep
+Headphone insertion switches audio to headphones; removal returns it to the speaker. Check both system and emulator volume if sound is missing. Avoid sleeping or powering off while a game/app is saving.
 
-Open the power menu and choose `Sleep`; press power again to resume. Sleep is
-available during games. After resume, check video, controls and the expected
-speaker/headphone route.
+Volume buttons change volume. Hold SELECT first, then press volume −/+ to adjust brightness across 20 levels, including during games. Hold-repeat is supported. Volume, brightness, contrast, hue and saturation are also in System Settings.
 
-## Volume and display
+Short-press Power to open the power menu. Choose Sleep, Reboot or Shutdown. Press Power to resume from Sleep. Sleep/resume has been checked with and without USB charging connected. Reboot/shutdown during a game stops the game before completing the power action; save first.
 
-The physical volume down/up buttons change system volume, including during a
-game. Hold `SELECT` while pressing volume down/up to change screen brightness in
-20 steps; hold-repeat is supported. The same volume and brightness values are
-available under `START` → `System Settings`. Contrast, hue and saturation are
-also available there.
-
-On mini PLUS, the twenty levels use a device-specific curve over the panel's
-effective PWM range.
-
-## Connectors
-
-- USB: charge-only
-- HDMI: currently unsupported
-- SYS: top edge, boot/system SD1
-- SD2: bottom edge, optional ROM/BIOS card
-
-## Updates
-
-`System Update` accepts signed Runtime and System packages. Runtime updates
-replace managed apps/cores and roll back if startup is not confirmed. With a
-compatible A/B initramfs, System updates write and read back the inactive slot,
-try it on the next boot, and commit after the frontend is ready. An unsuccessful
-trial returns to the previous slot on the following boot. Keep power connected
-and do not interrupt an update.
-
-Older boot implementations reject System packages and require a compatible full
-SD image. System packages do not replace the kernel, DTB, initramfs or p2 matching
-bundle. Updates preserve user ROMs, BIOS, settings, saves and states.
+Wait until shutdown completes, with display and LED off, before removing either card. USB is charge-only; HDMI/ADB are unavailable. SYS/SD1 is at the top; SD2 is at the bottom. There are four FN keys and no sticks. See [the menu and exit reference](emulators.md) before playing.

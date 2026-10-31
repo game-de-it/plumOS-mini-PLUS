@@ -1,33 +1,21 @@
-# SD1 / SD2の使い分け
+# SD1・SD2の使い方
 
-## SD1（本体上部のSYSスロット）
+[English](storage.md) | [マニュアル](README.ja.md)
 
-起動用カードです。内部にはdevice管理のSystem領域と、PCから見えるFAT32の`PLUMOS`
-領域があります。PCから直接扱う主なfolderは次のとおりです。
+**本体上部SYSスロット**のSD1にはboot/System・Linux本体管理領域・PCから見えるPLUMOS FAT32利用者領域があります。bootや本体管理領域をフォーマットしないでください。
 
-- `Roms/`: ROMとゲーム起動ファイル
-- `BIOS/`: 利用者が用意するBIOS
-- `Images/`: スクリーンショットと画像
-- `updates/`: system update package
+| SD1のPLUMOS内フォルダー | 用途 |
+| --- | --- |
+| Roms/<system>/ | SD2なしのROM |
+| BIOS/ | SD2なしのBIOS |
+| Images/ | RetroArchの撮影画像など |
+| Screenshots/ | FEの撮影画像 |
+| updates/ | 署名付き更新パッケージ |
 
-実機のdevice管理領域には`/storage/plumos/saves`、`states`、`config`、`logs`もあります。
-これらはSFTPやSambaでbackupできますが、System管理fileやmanifestを不用意に変更しないで
-ください。PCへSYSカードを直接挿したときの`PLUMOS`領域とは別partitionです。
+SD2は**本体下部SD2スロット**の任意のFAT32カードです。Bubbleに合わせルートに`roms/<system>/`と`bios/`を作ります。Roms/ROMSやBIOS/Biosも認識しますが、大文字小文字だけ違う重複を避けてください。
 
-## SD2（本体下部のSD2スロット）
+SD2装着時はSD2のROM・BIOSを優先し、未装着時はSD1を使います。セーブ・設定・ログ・スクリーンショットはSD1に残ります。本体の`/storage/Roms`・`/storage/BIOS`は有効なカードを参照し、`/storage/user/Roms`・`/storage/user/BIOS`は明示的にSD1を参照します。
 
-任意のFAT32カードです。ルートの`Roms`（`roms` / `ROMS`も認識）と`BIOS`
-（`bios` / `Bios`も認識）を利用します。SD2が装着されていれば、そのROM／BIOS
-領域が優先されます。設定、save、state、画像、ログは引き続きSD1に保存されます。
+`/storage/plumos/saves`・`states`・`config`・`logs`等はPLUMOSとは別の本体管理領域です。[ネットワーク転送](network.ja.md)でバックアップしてください。PCから見えるFAT領域だけをコピーしてもセーブのバックアップにはなりません。
 
-SD2を使わなくてもSD1だけでゲーム一覧、スクレイピング、サムネイル表示、ゲーム起動
-を利用できます。
-
-## 安全な扱い
-
-- SD2の挿抜は必ず電源OFFで行います。hot plugは対応外です。
-- SYSカードはshutdownが完了して画面とLEDが消えるまで抜きません。
-- 大文字小文字違いのROMフォルダを重複して作らないでください。
-- 破損が疑われるFAT32のSD2は`START` → `Apps` → `Repair SD2`を使えます。
-  表示内容を確認し、5秒以内にもう一度`A`を押すと検査・修復を始めます。
-  実行中は電源を切ったりカードを抜いたりしないでください。SYSカードは対象外です。
+SD2は電源OFFで着脱してください。hot plugは対応外です。SYSも終了完了・画面とLEDの消灯後に抜いてください。FAT32 SD2の不調時は[Repair SD2](apps.ja.md)を参照してください。

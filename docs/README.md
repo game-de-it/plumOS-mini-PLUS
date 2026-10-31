@@ -1,39 +1,17 @@
 # plumOS mini PLUS Documentation
 
-> The Bubble-compatible full-stack image now passes host integration and archive
-> verification. Only frontend reachability and basic controller operation have
-> been reported on the device; full-stack hardware and Wi-Fi acceptance remain
-> pending. See the [top-level README](../README.md) for the verified scope.
+[日本語](README.ja.md) | [Project](../README.md)
 
-Documentation is separated by audience. Files ending in `.ja.md` are Japanese;
-the corresponding `.md` files are English.
+This is pre-release development. Device-verified scope and final-image acceptance are separate.
 
-## User documentation
+- [User manual](user/README.md): installation, controls, three views, cards, supported systems, emulator exit/menu/hotkeys, apps, saves, scraping, network, updates and troubleshooting.
+- [Developer guide](developer/README.md): architecture, builds, Runtime, FE/cores, audio, hardware, storage, network, updates, validation and release.
+- [Implementation checklist](plumos-implementation-checklist.md)
+- [Runtime/System update contract](plumos-mini-plus-runtime-update.md)
+- [Current runtime-validation limits](validation/2026-10-31-mini-plus-runtime-limitations.md)
+- [Cross-device documentation audit](validation/2026-10-31-mini-plus-documentation-audit.md)
+- [Image provenance and metadata handling](images/README.md)
 
-The [user manual](user/README.md) covers SD installation, controls, ROMs and
-BIOS files, emulators and hotkeys, saves, scraping, networking, updates, and
-troubleshooting. It does not require Linux or development knowledge.
+User/developer guides are paired in English and Japanese. Dated experiment logs, preserved Bubble reference records and third-party legal originals retain their original language. The developer validation guide provides the current English status.
 
-- [Supported systems, ROM directories, extensions, and emulators](user/supported-systems.md)
-- [Emulators and in-game controls](user/emulators.md)
-
-## Developer documentation
-
-The [developer guide](developer/README.md) links the boot and storage ownership
-design, reproducible builds, System and app-layer assembly, frontend and
-emulator launch routes, hardware services, updates, release gates, and device
-validation evidence.
-
-- [plumOS implementation checklist (Japanese)](plumos-implementation-checklist.ja.md)
-- [mini PLUS conformance audit, 2026-10-20 (Japanese)](validation/2026-10-20-mini-plus-plumos-conformance-audit.md)
-- [Corrected Bubble-contract host candidate, 2026-10-20 (Japanese)](validation/2026-10-20-mini-plus-bubble-contract-host-candidate.md)
-
-## Legal documents
-
-- [MIT License](../LICENSE)
-- [Third-party notices](../THIRD_PARTY_NOTICES.md)
-- [GKD stockOS permission notice](licenses/GKD-stockOS-PERMISSION-NOTICE.txt)
-
-## Japanese
-
-- [日本語ドキュメント索引](README.ja.md)
+Legal: [MIT](../LICENSE), [third-party notices](../THIRD_PARTY_NOTICES.md), [original GKD permission](licenses/GKD-stockOS-PERMISSION-NOTICE.txt).

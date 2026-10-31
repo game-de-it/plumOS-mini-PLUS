@@ -1,5 +1,7 @@
 # スクレイピング
 
+[English](scraping.md) | [マニュアル](README.ja.md)
+
 Wi-Fiへ接続し、`START` → `Apps` → `Scraping`から実行します。対象システムを選び、
 画面の案内に従ってください。結果はフロントエンドが参照するSD1の画像領域へ保存
 されます。

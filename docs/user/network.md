@@ -1,22 +1,28 @@
 # Wi-Fi and file transfer
 
-Enable Wi-Fi under `START` → `Network Settings`, then use `Connect Wi-Fi` to
-select an SSID and enter its password. After connecting, read the device IP
-from `INFORMATION`. Turning Wi-Fi off may take a few seconds while services stop.
+[日本語](network.ja.md) | [Manual](README.md)
 
-Factory credentials are below. Change the password after initial setup.
+Enable Wi-Fi under `START → Network Settings`, then select an SSID with Connect Wi-Fi and enter its password. Read the IP under INFORMATION after connection. Saved networks reconnect automatically.
 
-| Method | Address / port | User | Password | Purpose |
-| --- | --- | --- | --- | --- |
-| SSH | mini PLUS IP / 22 | `root` | `plumos` | Shell |
-| SFTP | mini PLUS IP / 22 | `root` | `plumos` | Secure file transfer |
-| FTP | mini PLUS IP / 21 | anonymous | none | Simple file transfer |
-| Samba | `\\<IP>\SDCARD` | `plumos` | `plumos` | Windows/macOS share |
+**SSH and SFTP have separate service switches.** Open `START → Network Settings → NW Service` and enable the desired service. SSH being reachable does not prove SFTP is enabled. SFTP, FTP and Samba must be enabled before using them.
 
-All three file-transfer routes expose the user area. Put ROMs in
-`Roms/<system>/` and BIOS files in `BIOS/`, then refresh the game list.
+| Service | Address / port | User / password |
+| --- | --- | --- |
+| SSH | Device IP, 22 | root / plumos |
+| SFTP | Device IP, 22 | root / plumos |
+| FTP | Device IP, 21 | anonymous / no password |
+| Samba | `\\\\<IP>\\SDCARD` | plumos / plumos |
 
-- Change factory credentials before joining an untrusted network.
-- There is no ADB menu; USB is charge-only.
-- Check the LAN, device IP and client firewall when a route is unreachable.
-- After an interrupted large transfer, verify its size or hash before retrying.
+Change factory passwords before using an untrusted network. USB is charge-only; use Wi-Fi for transfers.
+
+## Destinations
+
+SFTP starts at `/storage`; FTP and the SDCARD share also expose `/storage`. This includes both the user area and device-managed directories.
+
+- `Roms/nes/`, for example, is the **active** ROM source: SD2 when present, otherwise SD1.
+- `BIOS/` likewise follows the active card.
+- `user/Roms/` and `user/BIOS/` explicitly address SD1.
+- `plumos/saves/`, `plumos/states/`, `plumos/config/` and `plumos/logs/` are on SD1's managed partition.
+- Update packages go to `user/updates/`.
+
+No SD2 is required for SFTP or SD1 games. After transfers, refresh the list. Verify large files by size/hash if interrupted. If connection fails, check the service switch, current IP, same LAN and client firewall first. See [storage](storage.md) before removing SD2.

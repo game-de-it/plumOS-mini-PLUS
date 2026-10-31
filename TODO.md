@@ -10,6 +10,8 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 ## 完了
 
+- [x] `MPLUS-DOC-01` 他8機種のuser/developer項目を照合し、mini PLUSの利用者12項目・開発者14項目を日英対で整備した。READMEへmetadata除去済み本体写真と実機Text/Graphic/Gallery画像を掲載し、START右上メニューキー・runtime別終了・RA撮影メニュー・輝度操作・SFTP個別有効化・保存先・System A/Bを現行実装へ修正した。言語対・内部リンク・画像寸法/metadata・対応表生成・物理入力contractの検証を通過。最終image生成・公開は含めない（`docs/validation/2026-10-31-mini-plus-documentation-audit.ja.md`）。
+
 - [x] `MPLUS-P0-01` stockOS SDを`/dev/disk5`（Secure Digital、124383133696 bytes）として識別した。
 - [x] `MPLUS-P0-02` p1を読み取り専用で固定し、ブート先頭16 MiBをSHA-256付きで取得した。
 - [x] `MPLUS-P0-03` stock kernel、外部initrd、`uEnv.txt`、active DTB、sensor別DTB、overlayを取得して固定ハッシュ化した。

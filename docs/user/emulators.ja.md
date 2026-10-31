@@ -1,83 +1,81 @@
-# エミュレータのメニューとホットキー
+# エミュレーターの終了・メニュー・ホットキー早見表
 
-## ボタン位置
+[English](emulators.md) | [取扱説明書](README.ja.md)
 
-- **Function 1（F1、本体前面）**: 基本のエミュレータメニューボタン
-- **Function 2（F2、本体上部）**: RetroArchのスクリーンショットなど
+## まず、このキーを覚える
 
-「上部のFunction」と覚えるとSYSスロット付近のFunction 2を押しやすいため、
-メニューを開くときは**前面のFunction 1**であることに注意してください。
+**メニューキー＝STARTの右上の丸いキー**です。内部名はFunction 1（F1、evdev 704 / js17）。本体に4個あるFNの見た目の順番ではありません。本体写真は[README](../../README.ja.md)を参照してください。
 
-## RetroArch（RA）
+## 終了とゲームへ戻る操作
+
+| 実行中のもの | メニューを開く | FEへ戻る | ゲームへ戻る |
+| --- | --- | --- | --- |
+| RetroArch（RA） | メニューキー | `SELECT`を押したまま`START`。終了確認が出たらもう一度。同じ操作が使えない場合はメインメニューの`Quit RetroArch` | 同じメニューキー、または`Resume` |
+| PicoArch（PICO） | メニューキー | メニューの`Exit`／終了項目 | `Resume game`等の再開項目 |
+| PPSSPP（PSP） | メニューキー | Pauseメニューの`Exit`／終了項目。この移植のゲーム起動はpause-menu-exitを使用 | `Continue`等の再開項目 |
+| PCSX-ReARMed単体（PS） | メニューキー | メニューの`Exit`／終了項目 | 再開項目 |
+| YabaSanshiro（Saturn） | メニューキー | メニューの`Exit`／終了項目 | 再開項目 |
+| DraStic（DS） | メニューキーで通常メニュー | 通常メニューの`Quit`／終了項目 | 通常メニューの再開項目 |
+| OpenBOR | 対応タイトルのメニューキー／`START` | ゲームのメニューから`Quit`等。タイトルにより異なる | ゲームの再開項目 |
+| PortMaster / Ports | 各ゲームのPause／設定メニュー | ゲーム自身の終了項目 | ゲームの再開項目 |
+| Pyxel | アプリごとに異なる | アプリ自身の終了操作 | アプリの案内に従う |
+
+メニュー内の確定・キャンセルは、各画面のボタン案内に従ってください。`Back`や`Resume`は終了ではありません。RAの`Close Content`もRAを閉じる操作とは異なります。
+
+RA以外へ`SELECT + START`等のRA用hotkeyを一律に適用しないでください。通常終了後はFEが自動復帰します。応答しないときは[電源操作](#応答しないとき)を使います。
+
+## RetroArchのゲーム中hotkey
+
+`SELECT`を先に押したまま、次のキーを押します。利用者が設定を変更した場合はその設定が優先されます。
 
 | 操作 | 動作 |
 | --- | --- |
-| Function 1（本体前面） | RetroArchメニュー表示／ゲームへ戻る |
-| Function 2（本体上部） | スクリーンショット保存 |
-| `SELECT` + `START` | ゲームを終了してフロントエンドへ戻る |
-| `SELECT` + `L` | stateをload |
-| `SELECT` + `R` | stateをsave |
-| `SELECT` + 十字左／右 | state slotを前／次へ変更 |
+| `SELECT` + `START` | 終了してFEへ戻る。確認表示が出たら同じ操作をもう一度 |
+| `SELECT` + `R` | ステート保存 |
+| `SELECT` + `L` | ステート読込み |
+| `SELECT` + 十字左／右 | ステートslotを前／次へ変更 |
 | `SELECT` + `Y` | FPS表示切替 |
-| `SELECT` + `R2` | fast-forward切替 |
-| `SELECT` + `L2` | slow-motion切替 |
+| `SELECT` + `R2` | 早送り切替 |
+| `SELECT` + `L2` | スローモーション切替 |
+| メニューキー（SELECT不要） | RAメニュー／ゲームへ切替 |
 
-スクリーンショットはSD1の`Images/`へ保存され、フロントエンドの画像として利用
-できます。ゲームやcoreによってsave stateを安全に利用できない場合があります。
+ロードは現在の進行を置き換えます。ステートは異なるcoreやRA/PICO間で互換とは限りません。ゲーム内の通常saveも併用し、[保存先とbackup](save-data.ja.md)を確認してください。
 
-## PicoArch（PICO）
+## スクリーンショット
 
-Function 1（本体前面）でPicoArchメニューを開きます。終了、save、loadなどは
-メニューから実行してください。RetroArch用のすべての組み合わせがPicoArchにも
-適用されるわけではありません。
+- **FEの画面**：START右上のメニューキー。保存先はSD1の`Screenshots/`（実機`/storage/Screenshots/`）。
+- **RetroArchのゲーム画面**：メニューキー → `Quick Menu → Take Screenshot`。保存先は既定でSD1の`Images/`（`/storage/Images/`）。
+- 設定には別のスクショ用FN（内部F2 / js10）もありますが、物理位置は未確認です。本書では確実なメニュー経由を案内します。
 
-## Standaloneエミュレータ（SA）
-
-| エミュレータ | メニュー |
-| --- | --- |
-| PPSSPP（PSP） | Function 1（本体前面） |
-| PCSX-ReARMed standalone（PlayStation） | Function 1（本体前面） |
-| YabaSanshiro（Saturn） | Function 1（本体前面） |
-| OpenBOR | Function 1（本体前面） |
-| DraStic（Nintendo DS） | Function 1（本体前面）で通常メニュー |
-
-DraSticではFunction 2（本体上部）+`START`でも簡易メニューを表示できます。
-通常の設定・save・終了にはFunction 1（本体前面）の通常メニューを推奨します。
-
-## PortMaster / Ports
-
-Portsには共通の`SELECT`+`START`終了契約はありません。各ゲーム自身の終了メニューを
-利用してください。ゲームごとに操作体系が異なります。
-
-mini PLUSでは、既知のApotris v4.2.0実行ファイルを検出した場合に限り、音声と安定動作を
-実機確認したv4.1.0互換ファイルを起動中だけ使用します。PortMasterが将来の別versionへ
-更新した場合は、その新しい実行ファイルを妨げません。診断結果はSD1の
-`plumos/logs/apps/portmaster-ports.log`へ記録されます。
-
-## Pyxel
-
-Pyxel applicationにはRetroArchのような共通quick menuはありません。終了方法と操作は
-各applicationの実装に従います。応答しない場合は本体の電源メニューから終了／再起動を
-行ってください。
-
-## Game Gear専用フロントエンド（GGFE）
-
-`START` → `Apps` → `Game Gear`から起動します。
+## 共通の音量・明るさ
 
 | 操作 | 動作 |
 | --- | --- |
-| 十字左／右 | 前／次へ移動。長押しrepeat、端で折り返し |
-| 十字上／下 | 5件前／5件先へ移動 |
-| `A` | ゲーム起動 |
+| 音量−／＋のみ | システム音量 |
+| `SELECT` + 音量−／＋ | 20段階の画面輝度 |
+| 電源ボタン短押し | 電源メニュー |
+
+これはRA専用ではなく、FEとゲーム中のシステム操作です。
+
+## Game Gear専用FE（GGFE）
+
+`START → Apps → Game Gear`から起動します。通常のギャラリー表示とは別のアプリです。
+
+| 操作 | 動作 |
+| --- | --- |
+| 十字左／右 | 前／次。長押しrepeat・端で折り返し |
+| 十字上／下 | 5件前／5件先 |
+| `A` | 選択したRA/PICOで起動 |
 | `X` | cartridge case表示切替 |
-| `SELECT` | GGFEメニュー表示 |
-| `B` / `START` | 一覧画面では何もしない |
+| `SELECT` | 設定・終了メニュー |
+| 一覧中の`B` / `START` | 終了操作には使わない |
 
-GGFEメニュー内は上下で行移動、左右で値変更、`A`で選択、`B`または`SELECT`で
-閉じます。ゲーム起動後は選択したRA/PICOの操作体系へ切り替わります。
+GGFEの終了は`SELECT`メニューの終了項目から。ゲーム起動後はRA/PICOの操作になります。
 
-## 電源操作
+## 応答しないとき
 
-どの経路でも、再起動／shutdownは電源メニューまたはフロントエンドへ戻ってから
-行うのが基本です。画面が真っ暗でも電源メニューを呼び出せるよう、停止処理が先に
-走ります。通常の終了が可能なら強制電源断は避けてください。
+電源ボタン短押しで電源メニューを開き、`Reboot`または`Shutdown`を選びます。システムが実行中アプリを停止して電源処理へ進みます。画面・LEDが消える前にSDを抜かないでください。通常のアプリ終了ができる場合は、そちらを先に使います。
+
+## Apotrisの互換対応
+
+既知のApotris v4.2.0実行ファイルだけを検出し、起動中のみ実機確認済みv4.1.0互換ファイルを利用します。異なるhashの新しい版は妨げません。Ports全体の操作や動作を保証する機構ではありません。

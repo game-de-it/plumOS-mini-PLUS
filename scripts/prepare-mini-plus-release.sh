@@ -153,8 +153,9 @@ printf '%s  %s\n' "$archive_sha" "$archive_name" \
     "plumos-mini-plus-v$version-image-verify.txt" \
     "$archive_name" \
     "$archive_name.sha256" >SHA256SUMS)
-(cd "$stage_dir" && find licenses -type f -print | LC_ALL=C sort | \
-    while IFS= read -r notice; do shasum -a 256 "$notice"; done >>SHA256SUMS)
+# GitHub publishes flat assets. The ZIP hash covers the complete notice tree;
+# do not require users to extract it merely to check downloaded asset hashes.
+(cd "$stage_dir/licenses" && shasum -a 256 -c SHA256SUMS >/dev/null)
 (cd "$stage_dir" && shasum -a 256 -c SHA256SUMS >/dev/null)
 
 mv "$stage_dir" "$release_dir"

@@ -105,6 +105,7 @@ def main() -> None:
             assert "draft=1" in manifest
             assert "physical_cold_boots=not-recorded" in manifest
             assert "host-verified-draft-not-device-accepted" in manifest
+            assert "licenses/runtime/" not in (bundle / "SHA256SUMS").read_text()
             assert (bundle / "licenses/runtime/core-LICENSE").read_text() == "core fixture\n"
             with ZipFile(bundle / "plumos-mini-plus-v0.1.0-licenses.zip") as archive:
                 assert archive.testzip() is None

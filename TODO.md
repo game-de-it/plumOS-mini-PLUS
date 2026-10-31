@@ -45,9 +45,11 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 ## 未解決
 
-- [ ] `MPLUS-POWER-01` 実機合格した`Image-usb-sleep`を通常image builderへ統合し、元stock Imageの保持、patch前後hash、boot設定、生成image readbackを検証する。現在の検証カードの合格を未再生成imageへ遡及しない。
-- [ ] `MPLUS-PERF-02` 合格した`mini-plus-sd1-sdr104` overlayを通常image builderへ統合し、生成imageの`uEnv.txt`、overlay hash、SDR104 bootをrelease gateで検証する。現在の128 GB検証カードには適用済みだが、未再生成imageへ既定値が遡及するとは扱わない。
-- [ ] `MPLUS-META-01` live global `checksums.sha256`は空白を含む5,224 pathが既に第1語へ切り詰められており、stock BusyBoxで全件検証できない。今回変更したfrontend component 227/227とglobal delta 5/5は合格している。利用者のPortMaster更新物や設定を新baselineへ取り込まず、次回clean app-layer build/writeで正しいglobal checksumへ置換する。
+- [x] `MPLUS-POWER-01` `427c28a`で実機合格した`Image-usb-sleep`を通常image builderのp1/p2へ追加し、元stock Imageを保持した。生成imageからのreadback、4-byte限定patch、uEnvのkernel選択、稼働カードとのhash一致を検証した。新規SDへの物理bootは`MPLUS-REL-01`へ残す。
+- [x] `MPLUS-PERF-02` 通常image builderのp1/p2へSDR104 overlayを収録し、uEnv選択、overlay hash、稼働カードとのhash一致、展開後runtime DTBに対する単一property追加を検証した。新規SDの物理cold bootは`MPLUS-REL-01`へ残す。
+- [x] `MPLUS-META-01` live global checksumの5,224件の切れたpathを、元packageのdigestと完全pathの対応で復元した。記録済みhashは変更せず、実機12,482/12,482件の一致後にatomic適用した。新規生成imageのglobal checksumも全件readback合格した。
+- [x] `MPLUS-SLEEP-01` USB接続中、RetroArch/Gambatte、PicoArch/Gambatte、RetroArch/Mupen64Plus-Next、単体PPSSPPでnormal power overlayの自動Sleepを試験した。各7秒のRTC復帰後、同じprocess group、active DRM plane geometry、ALSA PCM進行を確認し、通常FEを復帰した。画面の非黒pixel・物理音質・各button操作の確認はこの自動試験に含まない。
+- [x] `MPLUS-SAVE-01` 専用sandboxのGambatte/GBCでステート59,656 byteとSRAMの保存を確認し、別process起動後に両fileのhash一致とstate読込みを確認した。ゲーム内save UIからの読込みや全coreのsave互換性へは一般化しない。
 - [x] `MPLUS-NET-01` live stockOSでSDIO `02D0:A9A6`、`bcmsdh_sdmmc`/`bcmdhd`、matching kernel ABI、実使用firmware/NVRAMを確認し、RTL8821CS force-load経路を廃止した。
 - [ ] `MPLUS-FE-01` 実SD2をBubble互換の`roms/<system>` + `bios`へ修正し、FEで10,247 files/534 ROMsを索引化した。ROM2全196 routeを実機走査し、補正再試験込みで170 route起動、PSP/PSX/OpenBORを含む166 routeのPCM進行、全観測経路のDRM/Mali表示契約を確認した。ユーザーがこれまで実行したゲームには不具合がなく概ね正常と評価した。残る2 routeはROM2の親archive不足、24 routeは互換content/BIOS不足で未合格であり、未確認routeを全合格とは扱わない。
 - [x] `MPLUS-GPU-01` hash一致するMali AArch64/ARMhf pairを組み込み、N64、DraStic、YabasanshiroでDRM/KMS/EGLとMali-G52描画を実機確認した。

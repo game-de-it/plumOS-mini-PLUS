@@ -55,9 +55,10 @@ grep -q '^3:1212416s:5668863s:4456448s:ext4::;$' "$verify/partitions.txt"
 ! grep -q '^4:' "$verify/partitions.txt"
 cmp -i 512:512 -n 16776704 "$prefix" "$image"
 
-dd if="$image" of="$verify/flash.fat" bs=512 skip=32768 count=1048576 status=none
-dd if="$image" of="$verify/matching.raw" bs=512 skip=1081344 count=131072 status=none
-dd if="$image" of="$verify/runtime.ext4" bs=512 skip=1212416 count=4456448 status=none
+# Same sector ranges as the partition assertions above, with MiB-sized I/O.
+dd if="$image" of="$verify/flash.fat" bs=1M skip=16 count=512 status=none
+dd if="$image" of="$verify/matching.raw" bs=1M skip=528 count=64 status=none
+dd if="$image" of="$verify/runtime.ext4" bs=1M skip=592 count=2176 status=none
 test "$(sha256sum "$verify/matching.raw" | cut -d' ' -f1)" = "$expected_p2_sha"
 test "$(dd if="$verify/matching.raw" bs=1 count=6 status=none)" = 070701
 test -z "$(blkid -p -s TYPE -o value "$verify/matching.raw" 2>/dev/null || true)"
@@ -84,9 +85,19 @@ dtc -@ -I dts -O dtb -o "$verify/expected-sd1-sdr104.dtbo" \
 cmp "$verify/expected-sd1-sdr104.dtbo" "$verify/sd1-sdr104.dtbo"
 cmp "$verify/sd1-sdr104.dtbo" \
     "$verify/matching/overlay-user/mini-plus-sd1-sdr104.dtbo"
-fdtoverlay -i "$boot_source/dtbs/4.19.193-51-rockchip-gb2c01b3d79f2/rockchip/rk3566-gkdmini-pro.dtb" \
+# The vendor boot DTB is encoded for its U-Boot and is verified byte-for-byte
+# above. Apply the overlay to the captured decoded live FDT for semantic checks.
+runtime_dtb=$repo_root/artifacts/vendor/mini-plus-stock-source/runtime-live/runtime.dtb
+test "$(sha256sum "$runtime_dtb" | cut -d' ' -f1)" = \
+    9112f81c3d1d84cff15a1120a834adb66aeb394a9783cc542e6fad318d78f3e0
+fdtoverlay -i "$runtime_dtb" \
     -o "$verify/sdr104-merged.dtb" "$verify/sd1-sdr104.dtbo"
 fdtget -p "$verify/sdr104-merged.dtb" /dwmmc@fe2b0000 | grep -qx sd-uhs-sdr104
+python3 "$repo_root/scripts/compare-fdt.py" "$runtime_dtb" \
+    "$verify/sdr104-merged.dtb" >"$verify/sdr104-properties.diff"
+test "$(wc -l <"$verify/sdr104-properties.diff")" -eq 2
+grep -qx 'ADDED /dwmmc@fe2b0000:sd-uhs-sdr104 = <empty>' \
+    "$verify/sdr104-properties.diff"
 test "$(sha256sum "$verify/active-Image" | cut -d' ' -f1)" = \
     "$(awk -F= '$1 == "active_kernel_sha256" {print $2}' "$base_manifest")"
 test "$(sha256sum "$verify/sd1-sdr104.dtbo" | cut -d' ' -f1)" = \

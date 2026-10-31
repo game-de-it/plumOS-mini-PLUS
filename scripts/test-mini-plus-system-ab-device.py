@@ -164,7 +164,8 @@ printf '%s\n' "$deferred"''')
             assert text("test ! -f /flash/System/pending-slot && printf clean")=="clean"
             assert "(deleted)" not in read("/sys/block/loop0/loop/backing_file")
             assert "ro" in text("awk '$2==\"/flash\" {print $4}' /proc/mounts").split(",")
-            boot_patch=next(line.split("=",1)[1] for line in read("/flash/plumos-image.manifest").splitlines() if line.startswith("boot_patch_source_ref="))
+            boot_manifest=dict(line.split("=",1) for line in read("/flash/plumos-image.manifest").splitlines() if "=" in line)
+            boot_patch=boot_manifest.get("boot_patch_source_ref",boot_manifest.get("source_ref","unknown"))
             summary={"healthy_update":healthy,"failed_boot_rollback":rollback,"bad_active_recovery":recovered,
                      "inactive_corruption_tolerated":True,"system_downgrade_rejected":True,
                      "original_system_images_restored":True,"user_settings_preserved":True,"device_backup":base,

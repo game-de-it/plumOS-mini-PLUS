@@ -2,6 +2,9 @@
 
 日付: 2026-10-31
 
+本書は当該候補生成時点の記録。後続の新SD受入と更新・復旧試験の現在状態は
+`2026-10-31-mini-plus-pre-release-work.md`を参照する。
+
 ## Integrated boot payload and image
 
 source `427c28a`から通常の`build-mini-plus-full-image.sh --assemble-only`で

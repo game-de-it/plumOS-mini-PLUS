@@ -49,11 +49,12 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 - [x] `MPLUS-BOOT-UI-01` `ee3a984`の全画面進捗・初回開始/完了各2秒・描画logを含む修正版で、ユーザーが新規SDの進捗表示を確認した。実機logでも開始〜完了の全7工程の書込み、p3拡張、p4作成、FE到達を確認した。複数回cold boot等は引き続き`MPLUS-REL-01`で追跡する。
 - [x] `MPLUS-META-02` input mapとPicoArch manifest/build scriptを「stick無し・FN4個」へ修正した。ABS/L3/R3はdriver aliasとして数値mappingを保持し、PicoArch実機manifestもcomponent/global checksum付きのmanaged deltaで更新した。
+- [x] `MPLUS-META-03` Runtime全体の`VERSION`をapp assemblerの所有へ分離し、旧frontend cacheのversionが上書きされず残る問題を修正した。manifestとVERSIONの一致、旧component checksumからの所有権移行、実機managed deltaと全12,483 fileの整合を検証した。完了済みWi-Fi/入力/音声/電源の古い未完了理由も整理した。
 - [x] `MPLUS-UPD-03` 実機のインストール済みRuntime updaterを専用state領域で試験し、署名不正拒否、正常確定、2回rollback、downgrade拒否、利用者設定保持を確認した。通常のapp/config/saveはfixtureで置換していない。
 - [x] `MPLUS-READBACK-01` 稼働SDからprefix（可変MBRを除く）とp2をraw読出しで照合し、p1全512 MiBも比較した。p1の差分50 sectorはMacのSpotlight/fsevents・system-stage・FAT metadataであり、boot必須24 fileは全件一致。SFTP 64 KiB往復もbyte一致。System A/B導入後の変更は別のdeploy deltaで追跡する。
 - [x] `MPLUS-AB-01` 署名付きSystem A/Bのinactive書込み/readback、FE健康確定、失敗trial rollback、正常面fallbackを実装した。ユーザー許可済みSDで正常更新・downgrade拒否・失敗initからの自動rollback・非使用面破損の許容・active checksum破損時の復旧を確認した。試験cleanupの不備は修正し、未mountのFAT修復後に全試験を再実施して合格。元System imageと設定を保持し、最終FAT検査はerrorなし。
-- [x] `MPLUS-POWER-01` `427c28a`で実機合格した`Image-usb-sleep`を通常image builderのp1/p2へ追加し、元stock Imageを保持した。生成imageからのreadback、4-byte限定patch、uEnvのkernel選択、稼働カードとのhash一致を検証した。新規SDへの物理bootは`MPLUS-REL-01`へ残す。
-- [x] `MPLUS-PERF-02` 通常image builderのp1/p2へSDR104 overlayを収録し、uEnv選択、overlay hash、稼働カードとのhash一致、展開後runtime DTBに対する単一property追加を検証した。新規SDの物理cold bootは`MPLUS-REL-01`へ残す。
+- [x] `MPLUS-POWER-01` `427c28a`で実機合格した`Image-usb-sleep`を通常image builderのp1/p2へ追加し、元stock Imageを保持した。生成imageからのreadback、4-byte限定patch、uEnvの選択を検証し、新SDで同じkernel hashによる起動も確認済み。最終出荷imageのexact-byte受入は`MPLUS-REL-01`で区別する。
+- [x] `MPLUS-PERF-02` 通常image builderのp1/p2へSDR104 overlayを収録し、uEnv、overlay hash、runtime DTBへの単一property追加を検証した。新SDでもSDR104・148.5 MHz稼働を確認済み。最終出荷imageの受入は`MPLUS-REL-01`で区別する。
 - [x] `MPLUS-META-01` live global checksumの5,224件の切れたpathを、元packageのdigestと完全pathの対応で復元した。記録済みhashは変更せず、実機12,482/12,482件の一致後にatomic適用した。新規生成imageのglobal checksumも全件readback合格した。
 - [x] `MPLUS-SLEEP-01` USB接続中、RetroArch/Gambatte、PicoArch/Gambatte、RetroArch/Mupen64Plus-Next、単体PPSSPPでnormal power overlayの自動Sleepを試験した。各7秒のRTC復帰後、同じprocess group、active DRM plane geometry、ALSA PCM進行を確認し、通常FEを復帰した。画面の非黒pixel・物理音質・各button操作の確認はこの自動試験に含まない。
 - [x] `MPLUS-SAVE-01` 専用sandboxのGambatte/GBCでステート59,656 byteとSRAMの保存を確認し、別process起動後に両fileのhash一致とstate読込みを確認した。ゲーム内save UIからの読込みや全coreのsave互換性へは一般化しない。

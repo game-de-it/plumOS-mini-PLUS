@@ -11,6 +11,11 @@ source `427c28a`から通常の`build-mini-plus-full-image.sh --assemble-only`�
 - raw: `output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-20261031-full-stack-validation.img`
 - size: 2,902,458,368 bytes
 - SHA-256: `1d3f3067cb9cffed2909e52344001dee968269ec157f4fc5dcfe6f41ffe09392`
+- 配布確認用archive: `plumOS-mini-PLUS-0.1.0-dev-20261031-full-stack-validation.7z`
+- archive size: 453,834,322 bytes（453.8 MB / 約432.8 MiB、500 MB以下）
+- archive SHA-256: `9d16898d061dd3bb868fcd999d458d9cc75b7ab6992d25521919dea0117f1ec7`
+- 7z integrity test合格、streaming展開後raw SHA-256は上記raw値と一致。
+- 圧縮条件: LZMA2、level 9、128 MiB dictionary、2 threads。
 - 元stock `Image`を保持し、p1/p2へ追加の`Image-usb-sleep`を収録。
 - active kernel SHA-256: `c18890e0bc6c439095f5a0f97d0d643ee3019cad94eaed8a459c3dc015f48653`
 - p1/p2へ`overlay-user/mini-plus-sd1-sdr104.dtbo`を収録。

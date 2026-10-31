@@ -4,6 +4,8 @@
 
 Final release preparation is still pending. Documentation updates do not promote the live development SD or an older image to release status.
 
+PLUMOS_MINI_PLUS_RELEASE_DRAFT=1 scripts/prepare-mini-plus-release.sh prepares a host-verified bundle ending in -draft without a physical acceptance manifest. Its manifest explicitly records unaccepted device status; this mode is for GitHub drafts only and must not be published as an accepted release. Normal mode still requires the exact image hash, write/readback, three cold boots and maintainer approval. Image manifests do not contain a version key: version checks use the Runtime VERSION and System os-release read back by the verifier.
+
 1. Freeze the intended source revision and approved external inputs; regenerate the full raw image.
 2. Run image verifier, content/license/secret audit and component/global checksum checks.
 3. Record filename, byte size and SHA-256; write/read back that exact image on a new card.

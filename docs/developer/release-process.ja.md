@@ -4,6 +4,8 @@
 
 最終リリース準備は未完了です。ドキュメント更新だけで稼働中の開発SDや旧imageをrelease扱いにしません。
 
+PLUMOS_MINI_PLUS_RELEASE_DRAFT=1 scripts/prepare-mini-plus-release.shで、実機受入manifestなしのhost検証済み-draft bundleを作成できます。manifestに実機未受入を明記し、GitHub下書きだけに使用します。受入済みreleaseとして公開しません。通常modeは同一image hash・書込み読戻し・cold boot 3回・maintainer承認を要求します。image manifestにはversion keyがないため、verifierで読戻したRuntime VERSIONとSystem os-releaseで版を確認します。
+
 1. source revisionと承認済み外部入力を固定し、full raw imageを再生成する。
 2. image verifier・content/license/secret audit・component/global checksumを通す。
 3. filename・byte size・SHA-256を記録し、そのimageを新SDへ書込み・読戻しする。

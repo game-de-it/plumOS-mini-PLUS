@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -53,6 +54,59 @@ def main() -> None:
         assert subprocess.check_output(["sh", str(wrapper)], env=env, stderr=subprocess.DEVNULL).strip() == b"0.1.0"
         env["PLUMOS_MINI_PLUS_VERSION"] = "0.1.1-dev"
         assert subprocess.check_output(["sh", str(wrapper)], env=env, stderr=subprocess.DEVNULL).strip() == b"0.1.1-dev"
+
+    seven_zip = shutil.which("7zz") or shutil.which("7z")
+    if seven_zip:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            scripts = root / "scripts"
+            scripts.mkdir()
+            for name in ("prepare-mini-plus-release.sh", "export-mini-plus-release-licenses.py"):
+                shutil.copy2(ROOT / "scripts" / name, scripts / name)
+            (root / "VERSION").write_text("0.1.0\n")
+            (root / ".gitignore").write_text("output/\ndist/\nwork/\n")
+            for name in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
+                (root / name).write_text("test fixture license\n")
+            notes = root / "docs/releases/0.1.0.md"
+            notes.parent.mkdir(parents=True)
+            notes.write_text("English / 日本語 fixture\n")
+            image = root / "output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-full-stack-validation.img"
+            image.parent.mkdir(parents=True)
+            image.write_bytes(b"not a real device image; packaging fixture only\n")
+            digest = hashlib.sha256(image.read_bytes()).hexdigest()
+            (image.parent / "image.manifest").write_text(
+                f"image_sha256={digest}\nsource_ref=fixture\npublishable=no\n")
+            verified = root / "work/mini-plus-frontend-probe-verify"
+            runtime = verified / "app-layer/plumos"
+            system = verified / "system-root"
+            (runtime / "licenses").mkdir(parents=True)
+            (runtime / "VERSION").write_text("0.1.0\n")
+            (runtime / "licenses/core-LICENSE").write_text("core fixture\n")
+            (system / "usr/share/licenses").mkdir(parents=True)
+            (system / "usr/share/licenses/NOTICE").write_text("system fixture\n")
+            (system / "etc").mkdir()
+            (system / "etc/os-release").write_text('VERSION_ID="0.1.0"\n')
+            verifier = scripts / "verify-mini-plus-frontend-probe-image.sh"
+            verifier.write_text("#!/bin/sh\nexit 0\n")
+            verifier.chmod(0o755)
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(root), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture"], check=True)
+            command = ["bash", str(scripts / "prepare-mini-plus-release.sh")]
+            env = dict(os.environ, SEVEN_ZIP=seven_zip, PLUMOS_MINI_PLUS_RELEASE_DRAFT="0")
+            rejected = subprocess.run(command, env=env, capture_output=True)
+            assert rejected.returncode == 2 and b"acceptance manifest" in rejected.stderr
+            env["PLUMOS_MINI_PLUS_RELEASE_DRAFT"] = "1"
+            subprocess.run(command, env=env, check=True, capture_output=True)
+            bundle = root / "dist/plumos-mini-plus-release-v0.1.0-draft"
+            manifest = (bundle / "manifest.txt").read_text()
+            assert "draft=1" in manifest
+            assert "physical_cold_boots=not-recorded" in manifest
+            assert "host-verified-draft-not-device-accepted" in manifest
+            assert (bundle / "licenses/runtime/core-LICENSE").read_text() == "core fixture\n"
+            subprocess.run(["shasum", "-a", "256", "-c", "SHA256SUMS"],
+                           cwd=bundle, check=True, capture_output=True)
 
     notes = (ROOT / "docs/releases/0.1.0.md").read_text()
     for label in ("## 日本語", "## English", "MIT", "LGPL-2.1-only",

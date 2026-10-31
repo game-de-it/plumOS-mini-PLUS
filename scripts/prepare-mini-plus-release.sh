@@ -2,6 +2,8 @@
 set -euo pipefail
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+draft=${PLUMOS_MINI_PLUS_RELEASE_DRAFT:-0}
+case "$draft" in 0|1) ;; *) echo 'draft must be 0 or 1' >&2; exit 2;; esac
 version=${1:-$(cat "$repo_root/VERSION")}
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
     echo 'formal release version must be MAJOR.MINOR.PATCH' >&2; exit 2;
@@ -12,6 +14,7 @@ source_manifest=${image%/*}/image.manifest
 acceptance_manifest=${3:-$repo_root/docs/validation/$version-mini-plus-device-acceptance.env}
 seven_zip=${SEVEN_ZIP:-$(command -v 7zz || command -v 7z || true)}
 release_name=plumos-mini-plus-release-v$version
+[ "$draft" = 0 ] || release_name=$release_name-draft
 release_dir=$repo_root/dist/$release_name
 stage_dir=$repo_root/dist/.$release_name.incoming
 raw_name=plumos-mini-plus-v$version-sd-image.img
@@ -20,7 +23,7 @@ archive_name=plumos-mini-plus-v$version-sd-image.7z
 [ -f "$image" ] || { echo "missing image: $image" >&2; exit 2; }
 [ -f "$source_manifest" ] || { echo "missing image manifest: $source_manifest" >&2; exit 2; }
 [ -f "$source_notes" ] || { echo "missing release notes: $source_notes" >&2; exit 2; }
-[ -f "$acceptance_manifest" ] || {
+[ "$draft" = 1 ] || [ -f "$acceptance_manifest" ] || {
     echo "missing explicit device acceptance manifest: $acceptance_manifest" >&2
     exit 2
 }
@@ -47,7 +50,7 @@ actual_image_sha=$(shasum -a 256 "$image" | awk '{print $1}')
 image_source_ref=$(awk -F= '$1 == "source_ref" {print $2}' "$source_manifest")
 [ -n "$image_source_ref" ] || { echo 'image manifest has no source_ref' >&2; exit 1; }
 grep -q '^publishable=no$' "$source_manifest"
-grep -Fxq "version=$version" "$source_manifest"
+if [ "$draft" = 0 ]; then
 grep -q '^format=plumos-mini-plus-device-acceptance-v1$' "$acceptance_manifest"
 grep -q "^image_sha256=$actual_image_sha$" "$acceptance_manifest"
 grep -q '^full_image_boot=yes$' "$acceptance_manifest"
@@ -55,6 +58,7 @@ grep -q '^block_readback=yes$' "$acceptance_manifest"
 grep -q '^physical_cold_boots=3$' "$acceptance_manifest"
 grep -q '^maintainer_accepted=yes$' "$acceptance_manifest"
 grep -q '^release_approved=yes$' "$acceptance_manifest"
+fi
 
 mkdir -p "$repo_root/dist" "$stage_dir"
 cleanup() {
@@ -100,6 +104,7 @@ release_source_ref=$(git -C "$repo_root" rev-parse HEAD)
     printf '%s\n' 'format=plumos-mini-plus-release-bundle-v1'
     printf 'version=%s\n' "$version"
     printf 'prerelease=no\n'
+    printf 'draft=%s\n' "$draft"
     printf 'release_source_ref=%s\n' "$release_source_ref"
     printf 'image_source_ref=%s\n' "$image_source_ref"
     printf 'image_file=%s\n' "$raw_name"
@@ -107,10 +112,16 @@ release_source_ref=$(git -C "$repo_root" rev-parse HEAD)
     printf 'archive_file=%s\n' "$archive_name"
     printf 'archive_sha256=%s\n' "$archive_sha"
     printf 'image_internal_publishable=no\n'
-    printf 'promotion=maintainer-accepted-exact-byte-image\n'
-    printf 'physical_cold_boots=3\n'
-    printf 'acceptance_manifest_sha256=%s\n' \
-        "$(shasum -a 256 "$acceptance_manifest" | awk '{print $1}')"
+    if [ "$draft" = 0 ]; then
+        printf 'promotion=maintainer-accepted-exact-byte-image\n'
+        printf 'physical_cold_boots=3\n'
+        printf 'acceptance_manifest_sha256=%s\n' \
+            "$(shasum -a 256 "$acceptance_manifest" | awk '{print $1}')"
+    else
+        printf 'promotion=host-verified-draft-not-device-accepted\n'
+        printf 'physical_cold_boots=not-recorded\n'
+        printf 'acceptance_manifest_sha256=not-recorded\n'
+    fi
     printf 'user_media_included=no\n'
     printf 'publication_complete=no\n'
 } >"$stage_dir/manifest.txt"

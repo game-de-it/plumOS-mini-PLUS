@@ -292,7 +292,7 @@ printf '%s\n' "$version" >"$root/VERSION"
     find bin config factory-defaults fonts frontend/lib scraper storage-tools share themes -type f \
         ! -path 'bin/plumos-network-services' -print | LC_ALL=C sort |
         while IFS= read -r path; do sha256sum "$path"; done
-    sha256sum components/frontend/manifest.json VERSION
+    sha256sum components/frontend/manifest.json
 ) >"$component/checksums.sha256"
 (cd "$root" && sha256sum -c components/frontend/checksums.sha256)
 readelf -h "$bin/plumos-controller-ui-fbdev" | grep -q 'Machine:.*AArch64'

@@ -25,6 +25,10 @@ with open(sys.argv[1],'r+b') as f:
 PY
 helper=/work/rootfs/mini-plus-external-initramfs/usr/sbin/plumos-mini-plus-check-boot-fat
 if sh "$helper" "$image" >/dev/null 2>&1; then exit 1; fi
+status=0
+PLUMOS_BOOT_FAT_REPAIR_AUTHORIZED=yes sh "$helper" proc >"$work/mounted.log" 2>&1 || status=$?
+[ "$status" -eq 2 ]
+grep -q 'reason=mounted' "$work/mounted.log"
 PLUMOS_BOOT_FAT_REPAIR_AUTHORIZED=yes sh "$helper" "$image" >"$work/repair.log"
 grep -q 'plumos-boot-fat=result-ok' "$work/repair.log"
 fsck.fat -n "$image" >/dev/null

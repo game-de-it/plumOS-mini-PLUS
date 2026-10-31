@@ -66,6 +66,7 @@ def main():
         (OUT/("system-device-"+name+".log")).write_text(data+"\n")
         print(name+": "+data.splitlines()[0],flush=True)
     assert read("/flash/System/slot-policy")=="trial-v1"
+    assert "(deleted)" not in read("/sys/block/loop0/loop/backing_file")
     assert read("/flash/System/active-slot")=="a","start with the original A slot"
     assert text("test ! -f /flash/System/pending-slot && printf clean")=="clean"
     initial_id=read("/proc/sys/kernel/random/boot_id")
@@ -108,6 +109,9 @@ printf '%s\n' "$deferred"''')
         if result.stdout.strip()==b"1":
             # Select the restored A image, reboot away from the mounted changed
             # image, then restore the now-inactive slot. Never unlink loop0's file.
+            reboot()
+            restore_all()
+        elif read("/storage/plumos/state/system-ab/booted").split()[0] != read(base+"/active-slot"):
             reboot()
             restore_all()
     try:
@@ -158,10 +162,14 @@ printf '%s\n' "$deferred"''')
             actual=text("sha256sum /flash/System/system-a.squashfs /flash/System/system-b.squashfs").splitlines()
             assert [s.split()[0] for s in expected]==[s.split()[0] for s in actual]
             assert text("test ! -f /flash/System/pending-slot && printf clean")=="clean"
+            assert "(deleted)" not in read("/sys/block/loop0/loop/backing_file")
+            assert "ro" in text("awk '$2==\"/flash\" {print $4}' /proc/mounts").split(",")
+            boot_patch=next(line.split("=",1)[1] for line in read("/flash/plumos-image.manifest").splitlines() if line.startswith("boot_patch_source_ref="))
             summary={"healthy_update":healthy,"failed_boot_rollback":rollback,"bad_active_recovery":recovered,
                      "inactive_corruption_tolerated":True,"system_downgrade_rejected":True,
                      "original_system_images_restored":True,"user_settings_preserved":True,"device_backup":base,
-                     "boot_patch_retained":"4353ce4","application_patch_retained":"9c25a65"}
+                     "boot_patch_retained":boot_patch,"application_patch_retained":json.loads(read("/storage/plumos/manifest.json"))["source_ref"],
+                     "mounted_system_backing_file_intact":True,"boot_fat_read_only":True}
             (OUT/"system-device-summary.json").write_text(json.dumps(summary,indent=2)+"\n")
             print("device_system_ab=result-ok",flush=True)
     except BaseException:

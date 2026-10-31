@@ -73,6 +73,10 @@ with tempfile.TemporaryDirectory(prefix="mini-plus-system-ab-") as temp:
     assert digest(boot/"system-a.squashfs")==digest(old)
     (boot/"slot-policy").write_text("trial-v1\n")
     assert select()=="a"
+    (boot/"active-slot").write_text("b\n")
+    update("request",p11,expected_error="System health is not confirmed")
+    assert digest(boot/"system-a.squashfs")==digest(old)
+    (boot/"active-slot").write_text("a\n")
     update("request",p11)
     assert (boot/"active-slot").read_text().strip()=="a" and (boot/"pending-slot").read_text().strip()=="b"
     assert digest(boot/"system-a.squashfs")==digest(old)

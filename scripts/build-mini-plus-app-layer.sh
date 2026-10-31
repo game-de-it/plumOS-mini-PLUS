@@ -118,6 +118,18 @@ LD_LIBRARY_PATH="$root/emulator/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
 grep -Fqx 'miniplus_libretro_load_smoke=result-ok pass=114 fail=0' \
     "$out/libretro-core-load-smoke.log"
 
+# VERSION belongs to the assembled Runtime, not a cached frontend component.
+# Older validated caches still list it in the frontend inventory; transfer that
+# one ownership entry before creating the global manifest/checksum.
+printf '%s\n' "$version" >"$root/VERSION"
+python3 - "$root/components/frontend/checksums.sha256" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+path.write_text(''.join(line + '\n' for line in path.read_text().splitlines()
+                        if line[66:] != 'VERSION'))
+PY
+
 cat >"$root/manifest.json" <<EOF
 {
   "name": "plumOS mini PLUS bring-up app layer",
@@ -131,7 +143,7 @@ cat >"$root/manifest.json" <<EOF
   "core_baseline": "all-114-source-records",
   "catalog_complete": true,
   "release_complete": false,
-  "physical_frontend_acceptance": "user-reported-boot-and-basic-controller-operation",
+  "physical_frontend_acceptance": "mini-plus-user-confirmed-input-audio-network-power-and-standard-apps; exact-image acceptance is separate",
   "wifi": "stock-bcmdhd-sdio-02d0-a9a6",
   "catalog_systems": 97,
   "catalog_launch_profile_occurrences": 196,
@@ -141,7 +153,8 @@ cat >"$root/manifest.json" <<EOF
   "managed_firmware_assets": ["blueMSX C-BIOS", "DraStic packaged BIOS (project-approved inclusion)"],
   "license_policy": "MIT for plumOS-authored material; GKD/vendor/upstream terms for stockOS-derived material; DraStic project-approved inclusion matching plumOS-MF",
   "publishable": false,
-  "non_publishable_reasons": ["mini-PLUS emulator/GPU/audio/power physical acceptance incomplete", "mini-PLUS plumOS-image Wi-Fi/SSH physical acceptance pending"]
+  "non_publishable_reasons": ["final exact-image release acceptance and packaging pending"],
+  "runtime_validation_ledger": "source:configs/mini-plus-runtime-validation.json"
 }
 EOF
 (

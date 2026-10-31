@@ -48,6 +48,10 @@ def apply(e, package, manifest):
     capability(e)
     root=boot_root(); state=state_root(e)
     if (root/"pending-slot").exists(): raise e.UpdateError("a System trial is already pending")
+    booted=e.read_text(state/"booted").split()
+    boot_id=e.read_text(Path("/proc/sys/kernel/random/boot_id"))
+    if booted != [active(e),boot_id]:
+        raise e.UpdateError("System health is not confirmed for the active slot; reboot before updating")
     slot="b" if active(e)=="a" else "a"
     if not verified(e,active(e)): raise e.UpdateError("current System slot is not healthy")
     e.extract_payload(package,manifest,e.STAGING_ROOT)

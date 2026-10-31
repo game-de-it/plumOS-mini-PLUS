@@ -10,7 +10,7 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 ## 完了
 
-- [x] `MPLUS-PUBLISH-01` 利用者のGitHub公開依頼を受け、0.1.0を新規full build・host検証し、日英リリースノート・MIT/第三者原文214件・checksum付きで通常Latest releaseとして公開した。全10公開assetの匿名downloadとSHA-256・byte size一致を確認。新imageの実カード再試験未実施をnotes/manifestへ明記し、既存開発カードの合格と区別した（`docs/validation/2026-10-31-mini-plus-release.md`）。
+- [x] `MPLUS-PUBLISH-01` 利用者のGitHub公開依頼を受け、0.1.0を新規full build・host検証し、日英リリースノート・MIT/第三者原文214件・checksum付きで通常Latest releaseとして公開した。全10公開assetの匿名downloadとSHA-256・byte size一致を確認。新imageの実カード再試験未実施を公開manifestと開発者記録へ保持し、既存開発カードの合格と区別した（`docs/validation/2026-10-31-mini-plus-release.md`）。
 
 - [x] `MPLUS-REL-META-01` 正式版をVERSIONの0.1.0へ固定し、full-image wrapperから全子buildへ伝播させた。Bubble形式の配布名plumos-mini-plus-v0.1.0-sd-image.img/.7z、日英リリースノート、plumOS MITと第三者別条件の表示を整備。release packagerはexact-image読戻しのSystem/Runtime版を確認し、各ライセンス原文と日英索引を収録・checksum対象化する。版伝播・原文保持testと214原文のpreview exportは合格。最終image生成・実機受入・公開はMPLUS-REL-01で未完了のまま扱う。
 

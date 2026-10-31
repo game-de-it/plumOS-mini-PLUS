@@ -129,8 +129,8 @@ def main() -> None:
             assert "physical_cold_boots=3" not in manifest
 
     notes = (ROOT / "docs/releases/0.1.0.md").read_text()
-    for label in ("## 日本語", "## English", "MIT", "LGPL-2.1-only",
-                  "plumos-mini-plus-v0.1.0-sd-image.img", "licenses/README.md"):
+    for label in ("## 日本語", "## English", "MIT", "Raspberry Pi Imager",
+                  "plumos-mini-plus-v0.1.0-sd-image.img", "plumos-mini-plus-v0.1.0-licenses.zip"):
         assert label in notes
     print("miniplus_release_metadata=result-ok version=0.1.0 propagation=ok license_originals=preserved languages=2")
 

@@ -2,7 +2,7 @@
 
 [日本語](README.ja.md) | [User manual](../user/README.md)
 
-v0.1.0 is published after a fresh build and host verification. Exact-image device retesting remains open and is disclosed in the release notes. Check [validation](validation.md) and [TODO](../../TODO.md).
+v0.1.0 is published after a fresh build and host verification. Exact-image device retesting remains open and is recorded in the publication manifest and developer validation records. Check [validation](validation.md) and [TODO](../../TODO.md).
 
 ## Topics
 

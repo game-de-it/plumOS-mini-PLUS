@@ -27,7 +27,9 @@ The user's publication request is recorded in
 Existing device results refer to the development card. Write/readback and three
 cold boots of the newly generated exact image have not been repeated. This
 publication does not mark those physical gates passed. The 26 route-validation
-limits remain documented. Release notes disclose both scopes.
+limits remain documented in the publication manifest and developer records.
+
+Release-note update: at the user's request, the Japanese/English release body and attached RELEASE_NOTES.md now focus on SD-image installation. SHA256SUMS was updated for that text change; the image and license archives remain unchanged.
 
 ## 日本語
 

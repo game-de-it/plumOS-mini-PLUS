@@ -9,6 +9,7 @@ if [ "${1:-}" != "--inside" ]; then
     case "$image" in "$repo_root"/*) ;; *) echo 'image must be under repository' >&2; exit 2;; esac
     relative=${image#"$repo_root"/}
     "$repo_root/tests/test-mini-plus-first-boot-storage.sh"
+    sh "$repo_root/tests/test-mini-plus-boot-progress.sh"
     exec docker run --rm --platform linux/arm64 \
         -e PLUMOS_MINI_PLUS_VERIFY_IMAGE="/work/$relative" \
         -v "$repo_root:/work" -w /work "$tools_image" \
@@ -156,6 +157,11 @@ for stage in S21 S22 S23 S24 S25 S26 S27 S28 S29 \
 done
 test "$(stat -c '%a' "$verify/initramfs/init")" = 755
 test "$(stat -c '%a' "$verify/initramfs/usr/sbin/plumos-mini-plus-provision-storage")" = 755
+test -x "$verify/initramfs/usr/sbin/plumos-mini-plus-boot-progress"
+for phase in provision-start provision-p3-check provision-p3-resize \
+    provision-p3-recheck provision-p4-create provision-p4-check provision-complete boot-error; do
+    test "$(stat -c '%s' "$verify/initramfs/usr/share/plumos/boot-progress/$phase.raw")" -eq 1228800
+done
 for stage in S24A S24B S24C S24D E24A E24B E24C E24D; do
     grep -q "$stage" \
         "$verify/initramfs/usr/sbin/plumos-mini-plus-provision-storage"

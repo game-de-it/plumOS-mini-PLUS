@@ -52,11 +52,7 @@ show_shared_logo() {
 }
 
 show_progress() {
-    frame=$progress_root/$1.raw
-    if [ -c /dev/fb0 ] && [ -r "$frame" ]; then
-        $bb dd if="$frame" of=/dev/fb0 bs=2560 seek=336 conv=notrunc \
-            2>/dev/null || true
-    fi
+    /usr/sbin/plumos-mini-plus-boot-progress "$1"
 }
 
 fail() {
@@ -184,7 +180,7 @@ if [ -f "$runtime_mount/plumos/provision/complete" ]; then
     provisioning_was_complete=yes
 else
     provisioning_was_complete=no
-    show_progress provision-start
+    show_progress provision-start && $bb sleep 2
 fi
 previous_shutdown_p3=missing
 [ ! -f "$runtime_mount/plumos/provision/clean-shutdown" ] || \
@@ -246,6 +242,9 @@ $bb sync
 $bb touch "$runtime_mount/plumos/provision/complete"
 $bb sync
 log 'stage=S25_USERDATA_CONTRACT_READY'
+if [ "$provisioning_was_complete" = no ]; then
+    show_progress provision-complete && $bb sleep 2
+fi
 
 expected_matching_sha=$(cmdline_value plumos_probe_p2_sha256 || true)
 [ -n "$expected_matching_sha" ] || fail E26 P2_EXPECTED_SHA_MISSING

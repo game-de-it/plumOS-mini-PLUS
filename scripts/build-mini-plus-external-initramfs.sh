@@ -33,6 +33,9 @@ install -m 0755 "$repo_root/rootfs/mini-plus-external-initramfs/init" "$rootfs/i
 install -m 0755 \
     "$repo_root/rootfs/mini-plus-external-initramfs/usr/sbin/plumos-mini-plus-provision-storage" \
     "$rootfs/usr/sbin/plumos-mini-plus-provision-storage"
+install -m 0755 \
+    "$repo_root/rootfs/mini-plus-external-initramfs/usr/sbin/plumos-mini-plus-boot-progress" \
+    "$rootfs/usr/sbin/plumos-mini-plus-boot-progress"
 install -m 0755 /bin/busybox "$rootfs/bin/busybox"
 for applet in awk cat cp dd grep hostname losetup mkdir mknod mount \
     sha256sum sh sleep sync switch_root umount; do
@@ -78,9 +81,9 @@ generate_progress() {
     error_arg=
     [ "$error" != yes ] || error_arg=--error
     python3 "$repo_root/scripts/generate-mini-plus-fb-marker.py" \
-        --message "$message" --percent "$percent" --crop-y 336 $error_arg \
+        --message "$message" --percent "$percent" $error_arg \
         "$shared_boot_logo" "$progress_dir/$name.raw"
-    test "$(stat -c '%s' "$progress_dir/$name.raw")" -eq 368640
+    test "$(stat -c '%s' "$progress_dir/$name.raw")" -eq 1228800
 }
 generate_progress provision-start 10 'PREPARING STORAGE'
 generate_progress provision-p3-check 20 'CHECKING SYSTEM STORAGE'
@@ -88,6 +91,7 @@ generate_progress provision-p3-resize 35 'EXPANDING SYSTEM STORAGE'
 generate_progress provision-p3-recheck 50 'VERIFYING SYSTEM STORAGE'
 generate_progress provision-p4-create 65 'CREATING USER STORAGE'
 generate_progress provision-p4-check 75 'CHECKING USER STORAGE'
+generate_progress provision-complete 100 'STORAGE SETUP COMPLETE'
 generate_progress boot-error 0 'BOOT ERROR - CHECK LOG' yes
 
 find "$rootfs" -exec touch -h -d "@$source_epoch" {} +

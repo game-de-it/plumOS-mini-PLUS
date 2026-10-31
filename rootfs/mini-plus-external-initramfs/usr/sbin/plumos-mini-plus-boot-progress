@@ -1,0 +1,32 @@
+#!/bin/sh
+# Initial userspace only: no FE/game renderer may own the display here.
+set -u
+bb=${PLUMOS_PROGRESS_BUSYBOX:-/bin/busybox}
+root=${PLUMOS_PROGRESS_ROOT:-/usr/share/plumos/boot-progress}
+fb=${PLUMOS_PROGRESS_FB:-/dev/fb0}
+phase=${1:?missing progress phase}
+case "$phase" in provision-start|provision-p3-check|provision-p3-resize|provision-p3-recheck|provision-p4-create|provision-p4-check|provision-complete|boot-error) ;;
+    *) exit 2 ;;
+esac
+report() {
+    message="plumos-boot-progress=phase=$phase result=$1"
+    printf '%s\n' "$message"
+    printf '%s\n' "$message" >/dev/kmsg 2>/dev/null || true
+}
+frame=$root/$phase.raw
+if [ ! -r "$frame" ] || [ "$("$bb" wc -c <"$frame")" -ne 1228800 ]; then
+    report invalid-frame
+    exit 1
+fi
+if [ ! -c "$fb" ]; then
+    report framebuffer-unavailable
+    exit 1
+fi
+# Full frames avoid relying on a previously drawn logo or a seek into fb0.
+# Keep errors in the first-boot log rather than silently losing the UI.
+if "$bb" cat "$frame" >"$fb"; then
+    report written
+else
+    report write-failed
+    exit 1
+fi

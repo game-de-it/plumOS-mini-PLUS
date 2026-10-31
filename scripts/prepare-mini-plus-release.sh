@@ -19,6 +19,7 @@ release_dir=$repo_root/dist/$release_name
 stage_dir=$repo_root/dist/.$release_name.incoming
 raw_name=plumos-mini-plus-v$version-sd-image.img
 archive_name=plumos-mini-plus-v$version-sd-image.7z
+license_archive=plumos-mini-plus-v$version-licenses.zip
 
 [ -f "$image" ] || { echo "missing image: $image" >&2; exit 2; }
 [ -f "$source_manifest" ] || { echo "missing image manifest: $source_manifest" >&2; exit 2; }
@@ -87,6 +88,19 @@ python3 "$repo_root/scripts/export-mini-plus-release-licenses.py" \
     --output "$stage_dir/licenses"
 cp "$repo_root/LICENSE" "$stage_dir/LICENSE"
 cp "$repo_root/THIRD_PARTY_NOTICES.md" "$stage_dir/THIRD_PARTY_NOTICES.md"
+python3 - "$stage_dir" "$license_archive" <<'PY'
+import sys
+from pathlib import Path
+from zipfile import ZipFile, ZIP_DEFLATED
+root = Path(sys.argv[1])
+paths = [root / "LICENSE", root / "THIRD_PARTY_NOTICES.md"]
+paths += sorted(p for p in (root / "licenses").rglob("*") if p.is_file())
+with ZipFile(root / sys.argv[2], "w", ZIP_DEFLATED) as archive:
+    for path in paths:
+        archive.write(path, path.relative_to(root).as_posix())
+with ZipFile(root / sys.argv[2]) as archive:
+    assert archive.testzip() is None
+PY
 
 (cd "$stage_dir" && "$seven_zip" a -t7z -mx=9 -mmt=on "$archive_name" "$raw_name")
 rm -f "$stage_dir/$raw_name"
@@ -111,6 +125,7 @@ release_source_ref=$(git -C "$repo_root" rev-parse HEAD)
     printf 'image_sha256=%s\n' "$actual_image_sha"
     printf 'archive_file=%s\n' "$archive_name"
     printf 'archive_sha256=%s\n' "$archive_sha"
+    printf 'license_archive=%s\n' "$license_archive"
     printf 'image_internal_publishable=no\n'
     if [ "$draft" = 0 ]; then
         printf 'promotion=maintainer-accepted-exact-byte-image\n'
@@ -132,6 +147,7 @@ printf '%s  %s\n' "$archive_sha" "$archive_name" \
     RELEASE_NOTES.md \
     LICENSE \
     THIRD_PARTY_NOTICES.md \
+    "$license_archive" \
     manifest.txt \
     "plumos-mini-plus-v$version-image-build-manifest.txt" \
     "plumos-mini-plus-v$version-image-verify.txt" \

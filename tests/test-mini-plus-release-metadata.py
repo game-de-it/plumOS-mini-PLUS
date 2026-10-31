@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+from zipfile import ZipFile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -105,6 +106,9 @@ def main() -> None:
             assert "physical_cold_boots=not-recorded" in manifest
             assert "host-verified-draft-not-device-accepted" in manifest
             assert (bundle / "licenses/runtime/core-LICENSE").read_text() == "core fixture\n"
+            with ZipFile(bundle / "plumos-mini-plus-v0.1.0-licenses.zip") as archive:
+                assert archive.testzip() is None
+                assert archive.read("licenses/runtime/core-LICENSE") == b"core fixture\n"
             subprocess.run(["shasum", "-a", "256", "-c", "SHA256SUMS"],
                            cwd=bundle, check=True, capture_output=True)
 

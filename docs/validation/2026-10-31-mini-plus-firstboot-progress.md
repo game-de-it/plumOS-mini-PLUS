@@ -34,3 +34,20 @@ p1実物のinitramfsを展開し、全progress stripの存在と開始画像のh
 このpreviewは起動後の表示経路の機械確認であり、初期userspaceでの物理表示合格とは区別する。
 修正候補の新規SD書込み後、初回の開始・工程・100%画面と2回目の通常起動を目視確認するまで
 `MPLUS-BOOT-UI-01`を未完了とする。
+
+## 修正版イメージ
+
+source `ee3a984`、version `0.1.0-dev-20261031-firstboot`。
+
+- raw: `output/image/mini-plus-frontend-probe/plumOS-mini-PLUS-0.1.0-dev-20261031-firstboot-full-stack-validation.img`
+- size: 2,902,458,368 bytes
+- SHA-256: `04a4081bd88d662a0daf6372a22091b08ccafb040c18b6ae6199d5d5766c81b8`
+- initramfs SHA-256: `2755460b381d398a145c1b33a40307121039216860dcc4e6ca70bad67bd883b8`
+
+通常builderのassemble-onlyで生成し、full image verifierを合格した。
+p1/p2のboot一式、System A/B、8枚の全画面progress、全app checksum、catalog、
+user media/secret非混入を含む。新規SDでの初期userspace表示は未確認の候補であり、
+`publishable=no`を維持する。
+
+ユーザーの「リリース前なので圧縮不要」という指示に従い、7z作成は中止した。
+未圧縮imgと専用の`.img.sha256`を検証用成果物とする。

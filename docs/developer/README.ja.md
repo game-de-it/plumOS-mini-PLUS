@@ -2,7 +2,7 @@
 
 [English](README.md) | [利用者マニュアル](../user/README.ja.md)
 
-実装・検証・復旧は進んでいますが、最終配布imageの生成・exact-hash受入・公開は別工程です。[検証ガイド](validation.ja.md)と[TODO](../../TODO.md)で現状を確認してください。
+新規build・ホスト検証を経てv0.1.0を公開しました。同一imageの実機再試験は未実施としてリリースノートに明記しています。[検証ガイド](validation.ja.md)と[TODO](../../TODO.md)で現状を確認してください。
 
 ## 項目
 

@@ -3,7 +3,7 @@
 日本語 | [English](README.md)
 
 正式バージョン：**0.1.0**。[日英リリースノート](docs/releases/0.1.0.md)。
-配布名はBubble形式の`plumos-mini-plus-v0.1.0-sd-image.img`／`.7z`です。最終imageの受入・公開は未完了です。
+配布名はBubble形式の`plumos-mini-plus-v0.1.0-sd-image.img`／`.7z`です。[v0.1.0をダウンロード](https://github.com/game-de-it/plumOS-mini-PLUS/releases/tag/v0.1.0)。同一imageの実機再試験は未実施です。
 
 plumOS-Bubbleをベースにした、**GKD mini PLUS（RK3566 / ARM64、640×480）**向けplumOSです。本体には4個のFNキーがあり、アナログスティックはありません。
 
@@ -50,9 +50,9 @@ ROM、利用者BIOS、商用ゲームは同梱しません。この移植ではU
 
 ## 現在の状態
 
-**公開前の開発版**です。新SDの起動、SD1／SD2のプレイ、ハードウェア操作はユーザー確認済みで、Runtime／Systemの復旧も機械・実機試験の記録があります。196起動経路のうち170経路に機械的な起動証拠があり、残る26経路は未検証理由を明示しています。全ゲームの互換性を保証するものではありません。
+**検証制限を明記してv0.1.0を公開しました。**新SDの起動、SD1／SD2のプレイ、ハードウェア操作はユーザー確認済みで、Runtime／Systemの復旧も機械・実機試験の記録があります。196起動経路のうち170経路に機械的な起動証拠があり、残る26経路は未検証理由を明示しています。全ゲームの互換性を保証するものではありません。
 
-現在の作業SDは後続のboot／app更新を含み、以前の開発用`.img`にはその全てが入っていません。最終イメージの再生成・exact-image受入・公開は別工程です。[最新の作業記録](docs/validation/2026-10-31-mini-plus-pre-release-work.md)、[既知の検証制限](docs/validation/2026-10-31-mini-plus-runtime-limitations.ja.md)、[TODO](TODO.md)を参照してください。
+配布イメージは後続のboot／app更新を含めて新規生成し、ホスト検証を通過しました。その同一imageを新SDへ書き込んでの読戻し・cold boot 3回の再試験は未実施です。[最新の作業記録](docs/validation/2026-10-31-mini-plus-pre-release-work.md)、[既知の検証制限](docs/validation/2026-10-31-mini-plus-runtime-limitations.ja.md)、[TODO](TODO.md)を参照してください。
 
 ## ドキュメント
 

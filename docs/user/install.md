@@ -2,7 +2,7 @@
 
 [日本語](install.ja.md) | [Manual](README.md)
 
-The port is in pre-release development. Use the exact candidate specified for testing; older images may lack later fixes. See [current status](../../README.md#current-status).
+v0.1.0 is available from the GitHub release. Use the image and checksum from the same release; older development images may lack later fixes. See [current status](../../README.md#current-status).
 
 1. Prepare a GKD mini PLUS and a 16 GB or larger microSD for the top-edge SYS slot.
 2. Obtain the raw `.img` and its SHA-256. If supplied as an archive, extract it first; development images may be uncompressed.

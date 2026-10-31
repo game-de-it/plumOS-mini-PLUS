@@ -10,6 +10,8 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 ## 完了
 
+- [x] `MPLUS-PUBLISH-01` 利用者のGitHub公開依頼を受け、0.1.0を新規full build・host検証し、日英リリースノート・MIT/第三者原文214件・checksum付きで通常Latest releaseとして公開した。全10公開assetの匿名downloadとSHA-256・byte size一致を確認。新imageの実カード再試験未実施をnotes/manifestへ明記し、既存開発カードの合格と区別した（`docs/validation/2026-10-31-mini-plus-release.md`）。
+
 - [x] `MPLUS-REL-META-01` 正式版をVERSIONの0.1.0へ固定し、full-image wrapperから全子buildへ伝播させた。Bubble形式の配布名plumos-mini-plus-v0.1.0-sd-image.img/.7z、日英リリースノート、plumOS MITと第三者別条件の表示を整備。release packagerはexact-image読戻しのSystem/Runtime版を確認し、各ライセンス原文と日英索引を収録・checksum対象化する。版伝播・原文保持testと214原文のpreview exportは合格。最終image生成・実機受入・公開はMPLUS-REL-01で未完了のまま扱う。
 
 - [x] `MPLUS-DOC-01` 他8機種のuser/developer項目を照合し、mini PLUSの利用者12項目・開発者14項目を日英対で整備した。READMEへmetadata除去済み本体写真と実機Text/Graphic/Gallery画像を掲載し、START右上メニューキー・runtime別終了・RA撮影メニュー・輝度操作・SFTP個別有効化・保存先・System A/Bを現行実装へ修正した。言語対・内部リンク・画像寸法/metadata・対応表生成・物理入力contractの検証を通過。最終image生成・公開は含めない（`docs/validation/2026-10-31-mini-plus-documentation-audit.ja.md`）。
@@ -65,4 +67,4 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 - [x] `MPLUS-NET-01` live stockOSでSDIO `02D0:A9A6`、`bcmsdh_sdmmc`/`bcmdhd`、matching kernel ABI、実使用firmware/NVRAMを確認し、RTL8821CS force-load経路を廃止した。
 - [x] `MPLUS-FE-01` SD2をBubble互換の`roms/<system>` + `bios`へ修正し、ROM2全196 routeを監査した。170 route起動、166 routeのPCM進行の既存証拠と、26 routeの未検証理由を`configs/mini-plus-runtime-validation.json`へ分類し、catalog全196 routeとの双方向一致を検証した。親archive/BIOS/content不足や個別port試験の範囲を既知の制限として文書化した。これは26 routeを全合格・runtime未対応と読み替える変更ではない。
 - [x] `MPLUS-GPU-01` hash一致するMali AArch64/ARMhf pairを組み込み、N64、DraStic、YabasanshiroでDRM/KMS/EGLとMali-G52描画を実機確認した。
-- [ ] `MPLUS-REL-01` live `runtime-coverage.json`とflat-root SD2の不整合は解消し、ROM2監査を記録した。残る物理操作/可聴/電源項目と、書き戻し後のpartition/hashを記録してrelease可否を判定する。
+- [ ] `MPLUS-REL-01` v0.1.0は検証制限付きで公開済み。開発カードの操作・可聴音・電源試験と、新規配布imageの物理受入を区別する。同一imageを新SDへ書き込んでのblock readback・cold boot 3回・実機回帰は未再試験として残す。未検証26経路の理由も保持し、公開を実機全項目合格とは扱わない。

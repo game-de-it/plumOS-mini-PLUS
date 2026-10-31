@@ -2,7 +2,7 @@
 
 [English](README.md) | [プロジェクト](../README.ja.md)
 
-現在はリリース前の開発段階です。実機確認済みの範囲と最終配布imageの受入を区別します。
+検証制限を明記してv0.1.0を公開しています。実機確認済みの範囲と最終配布imageの受入を区別します。
 
 - [利用者マニュアル](user/README.ja.md)：導入、基本操作、3モード、SD、対応機種、エミュ終了・メニュー・ホットキー、アプリ、保存、画像取得、ネットワーク、更新、困ったとき。
 - [開発者ガイド](developer/README.ja.md)：構成、build、Runtime、FE/core、音声、hardware、storage、network、更新、検証、release。

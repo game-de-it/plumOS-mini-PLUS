@@ -3,7 +3,7 @@
 [日本語](README.ja.md) | English
 
 Formal version: **0.1.0**. [Bilingual release notes](docs/releases/0.1.0.md).
-Distribution names: `plumos-mini-plus-v0.1.0-sd-image.img` / `.7z`, following Bubble. Final-image acceptance/publication is pending.
+Distribution names: `plumos-mini-plus-v0.1.0-sd-image.img` / `.7z`, following Bubble. [Download v0.1.0](https://github.com/game-de-it/plumOS-mini-PLUS/releases/tag/v0.1.0). Exact-image device retesting remains open.
 
 plumOS for **GKD mini PLUS (RK3566 / ARM64, 640×480)**, based on plumOS-Bubble. The handheld has four function keys and no analog sticks.
 
@@ -50,9 +50,9 @@ ROMs, user-supplied BIOS files and commercial games are not included. USB is cur
 
 ## Current status
 
-This is **pre-release development**, not a newly published release. New-SD boot, SD1/SD2 gameplay and the hardware gates have user acceptance; Runtime/System recovery has machine/device evidence. Of 196 launch routes, 170 have machine-launch evidence and 26 retain explicit validation limits. This does not claim every game is compatible.
+**v0.1.0 is published with recorded validation limits.** New-SD boot, SD1/SD2 gameplay and the hardware gates have user acceptance; Runtime/System recovery has machine/device evidence. Of 196 launch routes, 170 have machine-launch evidence and 26 retain explicit validation limits. This does not claim every game is compatible.
 
-The working SD includes later boot/app deployments. Earlier development `.img` files do not contain all of them. Final-image regeneration, exact-image acceptance and publication remain separate: [current work record](docs/validation/2026-10-31-mini-plus-pre-release-work.md), [known validation limits](docs/validation/2026-10-31-mini-plus-runtime-limitations.md), [TODO](TODO.md).
+The distribution image was freshly rebuilt and host-verified, including the boot/app changes. Write/readback and three cold boots of this exact image on a new SD have not been repeated. See [current work record](docs/validation/2026-10-31-mini-plus-pre-release-work.md), [known validation limits](docs/validation/2026-10-31-mini-plus-runtime-limitations.md), [TODO](TODO.md).
 
 ## Documentation
 

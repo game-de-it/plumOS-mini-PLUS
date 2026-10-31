@@ -2,7 +2,7 @@
 
 [日本語](README.ja.md) | [Project home](../../README.md)
 
-This guide covers the pre-release development port. Device-verified operation and final-image acceptance are separate; check the [current status](../../README.md#current-status).
+This guide covers v0.1.0, published with recorded validation limits. Device-verified operation and final-image acceptance are separate; check the [current status](../../README.md#current-status).
 
 ## Locations to learn first
 

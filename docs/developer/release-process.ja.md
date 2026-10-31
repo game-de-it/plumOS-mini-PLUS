@@ -2,7 +2,7 @@
 
 [English](release-process.md) | [開発者ガイド](README.ja.md)
 
-最終リリース準備は未完了です。ドキュメント更新だけで稼働中の開発SDや旧imageをrelease扱いにしません。
+v0.1.0は下記の制限付き経路で公開済みで、同一imageの物理受入は未完了です。ドキュメント更新だけで稼働中の開発SDや旧imageをrelease扱いにしません。
 
 PLUMOS_MINI_PLUS_RELEASE_DRAFT=1 scripts/prepare-mini-plus-release.shで、実機受入manifestなしのhost検証済み-draft bundleを作成できます。manifestに実機未受入を明記し、GitHub下書きだけに使用します。受入済みreleaseとして公開しません。通常modeは同一image hash・書込み読戻し・cold boot 3回・maintainer承認を要求します。image manifestにはversion keyがないため、verifierで読戻したRuntime VERSIONとSystem os-releaseで版を確認します。
 

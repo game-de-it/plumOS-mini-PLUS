@@ -2,7 +2,7 @@
 
 [日本語](README.ja.md) | [Project](../README.md)
 
-This is pre-release development. Device-verified scope and final-image acceptance are separate.
+v0.1.0 is published with recorded validation limits. Device-verified scope and final-image acceptance are separate.
 
 - [User manual](user/README.md): installation, controls, three views, cards, supported systems, emulator exit/menu/hotkeys, apps, saves, scraping, network, updates and troubleshooting.
 - [Developer guide](developer/README.md): architecture, builds, Runtime, FE/cores, audio, hardware, storage, network, updates, validation and release.

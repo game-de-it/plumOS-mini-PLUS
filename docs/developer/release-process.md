@@ -2,7 +2,7 @@
 
 [日本語](release-process.ja.md) | [Developer guide](README.md)
 
-Final release preparation is still pending. Documentation updates do not promote the live development SD or an older image to release status.
+v0.1.0 is published through the recorded-limits path below; exact-image physical acceptance remains pending. Documentation updates do not promote the live development SD or an older image to release status.
 
 PLUMOS_MINI_PLUS_RELEASE_DRAFT=1 scripts/prepare-mini-plus-release.sh prepares a host-verified bundle ending in -draft without a physical acceptance manifest. Its manifest explicitly records unaccepted device status; this mode is for GitHub drafts only and must not be published as an accepted release. Normal mode still requires the exact image hash, write/readback, three cold boots and maintainer approval. Image manifests do not contain a version key: version checks use the Runtime VERSION and System os-release read back by the verifier.
 

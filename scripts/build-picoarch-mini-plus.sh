@@ -146,7 +146,8 @@ perl -0pi -e '
 ' "$SRC/plat_linux.c"
 
 # Apply the physical-label contract captured from mini PLUS event2. L2/R2 are
-# digital BTN_TL2/BTN_TR2 keys; both sticks expose normal X/Y and RX/RY axes.
+# digital BTN_TL2/BTN_TR2 keys. The driver also reports ABS axes and L3/R3
+# aliases, retained for ABI compatibility; mini PLUS has no physical sticks.
 git -C "$SRC" apply "$PLUMOS_MINI_PLUS_PICOARCH_PHYSICAL_INPUT_PATCH"
 
 # A removable USB DAC may expose a Consumer Control evdev node. If it is
@@ -275,7 +276,8 @@ cat >"$PLUMOS_DIR/components/picoarch/manifest.json" <<EOF
   "device": "mini-plus",
   "source_ref": "picoarch:802047c276a5a931b0bf837c4ea4b8e238bdeabe v90s-build:$V90S_REF sdl2:$SDL_VERSION:$SDL_SHA256 mini-plus-audio-status:$MINI_PLUS_AUDIO_STATUS_PATCH_SHA256 mini-plus-rgb565-byteswap:$MINI_PLUS_RGB565_BYTESWAP_PATCH_SHA256 mini-plus-vfs-seek:$MINI_PLUS_VFS_SEEK_PATCH_SHA256 mini-plus-physical-input:$MINI_PLUS_PHYSICAL_INPUT_PATCH_SHA256 mini-plus-evdev-hotplug:$MINI_PLUS_EVDEV_HOTPLUG_PATCH_SHA256 mini-plus-fbdev-staged-copy:$MINI_PLUS_FBDEV_STAGED_COPY_PATCH_SHA256 mini-plus-frame-probe:$MINI_PLUS_FRAME_PROBE_PATCH_SHA256 mini-plus-config-buffer:$MINI_PLUS_CONFIG_BUFFER_PATCH_SHA256 mini-plus-rgb565-table:$MINI_PLUS_RGB565_BYTE_ORDER_TABLE_SHA256 mini-plus-rgb565-routes:$MINI_PLUS_RGB565_ROUTE_OVERRIDE_TABLE_SHA256 mini-plus-launcher:$MINI_PLUS_PICOARCH_LAUNCHER_SHA256",
   "render_contract": "cpu-drm-pageflip-rgb565-to-bgra8888 with per-core defaults and per-system RGB565 byte-order overrides plus staged-fbdev fallback",
-  "input_contract": "plumOS mini PLUS Controller physical labels, digital L2/R2, dual analog, L3/R3 and F1/F2 menu",
+  "input_contract": "mini PLUS physical labels, digital L2/R2, no physical sticks, four function keys; F1 emulator menu; driver ABS and L3/R3 aliases retained",
+  "physical_controls": {"analog_sticks": 0, "function_keys": 4},
   "core_route": "cores/*_libretro.so"
 }
 EOF

@@ -15,5 +15,6 @@ cmp "$coverage" "$generated"
 
 PLUMOS_MINI_PLUS_APP_ROOT=$app_root \
     "$repo_root/scripts/verify-mini-plus-emulator-catalog.sh"
+python3 "$repo_root/scripts/summarize-mini-plus-runtime-validation.py" --verify
 
 printf '%s\n' 'miniplus_runtime_coverage=result-ok systems=97 profiles=196 core_records=114'

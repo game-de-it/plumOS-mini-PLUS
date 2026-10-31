@@ -1,5 +1,11 @@
 {
   "version": 1,
+  "physical_controls": {
+    "analog_sticks": 0,
+    "function_keys": 4,
+    "evidence": "user-confirmed mini PLUS hardware",
+    "driver_alias_policy": "reported ABS axes and L3/R3 aliases are retained for compatibility; they do not describe physical sticks"
+  },
   "device": {
     "name": "retrogame_joypad",
     "event_node": "/dev/input/event2",
@@ -10,10 +16,10 @@
     "button_count": 18
   },
   "axes": [
-    {"physical": "left_x", "evdev_code": 0, "evdev_name": "ABS_X", "js_axis": 0, "role": "left_analog_x"},
-    {"physical": "left_y", "evdev_code": 1, "evdev_name": "ABS_Y", "js_axis": 1, "role": "left_analog_y"},
-    {"physical": "right_x", "evdev_code": 3, "evdev_name": "ABS_RX", "js_axis": 2, "role": "right_analog_x"},
-    {"physical": "right_y", "evdev_code": 4, "evdev_name": "ABS_RY", "js_axis": 3, "role": "right_analog_y"}
+    {"physical": null, "driver_alias": "left_x", "evdev_code": 0, "evdev_name": "ABS_X", "js_axis": 0, "role": "left_analog_x"},
+    {"physical": null, "driver_alias": "left_y", "evdev_code": 1, "evdev_name": "ABS_Y", "js_axis": 1, "role": "left_analog_y"},
+    {"physical": null, "driver_alias": "right_x", "evdev_code": 3, "evdev_name": "ABS_RX", "js_axis": 2, "role": "right_analog_x"},
+    {"physical": null, "driver_alias": "right_y", "evdev_code": 4, "evdev_name": "ABS_RY", "js_axis": 3, "role": "right_analog_y"}
   ],
   "buttons": [
     {"physical": "B", "evdev_code": 304, "evdev_name": "BTN_SOUTH", "js_button": 0, "retropad": "B", "role": "game_b/menu_back"},

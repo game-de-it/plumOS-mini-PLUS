@@ -8,6 +8,9 @@ contract=configs/input/mini-plus-controller-map.json
 test "$(jq -r '.device.name' "$contract")" = retrogame_joypad
 test "$(jq -r '.device.axis_count' "$contract")" -eq 4
 test "$(jq -r '.device.button_count' "$contract")" -eq 18
+test "$(jq -r '.physical_controls.analog_sticks' "$contract")" -eq 0
+test "$(jq -r '.physical_controls.function_keys' "$contract")" -eq 4
+test "$(jq '[.axes[] | select(.physical != null)] | length' "$contract")" -eq 0
 
 expected_buttons='304 305 307 308 310 311 312 313 314 315 316 317 318 544 545 546 547 704'
 actual_buttons=$(jq -r '.buttons | sort_by(.js_button) | map(.evdev_code) | join(" ")' "$contract")

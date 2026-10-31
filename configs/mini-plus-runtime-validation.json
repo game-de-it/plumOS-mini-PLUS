@@ -1,0 +1,1591 @@
+{
+  "schema": 1,
+  "device": "mini-plus",
+  "catalog_sha256": "38fbb367450f3b92a133bc32a37ee231ae2476f94f9ea030d12f50cebc043880",
+  "scope": "historical machine launch evidence, not universal visual/audio/input acceptance",
+  "support_policy": "validation content failures do not remove routes or mark the runtime unsupported",
+  "evidence": [
+    {
+      "path": "artifacts/device-validation/2026-10-21-mini-plus-rom2-full-matrix.json",
+      "sha256": "55d0714d38a8b632219d44a0c56f6b01c699e94e52de191b31630a219fab5a50"
+    },
+    {
+      "path": "artifacts/device-validation/2026-10-21-mini-plus-rom2-targeted-rerun.json",
+      "sha256": "0c834654c500afd4888e1d760b5efdd4a61e8b2add9e27e541cd4db114744eaa"
+    },
+    {
+      "path": "artifacts/device-validation/2026-10-21-mini-plus-rom2-coleco-cps3-rerun.json",
+      "sha256": "6595c9736444f493420d51003f4943a62dfac553f86efd131afe24487a76a704"
+    }
+  ],
+  "routes": [
+    {
+      "system": "2048",
+      "profile": "retroarch:2048",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "3do",
+      "profile": "retroarch:opera",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "amiga",
+      "profile": "retroarch:km_puae_xtreme_amped",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "amiga",
+      "profile": "retroarch:puae",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "amiga",
+      "profile": "retroarch:puae2021",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "amiga",
+      "profile": "retroarch:uae4arm",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "arcade",
+      "profile": "retroarch:fbalpha2012",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "arcade",
+      "profile": "retroarch:fbneo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "arcade",
+      "profile": "retroarch:km_mame2003_xtreme",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "arcade",
+      "profile": "retroarch:mame2000",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "arcade",
+      "profile": "retroarch:mame2003_plus",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "arcade",
+      "profile": "retroarch:mba_mini",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "arduboy",
+      "profile": "retroarch:arduous",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "atari2600",
+      "profile": "retroarch:stella2014",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "atari5200",
+      "profile": "retroarch:a5200",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "atari5200",
+      "profile": "retroarch:atari800",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "atari7800",
+      "profile": "retroarch:prosystem",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "atari800",
+      "profile": "retroarch:atari800",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "atarist",
+      "profile": "retroarch:hatari",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "bk",
+      "profile": "retroarch:bk",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "c64",
+      "profile": "retroarch:frodo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "c64",
+      "profile": "retroarch:vice_x64",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cannonball",
+      "profile": "retroarch:cannonball",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cavestory",
+      "profile": "retroarch:nxengine",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "chailove",
+      "profile": "retroarch:chailove",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "channelf",
+      "profile": "retroarch:freechaf",
+      "state": "not_validated",
+      "reason": "provided_bios_set_missing_sl31253.bin_sl31254.bin_sl90025.bin",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "colecovision",
+      "profile": "retroarch:fbneo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cpc",
+      "profile": "retroarch:cap32",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cpc",
+      "profile": "retroarch:crocods",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cps1",
+      "profile": "retroarch:fbalpha2012",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cps1",
+      "profile": "retroarch:fbalpha2012_cps1",
+      "state": "not_validated",
+      "reason": "provided_rom_set_missing_parent_archive",
+      "historical_probe_status": "failed",
+      "note": ""
+    },
+    {
+      "system": "cps1",
+      "profile": "retroarch:fbneo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cps2",
+      "profile": "retroarch:fbalpha2012",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cps2",
+      "profile": "retroarch:fbalpha2012_cps2",
+      "state": "not_validated",
+      "reason": "provided_rom_set_missing_parent_archive",
+      "historical_probe_status": "failed",
+      "note": ""
+    },
+    {
+      "system": "cps2",
+      "profile": "retroarch:fbneo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cps3",
+      "profile": "retroarch:fbalpha2012",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cps3",
+      "profile": "retroarch:fbalpha2012_cps3",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "cps3",
+      "profile": "retroarch:fbneo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "daphne",
+      "profile": "retroarch:daphne",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "dinothawr",
+      "profile": "retroarch:dinothawr",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "doom",
+      "profile": "retroarch:prboom",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "dos",
+      "profile": "retroarch:dosbox_pure",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "dos",
+      "profile": "retroarch:dosbox_pure_0.9.7",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "dreamcast",
+      "profile": "retroarch:flycast",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "dreamcast",
+      "profile": "retroarch:flycast_xtreme",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "easyrpg",
+      "profile": "retroarch:easyrpg",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "fbneo",
+      "profile": "retroarch:fbneo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "fds",
+      "profile": "picoarch:fceumm",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "fds",
+      "profile": "picoarch:nestopia",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "fds",
+      "profile": "retroarch:fceumm",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "fds",
+      "profile": "retroarch:nestopia",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "flashback",
+      "profile": "retroarch:reminiscence",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "gameandwatch",
+      "profile": "retroarch:gw",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gamegear",
+      "profile": "picoarch:gearsystem",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gamegear",
+      "profile": "picoarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gamegear",
+      "profile": "picoarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gamegear",
+      "profile": "retroarch:gearsystem",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gamegear",
+      "profile": "retroarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gamegear",
+      "profile": "retroarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "picoarch:gambatte",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "picoarch:gearboy",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "picoarch:vbam",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "retroarch:gambatte",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "retroarch:gearboy",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "retroarch:mgba",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "retroarch:tgbdual",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gb",
+      "profile": "retroarch:vbam",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gba",
+      "profile": "picoarch:gpsp",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gba",
+      "profile": "picoarch:mgba",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gba",
+      "profile": "retroarch:gpsp",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gba",
+      "profile": "retroarch:mednafen_gba",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gba",
+      "profile": "retroarch:meteor",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gba",
+      "profile": "retroarch:mgba",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gba",
+      "profile": "retroarch:vba_next",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "picoarch:gambatte",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "picoarch:gearboy",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "picoarch:vbam",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "retroarch:gambatte",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "retroarch:gearboy",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "retroarch:mgba",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "retroarch:tgbdual",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "gbc",
+      "profile": "retroarch:vbam",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "intellivision",
+      "profile": "retroarch:freeintv",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "j2me",
+      "profile": "retroarch:squirreljme",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "jaguar",
+      "profile": "retroarch:virtualjaguar",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "lowresnx",
+      "profile": "retroarch:lowresnx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "lutro",
+      "profile": "retroarch:lutro",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "lynx",
+      "profile": "retroarch:handy",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "lynx",
+      "profile": "retroarch:mednafen_lynx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mame2003plus",
+      "profile": "retroarch:mame2003_plus",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mastersystem",
+      "profile": "picoarch:gearsystem",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mastersystem",
+      "profile": "picoarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mastersystem",
+      "profile": "picoarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mastersystem",
+      "profile": "retroarch:gearsystem",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mastersystem",
+      "profile": "retroarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mastersystem",
+      "profile": "retroarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "megadrive",
+      "profile": "picoarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "megadrive",
+      "profile": "picoarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "megadrive",
+      "profile": "retroarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "megadrive",
+      "profile": "retroarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "megaduck",
+      "profile": "retroarch:sameduck",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "microw8",
+      "profile": "retroarch:uw8",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "mrboom",
+      "profile": "retroarch:mrboom",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "msx",
+      "profile": "retroarch:bluemsx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "msx",
+      "profile": "retroarch:fmsx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "music",
+      "profile": "retroarch:gme",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "n64",
+      "profile": "retroarch:mupen64plus_next",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "n64",
+      "profile": "retroarch:parallel_n64",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "nds",
+      "profile": "standalone:drastic",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "neogeo",
+      "profile": "retroarch:fbalpha2012",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "neogeo",
+      "profile": "retroarch:fbalpha2012_neogeo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "neogeo",
+      "profile": "retroarch:fbneo",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "neogeocd",
+      "profile": "retroarch:neocd",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "nes",
+      "profile": "picoarch:fceumm",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "nes",
+      "profile": "picoarch:nestopia",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "nes",
+      "profile": "picoarch:quicknes",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "nes",
+      "profile": "retroarch:fceumm",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "nes",
+      "profile": "retroarch:nestopia",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "nes",
+      "profile": "retroarch:quicknes",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "ngp",
+      "profile": "retroarch:mednafen_ngp",
+      "state": "not_validated",
+      "reason": "sd2_archive_read_failed_and_no_clean_monochrome_ngp_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "ngpc",
+      "profile": "retroarch:mednafen_ngp",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "odyssey2",
+      "profile": "retroarch:o2em",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "openbor",
+      "profile": "standalone:openbor",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "palm",
+      "profile": "retroarch:mu",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "pc88",
+      "profile": "retroarch:quasi88",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pc98",
+      "profile": "retroarch:nekop2",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pc98",
+      "profile": "retroarch:np2kai",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcengine",
+      "profile": "picoarch:mednafen_pce_fast",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcengine",
+      "profile": "picoarch:mednafen_supergrafx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcengine",
+      "profile": "retroarch:mednafen_pce",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcengine",
+      "profile": "retroarch:mednafen_pce_fast",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcengine",
+      "profile": "retroarch:mednafen_supergrafx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcenginecd",
+      "profile": "picoarch:mednafen_pce_fast",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcenginecd",
+      "profile": "retroarch:mednafen_pce_fast",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pcfx",
+      "profile": "retroarch:mednafen_pcfx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pico8",
+      "profile": "retroarch:fake08",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pico8",
+      "profile": "retroarch:retro8",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "pokemini",
+      "profile": "retroarch:pokemini",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "ports",
+      "profile": "external:port",
+      "state": "not_validated",
+      "reason": "external_script_not_run_by_bounded_emulator_harness",
+      "historical_probe_status": "not_run",
+      "note": "Apotris has separate user audio/play acceptance; this is not acceptance of every PortMaster port"
+    },
+    {
+      "system": "psp",
+      "profile": "standalone:ppsspp",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "psx",
+      "profile": "retroarch:km_duckswanstation_xtreme_amped",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "psx",
+      "profile": "retroarch:pcsx_rearmed",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "psx",
+      "profile": "standalone:pcsx_rearmed",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "puzzlescript",
+      "profile": "retroarch:puzzlescript",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "pyxel",
+      "profile": "pyxel:mini-plus",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "quake",
+      "profile": "retroarch:tyrquake",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "rickdangerous",
+      "profile": "retroarch:xrick",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "saturn",
+      "profile": "retroarch:beetle_saturn",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "saturn",
+      "profile": "retroarch:yabasanshiro",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "saturn",
+      "profile": "standalone:yabasanshiro",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "scummvm",
+      "profile": "retroarch:scummvm",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sega32x",
+      "profile": "picoarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sega32x",
+      "profile": "retroarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "segacd",
+      "profile": "picoarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "segacd",
+      "profile": "picoarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "segacd",
+      "profile": "retroarch:genesis_plus_gx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "segacd",
+      "profile": "retroarch:picodrive",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "picoarch:chimerasnes",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "picoarch:mednafen_supafaust",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "picoarch:snes9x",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "picoarch:snes9x2002",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "picoarch:snes9x2005",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "picoarch:snes9x2005_plus",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "picoarch:snes9x2010",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "retroarch:chimerasnes",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "retroarch:mednafen_supafaust",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "retroarch:snes9x",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "retroarch:snes9x2002",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "retroarch:snes9x2005",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "retroarch:snes9x2005_plus",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sfc",
+      "profile": "retroarch:snes9x2010",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "sg1000",
+      "profile": "retroarch:bluemsx",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "sg1000",
+      "profile": "retroarch:gearsystem",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "sg1000",
+      "profile": "retroarch:genesis_plus_gx",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "sg1000",
+      "profile": "retroarch:picodrive",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "sharpx1",
+      "profile": "retroarch:x1",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "superbroswar",
+      "profile": "retroarch:km_superbroswar",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "supergrafx",
+      "profile": "picoarch:mednafen_pce_fast",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "supergrafx",
+      "profile": "picoarch:mednafen_supergrafx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "supergrafx",
+      "profile": "retroarch:mednafen_pce_fast",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "supergrafx",
+      "profile": "retroarch:mednafen_supergrafx",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "supervision",
+      "profile": "retroarch:potator",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "thomson",
+      "profile": "retroarch:theodore",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "ti83",
+      "profile": "retroarch:numero",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "tic80",
+      "profile": "retroarch:tic80",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "uzebox",
+      "profile": "retroarch:uzem",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "vectrex",
+      "profile": "retroarch:vecx",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "vic20",
+      "profile": "retroarch:vice_xvic",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "virtualboy",
+      "profile": "retroarch:mednafen_vb",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "vmu",
+      "profile": "retroarch:vemulator",
+      "state": "not_validated",
+      "reason": "vmu_metadata_missing_paired_vms_payload",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "wolf3d",
+      "profile": "retroarch:ecwolf",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "wonderswan",
+      "profile": "retroarch:mednafen_wswan",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    },
+    {
+      "system": "wonderswancolor",
+      "profile": "retroarch:mednafen_wswan",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "x68000",
+      "profile": "retroarch:px68k",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "zx81",
+      "profile": "retroarch:81",
+      "state": "not_validated",
+      "reason": "no_compatible_content",
+      "historical_probe_status": "not_run",
+      "note": ""
+    },
+    {
+      "system": "zxspectrum",
+      "profile": "retroarch:fuse",
+      "state": "machine_started",
+      "reason": "",
+      "historical_probe_status": "started",
+      "note": ""
+    }
+  ]
+}

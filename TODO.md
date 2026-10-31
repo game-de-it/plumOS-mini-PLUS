@@ -41,11 +41,12 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 - [ ] `MPLUS-HW-01` 空のテスト用SDへ候補を書き、cold bootとU-Boot stage `S10`〜`S19`を確認する。
 - [x] `MPLUS-HW-02` full-stack候補でinitramfs `S21`〜`S29`の成功、SYSTEM `S40_FRONTEND_SUPERVISOR_READY`、frontend/LCD到達を実機確認した。
-- [ ] `MPLUS-HW-05` SD整合性はユーザー確認済み。ゲーム中のReboot/Shutdownで電源動作前に操作可能なFEが再表示される競合を修正し、source `4b5b8cd`を実機へ配備した。自動rebootではreplacement FEを表示せずPID 1へ引き渡すログを確認した。残る実ゲームからのReboot/Shutdown物理再試験と、kernelが`/sys/power/state`をEBUSYで拒否するsuspend/resumeを解決する。
+- [ ] `MPLUS-HW-05` SD整合性、ゲーム中Reboot、ゲーム中Shutdownはユーザー確認済み。USB給電を外すとdeep suspend/resumeも成立し、音声とゲームprocessは継続したが、復帰後はprimary planeだけとなり画面が黒かった。ゲーム自身のbrokered DRM fdへCRTC/DPMS/全active planeを保存し、DRM master再取得後・SIGCONT前に復元するsource `62fe884`を実機へ配備した。残る物理gateは新規ゲームprocessでのSleep復帰表示・操作・音声と、USB給電中のsleep policyである。
 
 ## 未解決
 
 - [ ] `MPLUS-PERF-02` 合格した`mini-plus-sd1-sdr104` overlayを通常image builderへ統合し、生成imageの`uEnv.txt`、overlay hash、SDR104 bootをrelease gateで検証する。現在の128 GB検証カードには適用済みだが、未再生成imageへ既定値が遡及するとは扱わない。
+- [ ] `MPLUS-META-01` live global `checksums.sha256`は空白を含む5,224 pathが既に第1語へ切り詰められており、stock BusyBoxで全件検証できない。今回変更したfrontend component 227/227とglobal delta 5/5は合格している。利用者のPortMaster更新物や設定を新baselineへ取り込まず、次回clean app-layer build/writeで正しいglobal checksumへ置換する。
 - [x] `MPLUS-NET-01` live stockOSでSDIO `02D0:A9A6`、`bcmsdh_sdmmc`/`bcmdhd`、matching kernel ABI、実使用firmware/NVRAMを確認し、RTL8821CS force-load経路を廃止した。
 - [ ] `MPLUS-FE-01` 実SD2をBubble互換の`roms/<system>` + `bios`へ修正し、FEで10,247 files/534 ROMsを索引化した。ROM2全196 routeを実機走査し、補正再試験込みで170 route起動、PSP/PSX/OpenBORを含む166 routeのPCM進行、全観測経路のDRM/Mali表示契約を確認した。ユーザーがこれまで実行したゲームには不具合がなく概ね正常と評価した。残る2 routeはROM2の親archive不足、24 routeは互換content/BIOS不足で未合格であり、未確認routeを全合格とは扱わない。
 - [x] `MPLUS-GPU-01` hash一致するMali AArch64/ARMhf pairを組み込み、N64、DraStic、YabasanshiroでDRM/KMS/EGLとMali-G52描画を実機確認した。

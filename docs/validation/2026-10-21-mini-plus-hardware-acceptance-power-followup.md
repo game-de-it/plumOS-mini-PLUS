@@ -44,7 +44,8 @@ frontend_power_transition=wait marker=/run/plumos/power-action/in-progress
 frontend_power_transition=handoff action=reboot owner=pid1
 ```
 
-これにより自動経路のFE再表示競合は解消した。ゲーム画面からのRebootとShutdownは別々に物理再試験する。
+これにより自動経路のFE再表示競合は解消した。2026-10-31、ユーザーはゲーム画面からの
+RebootとShutdownを別々に物理確認し、どちらも正常と判定した。
 
 ## Suspendの未解決境界
 
@@ -54,9 +55,38 @@ frontend_power_transition=handoff action=reboot owner=pid1
 fresh reboot直後にも再現し、suspend statisticsはentry前のまま0だった。stock由来のlive kernel `Image`と
 `/proc/config.gz`は保存済みstock artifactとSHA-256一致している。
 
-診断時はbattery statusが`Charging`を返していた。mini PLUS固有kernelの給電中gateか、stock userspaceが行う
-未採取のpre-suspend操作かを分離するため、次はUSB給電を外したbattery-only状態で同じnormal power menuを試す。
-これは`MPLUS-HW-05`未合格のまま維持する。
+診断時はbattery statusが`Charging`を返していた。2026-10-31、USB給電を外したbattery-only状態では
+deep suspendへ入り、power keyで復帰した。音声とゲームprocessは継続したが、画面は黒いままだった。
+
+直後の実機証拠は次の通り。
+
+- `power-action.log`: `stage=suspend-enter`から`stage=suspend-resume`へ到達し、`result=resumed`。
+- kernel: `vop2_crtc_atomic_disable`後に640x480p60で`vop2_crtc_atomic_enable`、DSI encoder enable、
+  `PM: suspend exit`まで正常。
+- backlightはraw/actualとも52、DSI connectorは`enabled`、DPMSは`On`。
+- read-only DRM probeではCRTC 71とprimary plane 57/fb 158だけがactiveで、ゲームに使われていた
+  overlay plane 105は`crtc_id=0 fb_id=0`だった。
+- power overlay logはSleep直前に`plane=105 action=disable fb=162 result=ok`、
+  overlay終了時に`action=restore ... result=failed`を記録した。
+
+kernel/panel/backlightではなく、overlay processの別DRM fdからゲームprocess所有framebufferを戻せないことが
+黒画面の原因だった。source `62fe884`では、SCM_RIGHTSで保持しているゲーム自身のDRM open file descriptionに
+次を追加した。
+
+1. runtime停止後、overlayを開く前にCRTC/mode/connector、DPMSおよび全active planeの8 geometry propertyを保存する。
+2. Sleep復帰後に同じDRM fdでmasterを再取得する。
+3. CRTC/DPMSと全planeを完全復元してからゲームへ`SIGCONT`を送る。
+
+power menu、sleep、power finalizer、shell syntaxおよび`-Werror` AArch64 buildは合格した。実機へは
+`plumos-drm-broker-run`、`plumos-drm-master`、`plumos-runtime-quiesce`、frontend manifest/checksumを
+atomic配備した。frontend componentは227/227、変更したglobal entryは5/5一致した。
+
+live global checksumの全件検証では、配備前rollback版の時点から空白を含む5,224 pathが第1語へ
+切り詰められている既存metadata不良を確認した。今回の5 entry以外は変更せず、利用者のPortMaster更新物を
+新baselineへ取り込まない。clean app-layer再生成での是正を`MPLUS-META-01`へ分離する。
+
+新しいbrokerは次のゲーム起動から有効になる。新規ゲームprocessでSleep復帰後の表示・操作・音声を
+物理確認するまで`MPLUS-HW-05`は未合格のままとする。
 
 ## Rollback
 
@@ -64,4 +94,5 @@ fresh reboot直後にも再現し、suspend statisticsはentry前のまま0だ�
 
 ```text
 /storage/plumos/state/app-deploy/4b5b8cd-power-transition/rollback/
+/storage/plumos/state/app-deploy/62fe884-sleep-display/rollback/
 ```

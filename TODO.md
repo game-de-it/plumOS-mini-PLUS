@@ -41,6 +41,8 @@ Bubbleで得られた検証結果は`docs/reference/bubble/`に保存するが�
 
 - [ ] `MPLUS-HW-01` 空のテスト用SDへ候補を書き、cold bootとU-Boot stage `S10`〜`S19`を確認する。
 - [x] `MPLUS-HW-02` full-stack候補でinitramfs `S21`〜`S29`の成功、SYSTEM `S40_FRONTEND_SUPERVISOR_READY`、frontend/LCD到達を実機確認した。
+- [x] `MPLUS-BOOT-02` 2026-10-31、ユーザーが新SDの通常起動確認をOKと報告した。厳密なcold boot回数やU-Boot stage採取はこの報告から追加推定しない。
+- [x] `MPLUS-SD2-02` 新SDでSD2未装着のまま起動し、SFTP有効化後にport22接続、初期directory `/storage`、SD1 `/storage/user`一覧取得を確認した。最初の接続不可はSFTP設定が未有効だったためで、SD2依存の不具合ではなかった。再挿入後の認識・転送readbackは別途確認する。
 - [x] `MPLUS-HW-05` SD整合性、ゲーム中Reboot/Shutdown、`62fe884`適用後のbattery-only Sleep復帰はユーザー確認済み。USB接続時のstock kernel充電gateを4-byteの限定patchで解除し、12秒Sleep/RTC復帰を実機ログで確認した。2026-10-31、ユーザーはUSB接続中のSleep復帰も正常と確認した。現在の検証カードの電源操作は合格とし、通常imageへの反映は`MPLUS-POWER-01`で追跡する（`docs/validation/2026-10-31-mini-plus-usb-sleep.md`）。
 
 ## 未解決

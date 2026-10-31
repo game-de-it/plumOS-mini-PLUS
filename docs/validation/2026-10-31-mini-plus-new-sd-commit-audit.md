@@ -54,3 +54,22 @@ PicoArch manifest/build scriptとinput mapにはdual analog/stickの古い説明
 `MPLUS-META-02`で追跡し、正常な入力mappingをこの監査で削除・変更してはいない。
 
 採取資料: `artifacts/device-validation/2026-10-31-new-sd-commit-audit/`。
+
+## 通常起動とSD2なしのSFTP
+
+同日、ユーザーは新SDの通常起動確認をOKと報告した。cold bootの厳密な回数は
+別途採取する。続いてSD2なしでSFTP不可との報告があったが、ユーザー自身が
+サービス未有効だったと訂正した。
+
+採取時は`services.conf`が`ssh_enabled=1`だけで、SFTP loader wrapperは
+`sftp_enabled`の明示的有効化がないためexit 1だった。SSH接続とWi-Fiは正常。
+ユーザーの有効化後、こちらから設定を変更せずに再接続し、次を確認した。
+
+- SD2 mountなし、SD1 p4が`/storage/user`へmount済み。
+- SFTP statusはrunning、有効設定1、共有先`/storage`。
+- 実際のport22 SFTP接続に成功し、初期directoryは`/storage`。
+- `/storage/user`のRoms/BIOS等のdirectory一覧取得に成功。
+
+SD2なしSFTPの接続・一覧取得は合格。今回upload/downloadのreadback試験や、
+SD2再挿入後の再認識まで確認したという意味ではない。codeや実機managed fileの
+変更は不要だった。

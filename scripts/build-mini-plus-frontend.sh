@@ -280,7 +280,8 @@ cat >"$component/manifest.json" <<EOF
   "start_menu_entries": 8,
   "apps_menu_entries": 12,
   "miniplus_only_menu_entries": ["sd2_repair", "ggfe"],
-  "settings_backends": ["display", "volume", "network", "network-services", "time-sync", "factory-reset", "storage-health", "cpu", "safe-power", "signed-runtime-update"],
+  "settings_backends": ["display", "volume", "network", "network-services", "time-sync", "factory-reset", "storage-health", "cpu", "safe-power", "signed-runtime-update", "signed-system-ab-update"],
+  "system_update_policy": "inactive-slot-readback,one-trial,frontend-ready-commit,known-good-fallback",
   "cpu_policies": ["interactive", "performance", "ondemand", "schedutil", "conservative"],
   "reference_port": "plumOS-MF@0095017c39226ad1c22bf8df852202673075936d"
 }

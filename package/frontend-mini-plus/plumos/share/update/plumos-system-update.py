@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Transactional Runtime updater for plumOS mini PLUS."""
+"""Signed Runtime transactions and System A/B trials for plumOS mini PLUS."""
 
 from __future__ import annotations
 

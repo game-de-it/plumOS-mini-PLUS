@@ -158,6 +158,8 @@ done
 test "$(stat -c '%a' "$verify/initramfs/init")" = 755
 test "$(stat -c '%a' "$verify/initramfs/usr/sbin/plumos-mini-plus-provision-storage")" = 755
 test -x "$verify/initramfs/usr/sbin/plumos-mini-plus-boot-progress"
+test -x "$verify/initramfs/usr/sbin/plumos-mini-plus-system-slot"
+MTOOLS_SKIP_CHECK=1 mtype -i "$verify/flash.fat" ::/System/slot-policy | grep -qx trial-v1
 for phase in provision-start provision-p3-check provision-p3-resize \
     provision-p3-recheck provision-p4-create provision-p4-check provision-complete boot-error; do
     test "$(stat -c '%s' "$verify/initramfs/usr/share/plumos/boot-progress/$phase.raw")" -eq 1228800

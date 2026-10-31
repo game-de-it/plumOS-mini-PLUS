@@ -10210,8 +10210,8 @@ static void setting_help_lines(const struct ui_state *ui,
       copy_string(line1, line1_size, "Frontend language setting.");
       copy_string(line2, line2_size, "Saves language to plumOS config.");
     } else if (strcmp(id, "system_update") == 0) {
-      copy_string(line1, line1_size, "plumOS MF uses manual SD card updates.");
-      copy_string(line2, line2_size, "Overwrite the distributed files from a PC.");
+      copy_string(line1, line1_size, "Install a signed Runtime or System update.");
+      copy_string(line2, line2_size, "System updates require compatible A/B boot support.");
     } else if (strcmp(id, "system_model") == 0 ||
                strcmp(id, "system_plumos_version") == 0 ||
                strcmp(id, "system_vendor_runtime") == 0 ||
@@ -12533,7 +12533,7 @@ static int request_latest_system_update(struct ui_state *ui) {
     set_status(ui, "System Update log path too long");
     return 0;
   }
-  set_status(ui, "Verifying latest mini PLUS runtime update...");
+  set_status(ui, "Verifying latest mini PLUS update...");
   render_ui(ui);
   cmd[0] = '\0';
   if (!append_string(cmd, sizeof(cmd), &pos, "mkdir -p ") ||
@@ -12542,6 +12542,7 @@ static int request_latest_system_update(struct ui_state *ui) {
       !append_shell_quoted(cmd, sizeof(cmd), &pos, ui->plumos_root) ||
       !append_string(cmd, sizeof(cmd), &pos,
                      " PLUMOS_USERDATA_ROOT=/storage/user"
+                     " PLUMOS_UPDATE_PROGRESS=0"
                      " PLUMOS_BOOT_ROOT=/flash ") ||
       !append_runtime_script_invocation(cmd, sizeof(cmd), &pos, helper) ||
       !append_string(cmd, sizeof(cmd), &pos, " request-latest >") ||

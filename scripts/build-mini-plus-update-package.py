@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build signed plumOS mini PLUS Runtime update archives."""
+"""Build signed plumOS mini PLUS Runtime or inactive-System update archives."""
 
 from __future__ import annotations
 
@@ -248,9 +248,26 @@ def build_runtime(args: argparse.Namespace) -> tuple[dict[str, Any], list[tuple[
     return manifest, changed
 
 
+def build_system(args):
+    source=args.input.resolve()
+    if args.base_dir or not source.is_file():
+        raise SystemExit("error: System input must be a full SquashFS file, without --base-dir")
+    with source.open("rb") as handle:
+        if handle.read(4)!=b"hsqs": raise SystemExit("error: System input is not SquashFS")
+    entry=entry_for_path(source,source.parent)
+    entry["path"]="system.squashfs"
+    entry["mode"]=0o644
+    manifest={"format":FORMAT_VERSION,"package_type":"system","device_id":DEVICE_ID,
+              "architecture":ARCHITECTURE,"vendor_runtime":args.vendor_runtime,
+              "source_version":args.base_version,"version":args.version,
+              "system_abi_min":args.system_abi,"system_abi_max":args.system_abi,
+              "runtime_abi":args.runtime_abi,"payload_uncompressed_bytes":entry["size"],
+              "full_payload":True,"files":[entry],"delete":[]}
+    return manifest,[(source,entry)]
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--type", choices=("runtime",), required=True)
+    parser.add_argument("--type", choices=("runtime","system"), required=True)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--base-dir", type=Path)
     parser.add_argument("--version", required=True)
@@ -270,7 +287,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=Path("dist"))
     args = parser.parse_args()
 
-    manifest, payload = build_runtime(args)
+    manifest, payload = build_system(args) if args.type=="system" else build_runtime(args)
 
     manifest_bytes = canonical_json(manifest)
     signature = sign_manifest(manifest_bytes, args.signing_key, args.unsigned)

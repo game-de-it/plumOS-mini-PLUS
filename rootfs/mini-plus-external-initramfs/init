@@ -255,14 +255,8 @@ matching_magic=$($bb dd if="$matching_device" bs=1 count=6 2>/dev/null || true)
 [ "$matching_magic" = 070701 ] || fail E26 P2_RAW_NEWC_MAGIC_MISMATCH
 log "stage=S26_RAW_MATCHING_BUNDLE_VERIFIED sha256=$actual_matching_sha"
 
-active_slot=$($bb cat "$flash_mount/System/active-slot" 2>/dev/null || true)
-case "$active_slot" in a|b) ;; *) fail E27 ACTIVE_SLOT_INVALID ;; esac
-for slot in a b; do
-    image=$flash_mount/System/system-$slot.squashfs
-    checksum=$flash_mount/System/system-$slot.sha256
-    [ -f "$image" ] && [ -f "$checksum" ] || fail E27 SYSTEM_SLOT_MISSING
-    verify_file "$image" "$checksum" || fail E27 SYSTEM_SLOT_SHA_MISMATCH
-done
+active_slot=$(/usr/sbin/plumos-mini-plus-system-slot 2>>"$console_log") || \
+    fail E27 NO_HEALTHY_SYSTEM_SLOT
 selected_system=$flash_mount/System/system-$active_slot.squashfs
 log "stage=S27_SYSTEM_AB_VERIFIED active_slot=$active_slot"
 

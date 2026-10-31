@@ -19,6 +19,7 @@ import sys
 import tarfile
 import tempfile
 import time
+import plumos_system_ab as system_ab
 from typing import Any
 
 
@@ -289,8 +290,8 @@ def load_package(path: Path) -> tuple[dict[str, Any], bytes, bytes]:
 def validate_manifest(manifest: dict[str, Any], archive_names: set[str]) -> None:
     if manifest.get("format") != 1:
         raise UpdateError("unsupported update package format")
-    if manifest.get("package_type") != "runtime":
-        raise UpdateError("mini PLUS currently accepts runtime update packages only")
+    if manifest.get("package_type") not in {"runtime", "system"}:
+        raise UpdateError("mini PLUS accepts runtime or system update packages only")
     if manifest.get("device_id") != DEVICE_ID or manifest.get("architecture") != ARCHITECTURE:
         raise UpdateError("package target does not match mini PLUS aarch64")
     if manifest.get("vendor_runtime") != VENDOR_RUNTIME:
@@ -332,6 +333,11 @@ def validate_manifest(manifest: dict[str, Any], archive_names: set[str]) -> None
         raise UpdateError(f"undeclared payload member: {sorted(unexpected)[0]}")
     if declared_bytes != int(manifest.get("payload_uncompressed_bytes", -1)):
         raise UpdateError("declared payload byte count mismatch")
+    if manifest["package_type"] == "system":
+        if (declared != {"system.squashfs"} or manifest.get("delete") or
+                len(files) != 1 or files[0]["type"] != "file"):
+            raise UpdateError("System package must contain exactly one full SquashFS file")
+        return
     for relative in declared:
         if not managed_runtime_path(relative):
             raise UpdateError(f"runtime package targets persistent path: {relative}")
@@ -347,7 +353,8 @@ def current_compatibility(manifest: dict[str, Any]) -> None:
     current_vendor = read_text(PLUMOS_ROOT / "COMPAT_VENDOR", VENDOR_RUNTIME)
     if current_vendor != manifest["vendor_runtime"]:
         raise UpdateError("installed vendor runtime does not match package")
-    current_version = read_text(PLUMOS_ROOT / "VERSION", "unknown")
+    current_version = (system_ab.version(sys.modules[__name__]) if manifest["package_type"] == "system"
+                       else read_text(PLUMOS_ROOT / "VERSION", "unknown"))
     source = str(manifest.get("source_version", "*"))
     if source not in {"*", current_version}:
         raise UpdateError(f"source version mismatch: installed={current_version} required={source}")
@@ -356,7 +363,7 @@ def current_compatibility(manifest: dict[str, Any]) -> None:
     target_version = str(manifest["version"])
     if semantic_version_key(target_version) < semantic_version_key(current_version):
         raise UpdateError(
-            f"runtime downgrade is forbidden: installed={current_version} requested={target_version}"
+            f"{manifest['package_type']} downgrade is forbidden: installed={current_version} requested={target_version}"
         )
     try:
         system_abi = int(read_text(SYSTEM_ABI_FILE, "1"))
@@ -370,6 +377,8 @@ def current_compatibility(manifest: dict[str, Any]) -> None:
         raise UpdateError("package ABI metadata is invalid") from exc
     if not compatible:
         raise UpdateError(message)
+    if str(manifest.get("runtime_abi")) != str(runtime_abi):
+        raise UpdateError("runtime ABI mismatch")
 
 
 def inspect(path: Path) -> dict[str, Any]:
@@ -404,6 +413,12 @@ def request(path: Path) -> dict[str, Any]:
     if os.environ.get("PLUMOS_UPDATE_ALLOW_EXTERNAL") != "1" and not package_under_inbox(path):
         raise UpdateError("package is outside the PLUMOS updates inbox")
     item = inspect(path)
+    if item["package_type"] == "system":
+        if REQUEST_FILE.exists() or RUNTIME_PENDING.exists():
+            raise UpdateError("a Runtime update is already pending")
+        manifest, _, _ = load_package(path)
+        system_ab.apply(sys.modules[__name__], path, manifest)
+        return {**item, "requested_at": now()}
     request_value = {**item, "requested_at": now()}
     STATE_ROOT.mkdir(parents=True, exist_ok=True)
     atomic_json(REQUEST_FILE, request_value)
@@ -601,7 +616,7 @@ def apply_pending() -> int:
 
 
 def mark_healthy() -> None:
-    changed = False
+    changed = bool(system_ab.mark_healthy(sys.modules[__name__]))
     if RUNTIME_PENDING.is_file():
         if not JOURNAL_FILE.is_file():
             raise UpdateError("runtime health state exists without transaction journal")

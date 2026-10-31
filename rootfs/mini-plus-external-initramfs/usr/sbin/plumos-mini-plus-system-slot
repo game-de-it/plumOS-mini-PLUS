@@ -1,0 +1,62 @@
+#!/bin/sh
+# stdout is the selected slot; diagnostics go to stderr/kmsg.
+set -eu
+bb=${PLUMOS_SLOT_BUSYBOX:-/bin/busybox}
+boot=${PLUMOS_SLOT_BOOT_ROOT:-/mnt/plumos-flash}/System
+state=${PLUMOS_SLOT_STATE_ROOT:-/mnt/plumos-runtime/plumos/state/system-ab}
+boot_id=${PLUMOS_SLOT_BOOT_ID:-$("$bb" cat /proc/sys/kernel/random/boot_id)}
+log() {
+    printf 'plumos-system-ab=%s\n' "$*" >&2
+    if [ -c /dev/kmsg ]; then printf 'plumos-system-ab=%s\n' "$*" >/dev/kmsg 2>/dev/null || true; fi
+}
+valid() {
+    expected=$("$bb" awk 'NR==1 {print $1}' "$boot/system-$1.sha256" 2>/dev/null || true)
+    actual=$("$bb" sha256sum "$boot/system-$1.squashfs" 2>/dev/null | "$bb" awk '{print $1}' || true)
+    [ "${#expected}" -eq 64 ] && [ "$actual" = "$expected" ]
+}
+active=$("$bb" cat "$boot/active-slot" 2>/dev/null || true)
+case "$active" in a|b) ;; *) log 'active=invalid fallback=a'; active=a;; esac
+pending=$("$bb" cat "$boot/pending-slot" 2>/dev/null || true)
+"$bb" mkdir -p "$state"
+selected=
+case "$pending" in
+    a|b)
+        if [ "$pending" != "$active" ] && valid "$pending"; then
+            trial=$("$bb" cat "$state/trial-$pending" 2>/dev/null || true)
+            if [ -z "$trial" ] || [ "$trial" = "$actual $boot_id" ]; then
+                printf '%s %s\n' "$actual" "$boot_id" >"$state/trial-$pending.next"
+                "$bb" mv "$state/trial-$pending.next" "$state/trial-$pending"
+                "$bb" sync
+                selected=$pending
+                log "trial=$selected boot_id=$boot_id"
+            else
+                log "rollback=$pending reason=previous-trial-not-healthy"
+            fi
+        elif [ "$pending" != "$active" ]; then
+            printf '%s %s\n' "$pending" "$boot_id" >"$state/rejected"
+            log "rollback=$pending reason=invalid-pending-slot"
+        fi
+        ;;
+    '') ;;
+    *) log 'pending=invalid';;
+esac
+if [ -z "$selected" ] && valid "$active"; then selected=$active; fi
+if [ -z "$selected" ]; then
+    case "$active" in a) other=b;; b) other=a;; esac
+    # A rejected pending trial is never retried as a fallback to a bad active.
+    if [ "$other" != "$pending" ] && valid "$other"; then
+        blocked=$("$bb" cat "$state/blocked-$other.sha256" 2>/dev/null || true)
+        if [ "$blocked" != "$actual" ]; then
+            selected=$other
+            log "fallback=$other reason=active-slot-invalid"
+        else
+            log "fallback=$other rejected=unhealthy-trial"
+        fi
+    fi
+fi
+[ -n "$selected" ] || { log 'result=error reason=no-healthy-system-slot'; exit 1; }
+printf '%s %s\n' "$selected" "$boot_id" >"$state/booted.next"
+"$bb" mv "$state/booted.next" "$state/booted"
+"$bb" sync
+log "selected=$selected"
+printf '%s\n' "$selected"

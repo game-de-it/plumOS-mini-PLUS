@@ -201,13 +201,15 @@ if [ -x "$PLUMOS_ROOT/bin/plumos-storage-health" ]; then
         printf 'frontend_storage_health=post-scan-observe-failed\n' >>"$LOG"
 fi
 printf 'frontend_exec=stage-S42\n' >>"$LOG"
-if [ -x "$UPDATE" ] && [ -s "$PLUMOS_ROOT/update-state/runtime-pending.json" ]; then
+if [ -x "$UPDATE" ] &&
+    { [ -s "$PLUMOS_ROOT/update-state/runtime-pending.json" ] ||
+      [ -s "$PLUMOS_ROOT/state/system-ab/booted" ]; }; then
     $BB rm -f /tmp/plumos-fe-ready
     (
         attempts=0
         while [ "$attempts" -lt 60 ]; do
             if [ -s /tmp/plumos-fe-ready ]; then
-                PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_USERDATA_ROOT=/storage/user \
+                PLUMOS_ROOT="$PLUMOS_ROOT" PLUMOS_USERDATA_ROOT=/storage/user PLUMOS_UPDATE_PROGRESS=0 \
                     PLUMOS_BOOT_ROOT=/flash "$BB" sh "$UPDATE" mark-healthy \
                     >>"$UPDATE_LOG" 2>&1
                 exit $?

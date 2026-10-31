@@ -1,0 +1,16 @@
+#!/bin/sh
+# Explicit recovery only, before any System image is opened on the boot FAT.
+set -eu
+bb=/bin/busybox
+device=${1:?missing boot FAT device}
+[ "${PLUMOS_BOOT_FAT_REPAIR_AUTHORIZED:-no}" = yes ] || exit 2
+if "$bb" awk -v device="$device" '$1==device {found=1} END {exit !found}' /proc/mounts; then
+    printf 'plumos-boot-fat=result-refused reason=mounted device=%s\n' "$device" >&2
+    exit 2
+fi
+result=0
+/usr/sbin/fsck.fat -a "$device" || result=$?
+case "$result" in
+    0|1) printf 'plumos-boot-fat=result-ok fsck_status=%s\n' "$result";;
+    *) printf 'plumos-boot-fat=result-error fsck_status=%s\n' "$result" >&2; exit 1;;
+esac

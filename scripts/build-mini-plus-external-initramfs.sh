@@ -39,6 +39,9 @@ install -m 0755 \
 install -m 0755 \
     "$repo_root/rootfs/mini-plus-external-initramfs/usr/sbin/plumos-mini-plus-system-slot" \
     "$rootfs/usr/sbin/plumos-mini-plus-system-slot"
+install -m 0755 \
+    "$repo_root/rootfs/mini-plus-external-initramfs/usr/sbin/plumos-mini-plus-check-boot-fat" \
+    "$rootfs/usr/sbin/plumos-mini-plus-check-boot-fat"
 install -m 0755 /bin/busybox "$rootfs/bin/busybox"
 for applet in awk cat cp dd grep hostname losetup mkdir mknod mount \
     sha256sum sh sleep sync switch_root umount; do

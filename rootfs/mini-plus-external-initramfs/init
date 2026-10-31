@@ -187,6 +187,22 @@ previous_shutdown_p3=missing
     previous_shutdown_p3=present
 $bb umount "$runtime_mount" || fail E25 P3_PREAUTH_UNMOUNT_FAILED
 $bb umount "$flash_mount" || fail E25 P1_PREAUTH_UNMOUNT_FAILED
+if [ "$(cmdline_value plumos_repair_boot_fat || true)" = 1 ]; then
+    # Never repair a mounted FAT or a FAT backing the running System loop.
+    boot_fat_log=/run/plumos-boot-fat-repair.log
+    PLUMOS_BOOT_FAT_REPAIR_AUTHORIZED=yes \
+        /usr/sbin/plumos-mini-plus-check-boot-fat "$flash_device" >"$boot_fat_log" 2>&1
+    boot_fat_rc=$?
+    $bb cat "$boot_fat_log" >>"$console_log"
+    [ "$boot_fat_rc" -eq 0 ] || fail E25 BOOT_FAT_REPAIR_FAILED
+    $bb mount -t vfat -o rw "$flash_device" "$flash_mount" || fail E25 BOOT_FAT_FLAG_CLEAR_MOUNT_FAILED
+    $bb sed 's/ plumos_repair_boot_fat=1//g' "$flash_mount/uEnv.txt" >"$flash_mount/uEnv.txt.next" || \
+        fail E25 BOOT_FAT_FLAG_CLEAR_FAILED
+    $bb mv "$flash_mount/uEnv.txt.next" "$flash_mount/uEnv.txt" || fail E25 BOOT_FAT_FLAG_COMMIT_FAILED
+    $bb sync
+    $bb umount "$flash_mount" || fail E25 BOOT_FAT_REPAIR_UNMOUNT_FAILED
+    log 'stage=S25_BOOT_FAT_REPAIRED explicit_request=yes flag_cleared=yes'
+fi
 log 'stage=S25_STORAGE_MUTATION_AUTHORIZED'
 
 provision_log=/run/plumos-storage-provision.log
